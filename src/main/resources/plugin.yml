@@ -1,0 +1,9 @@
+name: MammothGameserver
+version: 1.0
+main: org.nqnl.mammothgameserver.MammothGameserver
+api-version: 1.16
+commands:
+  removebed:
+    description: Removes your respawn point.
+    usage: /removebed
+    permission: mammothgameserver.removebed
