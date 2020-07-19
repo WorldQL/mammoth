@@ -5,10 +5,12 @@
 /home/jackson/IdeaProjects/MammothGameserver/src/main/java/org/nqnl/mammothgameserver/listeners/BlockRedstoneEventListener.java
 /home/jackson/IdeaProjects/MammothGameserver/src/main/java/org/nqnl/mammothgameserver/MammothGameserver.java
 /home/jackson/IdeaProjects/MammothGameserver/src/main/java/org/nqnl/mammothgameserver/listeners/PlayerJoinEventListener.java
+/home/jackson/IdeaProjects/MammothGameserver/src/main/java/org/nqnl/mammothgameserver/commands/RemoveBed.java
+/home/jackson/IdeaProjects/MammothGameserver/src/main/java/org/nqnl/mammothgameserver/listeners/PlayerRespawnEventListener.java
 /home/jackson/IdeaProjects/MammothGameserver/src/main/java/org/nqnl/mammothgameserver/listeners/PlayerQuitEventListener.java
-/home/jackson/IdeaProjects/MammothGameserver/src/main/java/org/nqnl/mammothgameserver/listeners/PlayerInteractEventListener.java
 /home/jackson/IdeaProjects/MammothGameserver/src/main/java/org/nqnl/mammothgameserver/util/ServerTransferPayload.java
 /home/jackson/IdeaProjects/MammothGameserver/src/main/java/org/nqnl/mammothgameserver/SliceMethods.java
+/home/jackson/IdeaProjects/MammothGameserver/src/main/java/org/nqnl/mammothgameserver/listeners/PlayerBedEnterEventListener.java
 /home/jackson/IdeaProjects/MammothGameserver/src/main/java/org/nqnl/mammothgameserver/listeners/RemoteBlockChangeEventListener.java
 /home/jackson/IdeaProjects/MammothGameserver/src/main/java/org/nqnl/mammothgameserver/listeners/PlayerPortalEventListener.java
 /home/jackson/IdeaProjects/MammothGameserver/src/main/java/org/nqnl/mammothgameserver/util/ExperienceManager.java

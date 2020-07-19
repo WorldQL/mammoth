@@ -24,6 +24,7 @@ import redis.clients.jedis.Jedis;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import static org.nqnl.mammothgameserver.util.PlayerTransfer.STARTING_PORT;
 
@@ -110,6 +111,15 @@ public class PlayerJoinEventListener implements Listener {
                 }
 
 
+            } else {
+                if (!player.hasPlayedBefore()) {
+                    Random rd = new Random();
+                    int currentServer = Bukkit.getServer().getPort() - STARTING_PORT;
+                    int spawnX = 1024 * currentServer + 200 + rd.nextInt(400);
+                    int spawnZ = rd.nextInt(2000) - rd.nextInt(2000);
+                    Location spawn = Bukkit.getWorld("world").getHighestBlockAt(new Location(Bukkit.getWorld("world"), spawnX, 65, spawnZ)).getLocation();
+                    event.getPlayer().teleport(spawn);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
