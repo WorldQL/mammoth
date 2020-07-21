@@ -17,6 +17,7 @@ import redis.clients.jedis.Jedis;
 public class PlayerTransfer {
     public static int STARTING_PORT = 26601;
     public static int END_SERVER = 0;
+    public static int MAX_PLAYERS = 86;
 
     public static void handleNetherPortal(PlayerPortalEvent event, MammothGameserver instance) {
         Jedis j = MammothGameserver.pool.getResource();
@@ -94,6 +95,21 @@ public class PlayerTransfer {
             Jedis j = MammothGameserver.pool.getResource();
             try {
                 if (!j.exists("cooldown-"+player.getUniqueId().toString())) {
+                    // make sure the server isn't full
+                    if (j.exists(locationServerId+"-playercount") && Integer.valueOf(j.get(locationServerId+"-playercount")) >= MAX_PLAYERS) {
+                        int left = SliceMethods.getServerIdFromX(l.getX() - 5);
+                        int right = SliceMethods.getServerIdFromX(l.getX() + 5);
+                        if (left == currentServerId) {
+                            player.teleport(new Location(player.getWorld(), player.getLocation().getX() - 2, player.getLocation().getY(), player.getLocation().getZ(), player.getLocation().getYaw(), player.getLocation().getPitch()));
+                        }
+                        if (right == currentServerId) {
+                            player.teleport(new Location(player.getWorld(), player.getLocation().getX() + 2, player.getLocation().getY(), player.getLocation().getZ(), player.getLocation().getYaw(), player.getLocation().getPitch()));
+                        }
+                        player.sendMessage(ChatColor.BLACK + "[" + ChatColor.GOLD + "SYSTEM" + ChatColor.BLACK + "] " + ChatColor.RESET + ChatColor.BLUE + "This region of the world is full!");
+                        j.set("cooldown-"+player.getUniqueId().toString(), "true");
+                        j.expire("cooldown-"+player.getUniqueId().toString(), 15);
+                        return true;
+                    }
                     String playerAsJson = ServerTransferPayload.createPayload(player);
                     event.setCancelled(true);
                     j.set("player-" + player.getUniqueId().toString(), playerAsJson);

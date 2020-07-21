@@ -31,6 +31,7 @@ import static org.nqnl.mammothgameserver.util.PlayerTransfer.STARTING_PORT;
 public class PlayerJoinEventListener implements Listener {
     @EventHandler
     public void onPlayerJoinEvent(PlayerJoinEvent event) {
+        event.setJoinMessage("");
         Jedis j = MammothGameserver.pool.getResource();
         j.set(Bukkit.getServer().getPort() - STARTING_PORT + "-playercount", Integer.toString(Bukkit.getServer().getOnlinePlayers().size()));
         Player player = event.getPlayer();

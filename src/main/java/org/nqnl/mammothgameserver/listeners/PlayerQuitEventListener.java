@@ -13,6 +13,7 @@ import static org.nqnl.mammothgameserver.util.PlayerTransfer.STARTING_PORT;
 public class PlayerQuitEventListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
+        event.setQuitMessage("");
         Jedis j = null;
         j = MammothGameserver.pool.getResource();
         j.set(Bukkit.getServer().getPort() - STARTING_PORT + "-playercount", Integer.toString(Bukkit.getServer().getOnlinePlayers().size() - 1));

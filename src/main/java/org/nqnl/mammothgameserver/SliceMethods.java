@@ -3,7 +3,7 @@ import java.lang.Math;
 
 public class SliceMethods {
     private static int SLICE_SIZE = 1024;
-    private static int NUMBER_OF_SERVERS = 3;
+    private static int NUMBER_OF_SERVERS = 7;
     private static int DMZ_SIZE = 10;
 
     private static int getSlice(double x) {
