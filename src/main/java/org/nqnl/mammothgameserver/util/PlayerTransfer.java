@@ -26,6 +26,10 @@ public class PlayerTransfer {
         try {
             if (event.getFrom().getWorld().getName().equals("world") && event.getTo().getWorld().getName().equals("world_nether")) {
                 int portaledServerId = SliceMethods.getServerIdFromX(event.getTo().getX());
+                if (j.exists(portaledServerId+"-playercount") && Integer.valueOf(j.get(portaledServerId+"-playercount")) >= MAX_PLAYERS) {
+                    event.getPlayer().sendMessage(ChatColor.BLACK + "[" + ChatColor.GOLD + "SYSTEM" + ChatColor.BLACK + "] " + ChatColor.RESET + ChatColor.BLUE + "This region of the nether is full!");
+                    return;
+                }
                 if (portaledServerId != currentServerId) {
                     String playerAsJson = ServerTransferPayload.createPayload(event.getPlayer());
                     String portalEventAsJson = PortalEventTransferPayload.createPortalPayload(event);
@@ -43,6 +47,10 @@ public class PlayerTransfer {
             }
             if (event.getFrom().getWorld().getName().equals("world_nether") && event.getTo().getWorld().getName().equals("world")) {
                 int portaledServerId = SliceMethods.getServerIdFromX(event.getTo().getX());
+                if (j.exists(portaledServerId+"-playercount") && Integer.valueOf(j.get(portaledServerId+"-playercount")) >= MAX_PLAYERS) {
+                    event.getPlayer().sendMessage(ChatColor.BLACK + "[" + ChatColor.GOLD + "SYSTEM" + ChatColor.BLACK + "] " + ChatColor.RESET + ChatColor.BLUE + "This region of the world is full!");
+                    return;
+                }
                 if (portaledServerId != currentServerId) {
                     String playerAsJson = ServerTransferPayload.createPayload(event.getPlayer());
                     String portalEventAsJson = PortalEventTransferPayload.createPortalPayload(event);
@@ -61,6 +69,10 @@ public class PlayerTransfer {
 
             if (event.getFrom().getWorld().getName().equals("world") && event.getTo().getWorld().getName().equals("world_the_end")) {
                 int portaledServerId = END_SERVER;
+                if (j.exists(portaledServerId+"-playercount") && Integer.valueOf(j.get(portaledServerId+"-playercount")) >= MAX_PLAYERS) {
+                    event.getPlayer().sendMessage(ChatColor.BLACK + "[" + ChatColor.GOLD + "SYSTEM" + ChatColor.BLACK + "] " + ChatColor.RESET + ChatColor.BLUE + "The end is full!");
+                    return;
+                }
                 if (portaledServerId != currentServerId) {
                     String playerAsJson = ServerTransferPayload.createPayload(event.getPlayer());
                     String portalEventAsJson = PortalEventTransferPayload.createPortalPayload(event);
@@ -127,6 +139,12 @@ public class PlayerTransfer {
                     }
                     int left = SliceMethods.getServerIdFromX(l.getX() - 5);
                     int right = SliceMethods.getServerIdFromX(l.getX() + 5);
+                    if (left != right) {
+                        // the player has attempted to connect, kicked to the proxy, then forwarded to a full region of the world on a non-full server by the proxy
+                        // this is a bad state and we have to kick the player because we cannot teleport them to a playable area.
+                        player.kickPlayer("Your currently occupied region of the world is full. Please try again later.");
+                        return true;
+                    }
                     if (left == currentServerId) {
                         player.teleport(new Location(player.getWorld(), player.getLocation().getX() - 2, player.getLocation().getY(), player.getLocation().getZ(), player.getLocation().getYaw(), player.getLocation().getPitch()));
                     }
