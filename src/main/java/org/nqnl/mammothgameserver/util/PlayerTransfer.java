@@ -139,7 +139,7 @@ public class PlayerTransfer {
                     }
                     int left = SliceMethods.getServerIdFromX(l.getX() - 5);
                     int right = SliceMethods.getServerIdFromX(l.getX() + 5);
-                    if (left != right) {
+                    if (left == right && Integer.valueOf(j.get(locationServerId+"-playercount")) >= MAX_PLAYERS) {
                         // the player has attempted to connect, kicked to the proxy, then forwarded to a full region of the world on a non-full server by the proxy
                         // this is a bad state and we have to kick the player because we cannot teleport them to a playable area.
                         player.kickPlayer("Your currently occupied region of the world is full. Please try again later.");
