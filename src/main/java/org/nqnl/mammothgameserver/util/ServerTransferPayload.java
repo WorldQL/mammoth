@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minecraft.server.v1_16_R1.MojangsonParser;
 import net.minecraft.server.v1_16_R1.NBTTagCompound;
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftEntity;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
@@ -53,12 +54,18 @@ public class ServerTransferPayload {
 
 
         // is the player riding a horse
-        if (player.isInsideVehicle()) {
+        if (player.isInsideVehicle() && player.getVehicle() instanceof Horse) {
             Horse horse = (Horse) player.getVehicle();
             playerData.put("horse", getNBT(horse));
             horse.getInventory().setArmor(null);
             horse.getInventory().setSaddle(null);
             horse.remove();
+        }
+        // check for boat
+        if (player.isInsideVehicle() && player.getVehicle() instanceof Boat) {
+            Boat boat = (Boat) player.getVehicle();
+            playerData.put("boat", getNBT(boat));
+            boat.remove();
         }
 
         ObjectMapper mapper = new ObjectMapper();

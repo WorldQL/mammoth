@@ -71,6 +71,11 @@ public class PlayerJoinEventListener implements Listener {
                     ServerTransferPayload.setNBT(newHorse, (String)playerData.get("horse"));
                     newHorse.addPassenger(player);
                 }
+                if (playerData.containsKey("boat")) {
+                    Entity newBoat = player.getWorld().spawnEntity(player.getLocation(), EntityType.BOAT);
+                    ServerTransferPayload.setNBT(newBoat, (String) playerData.get("boat"));
+                    newBoat.addPassenger(player);
+                }
 
 
 
