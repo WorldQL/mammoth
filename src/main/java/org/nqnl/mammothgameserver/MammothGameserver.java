@@ -15,14 +15,17 @@ import org.nqnl.mammothgameserver.util.ServerTransferPayload;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+import java.util.HashMap;
+
 public class MammothGameserver extends JavaPlugin {
     public static JedisPool pool;
     private static MammothGameserver instance;
-
+    public static HashMap<String, Boolean> playerMoveFlags;
     @Override
     public void onEnable() {
         pool = new JedisPool("localhost", 6379);
         this.instance = this;
+        this.playerMoveFlags = new HashMap<String, Boolean>();
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         getServer().getPluginManager().registerEvents(new PlayerMoveEventListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerPortalEventListener(this), this);

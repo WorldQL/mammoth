@@ -18,7 +18,7 @@ public class PlayerQuitEventListener implements Listener {
         j = MammothGameserver.pool.getResource();
         j.set(Bukkit.getServer().getPort() - STARTING_PORT + "-playercount", Integer.toString(Bukkit.getServer().getOnlinePlayers().size() - 1));
         try {
-            if (!j.exists("cooldown-" + event.getPlayer().getUniqueId().toString())) {
+            if (!MammothGameserver.playerMoveFlags.containsKey(event.getPlayer().getUniqueId().toString())) {
                 String playerAsJson = ServerTransferPayload.createPayload(event.getPlayer());
                 j.set("player-" + event.getPlayer().getUniqueId().toString(), playerAsJson);
             }

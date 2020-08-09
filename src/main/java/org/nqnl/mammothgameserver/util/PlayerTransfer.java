@@ -125,6 +125,7 @@ public class PlayerTransfer {
                         return true;
                     }
                     String playerAsJson = ServerTransferPayload.createPayload(player);
+                    MammothGameserver.playerMoveFlags.put(player.getUniqueId().toString(), true);
                     event.setCancelled(true);
                     j.set("player-" + player.getUniqueId().toString(), playerAsJson);
                     j.set("cooldown-"+player.getUniqueId().toString(), "true");
@@ -148,10 +149,10 @@ public class PlayerTransfer {
                         return true;
                     }
                     if (left == currentServerId && !player.isSneaking()) {
-                        player.teleport(new Location(player.getWorld(), player.getLocation().getX() - 1, player.getLocation().getY(), player.getLocation().getZ(), player.getLocation().getYaw(), player.getLocation().getPitch()));
+                        player.teleport(new Location(player.getWorld(), player.getLocation().getX() - 0.1, player.getLocation().getY(), player.getLocation().getZ(), player.getLocation().getYaw(), player.getLocation().getPitch()));
                     }
                     if (right == currentServerId && !player.isSneaking()) {
-                        player.teleport(new Location(player.getWorld(), player.getLocation().getX() + 1, player.getLocation().getY(), player.getLocation().getZ(), player.getLocation().getYaw(), player.getLocation().getPitch()));
+                        player.teleport(new Location(player.getWorld(), player.getLocation().getX() + 0.1, player.getLocation().getY(), player.getLocation().getZ(), player.getLocation().getYaw(), player.getLocation().getPitch()));
                     }
                     if (player.isSneaking()) {
                         event.setCancelled(true);

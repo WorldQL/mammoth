@@ -2,10 +2,7 @@ package org.nqnl.mammothgameserver.listeners;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -36,6 +33,7 @@ public class PlayerJoinEventListener implements Listener {
         Jedis j = MammothGameserver.pool.getResource();
         j.set(Bukkit.getServer().getPort() - STARTING_PORT + "-playercount", Integer.toString(Bukkit.getServer().getOnlinePlayers().size()));
         Player player = event.getPlayer();
+        MammothGameserver.playerMoveFlags.remove(player.getUniqueId().toString());
         player.setGameMode(GameMode.SURVIVAL);
         try {
            String playerUuid = event.getPlayer().getUniqueId().toString();
@@ -128,6 +126,8 @@ public class PlayerJoinEventListener implements Listener {
                 if (j.exists("dead-"+playerUuid)) {
                     player.teleport(player.getWorld().getHighestBlockAt(player.getLocation()).getLocation());
                 }
+
+
 
 
             } else {
