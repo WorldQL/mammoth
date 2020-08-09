@@ -1,4 +1,5 @@
-![Temporary "logo" stolen from Project Zulu](https://i.imgur.com/Iez9K9t.png)
+<img src="https://i.imgur.com/Iez9K9t.png" width="250" alt="Temporary logo stolen from Project Zulu">
+
 # Mammoth: a horizontally scalable Minecraft server.
 This repository contains all of the code that is responsible for:
 - Syncing player data to/from redis.
