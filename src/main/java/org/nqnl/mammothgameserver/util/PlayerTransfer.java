@@ -2,6 +2,8 @@ package org.nqnl.mammothgameserver.util;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -117,7 +119,7 @@ public class PlayerTransfer {
                         if (right == currentServerId) {
                             player.teleport(new Location(player.getWorld(), player.getLocation().getX() + 2, player.getLocation().getY(), player.getLocation().getZ(), player.getLocation().getYaw(), player.getLocation().getPitch()));
                         }
-                        player.sendMessage(ChatColor.BLACK + "[" + ChatColor.GOLD + "SYSTEM" + ChatColor.BLACK + "] " + ChatColor.RESET + ChatColor.BLUE + "This region of the world is full!");
+                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.BLACK + "[" + ChatColor.GOLD + "SYSTEM" + ChatColor.BLACK + "] " + ChatColor.RESET + ChatColor.BLUE + "This region of the world is full!"));
                         j.set("cooldown-"+player.getUniqueId().toString(), "true");
                         j.expire("cooldown-"+player.getUniqueId().toString(), 15);
                         return true;
@@ -145,13 +147,16 @@ public class PlayerTransfer {
                         player.kickPlayer("Your currently occupied region of the world is full. Please try again later.");
                         return true;
                     }
-                    if (left == currentServerId) {
-                        player.teleport(new Location(player.getWorld(), player.getLocation().getX() - 2, player.getLocation().getY(), player.getLocation().getZ(), player.getLocation().getYaw(), player.getLocation().getPitch()));
+                    if (left == currentServerId && !player.isSneaking()) {
+                        player.teleport(new Location(player.getWorld(), player.getLocation().getX() - 1, player.getLocation().getY(), player.getLocation().getZ(), player.getLocation().getYaw(), player.getLocation().getPitch()));
                     }
-                    if (right == currentServerId) {
-                        player.teleport(new Location(player.getWorld(), player.getLocation().getX() + 2, player.getLocation().getY(), player.getLocation().getZ(), player.getLocation().getYaw(), player.getLocation().getPitch()));
+                    if (right == currentServerId && !player.isSneaking()) {
+                        player.teleport(new Location(player.getWorld(), player.getLocation().getX() + 1, player.getLocation().getY(), player.getLocation().getZ(), player.getLocation().getYaw(), player.getLocation().getPitch()));
                     }
-                    player.sendMessage(ChatColor.BLACK + "[" + ChatColor.GOLD + "SYSTEM" + ChatColor.BLACK + "] " + ChatColor.RESET + ChatColor.BLUE + "Please wait a few seconds before crossing a server boundary again.");
+                    if (player.isSneaking()) {
+                        event.setCancelled(true);
+                    }
+                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("" + ChatColor.RESET + ChatColor.GOLD + "You have moved into a different server. Please wait a few seconds before crossing a server boundary again."));
                     return true;
                 }
             } catch (Exception e){

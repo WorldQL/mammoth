@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minecraft.server.v1_16_R1.MojangsonParser;
 import net.minecraft.server.v1_16_R1.NBTTagCompound;
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftEntity;
-import org.bukkit.entity.Boat;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Horse;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.Vector;
 
@@ -66,6 +63,12 @@ public class ServerTransferPayload {
             Boat boat = (Boat) player.getVehicle();
             playerData.put("boat", getNBT(boat));
             boat.remove();
+        }
+        // check for nether strider
+        if (player.isInsideVehicle() && player.getVehicle() instanceof Strider) {
+            Strider strider = (Strider) player.getVehicle();
+            playerData.put("strider", getNBT(strider));
+            strider.remove();
         }
 
         ObjectMapper mapper = new ObjectMapper();

@@ -6,10 +6,13 @@ import io.lettuce.core.pubsub.RedisPubSubListener;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.pubsub.api.sync.RedisPubSubCommands;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.nqnl.mammothgameserver.commands.RemoveBed;
 import org.nqnl.mammothgameserver.events.RemoteBlockChangeEvent;
 import org.nqnl.mammothgameserver.listeners.*;
+import org.nqnl.mammothgameserver.util.ServerTransferPayload;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 public class MammothGameserver extends JavaPlugin {
@@ -30,6 +33,7 @@ public class MammothGameserver extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EntityExplodeEventLister(), this);
         getServer().getPluginManager().registerEvents(new RemoteBlockChangeEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerBedEnterEventListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerTeleportEventListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerRespawnEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), this);
 
@@ -48,11 +52,21 @@ public class MammothGameserver extends JavaPlugin {
         RedisPubSubCommands<String, String> sync = con.sync();
         sync.subscribe("blockevents");
 
-
         getLogger().info("Mammoth Gameserver enabled!");
     }
     @Override
     public void onDisable() {
         getLogger().info("onDisable is called!");
+        Jedis j = pool.getResource();
+        try {
+            for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+                String playerData = ServerTransferPayload.createPayload(player);
+                j.set("player-"+player.getUniqueId(), playerData);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            j.close();
+        }
     }
 }

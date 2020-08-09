@@ -28,6 +28,8 @@ public class PlayerRespawnEventListener implements Listener {
                 bedData = mapper.readValue((String)j.get("bed-"+event.getPlayer().getUniqueId().toString()), new TypeReference<Map<String, Object>>(){});
                 Location l = new Location(Bukkit.getWorld("world"), (Double) bedData.get("bedX"), (Double) bedData.get("bedY"), (Double) bedData.get("bedZ"));
                 event.setRespawnLocation(l);
+                j.set("dead-"+event.getPlayer().getUniqueId(), "true");
+                j.expire("dead-"+event.getPlayer().getUniqueId(), 15);
             } else {
                 // no bed, attempts to choose a random spawn location on the server's slice.
                 // caveat: all spawn locations have a positive x. whatever.

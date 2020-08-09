@@ -22,5 +22,6 @@ org/nqnl/mammothgameserver/listeners/PlayerBlockBreakPlaceListener.class
 org/nqnl/mammothgameserver/listeners/PlayerJoinEventListener.class
 org/nqnl/mammothgameserver/events/RemoteBlockChangeEvent.class
 org/nqnl/mammothgameserver/listeners/PlayerInventoryEventListener.class
+org/nqnl/mammothgameserver/listeners/PlayerTeleportEventListener.class
 org/nqnl/mammothgameserver/listeners/PlayerPortalEventListener.class
 org/nqnl/mammothgameserver/util/PlayerTransfer.class

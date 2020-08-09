@@ -3,6 +3,7 @@ package org.nqnl.mammothgameserver.listeners;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -35,6 +36,7 @@ public class PlayerJoinEventListener implements Listener {
         Jedis j = MammothGameserver.pool.getResource();
         j.set(Bukkit.getServer().getPort() - STARTING_PORT + "-playercount", Integer.toString(Bukkit.getServer().getOnlinePlayers().size()));
         Player player = event.getPlayer();
+        player.setGameMode(GameMode.SURVIVAL);
         try {
            String playerUuid = event.getPlayer().getUniqueId().toString();
             if (j.exists("player-"+playerUuid)) {
@@ -76,6 +78,11 @@ public class PlayerJoinEventListener implements Listener {
                     ServerTransferPayload.setNBT(newBoat, (String) playerData.get("boat"));
                     newBoat.addPassenger(player);
                 }
+                if (playerData.containsKey("strider")) {
+                    Entity newStrider = player.getWorld().spawnEntity(player.getLocation(), EntityType.STRIDER);
+                    ServerTransferPayload.setNBT(newStrider, (String) playerData.get("strider"));
+                    newStrider.addPassenger(player);
+                }
 
 
 
@@ -114,6 +121,12 @@ public class PlayerJoinEventListener implements Listener {
                     Location tp = NetherMethods.findSafeLocation(to);
                     player.teleport(tp);
                     j.del("portal-"+playerUuid);
+                }
+
+                // avoid suffocating the player when they respawn from a bed
+
+                if (j.exists("dead-"+playerUuid)) {
+                    player.teleport(player.getWorld().getHighestBlockAt(player.getLocation()).getLocation());
                 }
 
 
