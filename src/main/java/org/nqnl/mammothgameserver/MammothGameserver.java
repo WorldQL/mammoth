@@ -33,7 +33,6 @@ public class MammothGameserver extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EntityExplodeEventLister(), this);
         getServer().getPluginManager().registerEvents(new RemoteBlockChangeEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerBedEnterEventListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerTeleportEventListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerRespawnEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), this);
 
