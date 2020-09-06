@@ -21,6 +21,7 @@ public class MammothGameserver extends JavaPlugin {
     public static JedisPool pool;
     private static MammothGameserver instance;
     public static HashMap<String, Boolean> playerMoveFlags;
+
     @Override
     public void onEnable() {
         pool = new JedisPool("localhost", 6379);

@@ -12,10 +12,13 @@ public class RemoveBed implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Jedis j = MammothGameserver.pool.getResource();
+            Player player = ((Player) sender);
             try {
-                j.del("bed-"+((Player) sender).getUniqueId().toString());
+                j.del("bed-" + player.getUniqueId().toString());
+                player.sendMessage("You Have Removed Your Bed!");
             } catch (Exception e) {
                 e.printStackTrace();
+                player.sendMessage("There Was An Error Removing Your Bed, Please try again!");
             } finally {
                 j.close();
             }
