@@ -126,10 +126,7 @@ public class PlayerJoinEventListener implements Listener {
                 if (j.exists("dead-"+playerUuid)) {
                     player.teleport(player.getWorld().getHighestBlockAt(player.getLocation()).getLocation());
                 }
-
-
-
-
+                
             } else {
                 if (!player.hasPlayedBefore()) {
                     Random rd = new Random();
