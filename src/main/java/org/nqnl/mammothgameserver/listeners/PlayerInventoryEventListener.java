@@ -28,7 +28,7 @@ public class PlayerInventoryEventListener implements Listener {
                     e.getInventory().setContents(contents);
                 }
             } catch (Exception exception) {
-                exception.printStackTrace();;
+                exception.printStackTrace();
             } finally {
                 j.close();
             }
@@ -43,7 +43,7 @@ public class PlayerInventoryEventListener implements Listener {
                 j = MammothGameserver.pool.getResource();
                 j.set("player-" + event.getPlayer().getUniqueId().toString() + "-enderchest", serializedInventory);
             } catch (Exception exception) {
-                exception.printStackTrace();;
+                exception.printStackTrace();
             } finally {
                 j.close();
             }
