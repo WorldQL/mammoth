@@ -1,0 +1,13 @@
+syntax = "proto3";
+import "EchoRequest.proto";
+import "MinecraftPlayer.proto";
+
+option java_package = "com.worldql.client.compiled_protobuf";
+
+
+message WQL {
+  oneof query {
+    EchoRequest echo = 1;
+    PlayerState playerState = 2;
+  }
+}

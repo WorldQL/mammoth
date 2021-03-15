@@ -1,0 +1,7 @@
+com/worldql/client/StepCommandHandler.class
+com/worldql/client/ZeroMQServer.class
+com/worldql/client/ghost/ExpiringEntityPlayer.class
+com/worldql/client/wrappers/AbstractPacket.class
+com/worldql/client/WorldQLClient.class
+com/worldql/client/wrappers/WrapperPlayServerPlayerInfo.class
+com/worldql/client/GhostWalkTask.class

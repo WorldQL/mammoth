@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "com.worldql.client.compiled_protobuf";
+
+message PlayerState {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+  float pitch = 4;
+  float yaw = 5;
+  string UUID = 6;
+  string name = 7;
+}
