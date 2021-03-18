@@ -20,6 +20,8 @@ public class WorldQLClient extends JavaPlugin {
         this.getCommand("spawnghost").setExecutor(new SpawnCommandHandler(manager));
         this.getCommand("stepghost").setExecutor(new StepCommandHandler(manager, this));
 
+        getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(), this);
+
         ZeroMQThread = new Thread(new ZeroMQServer(this));
         ZeroMQThread.start();
     }

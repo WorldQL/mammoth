@@ -34,6 +34,7 @@ public class PacketNPC {
             // TODO: Change this when there is support for multiple worlds, accidentally left this out of the protobuf.
             player = PacketNPC.createNPC(state.getName(), playerUUID, new Location(Bukkit.getServer().getWorld("world"), state.getX(), state.getY(), state.getZ()));
             sendNPCJoinPacket(player.grab());
+            hashtableNPCs.put(playerUUID, player);
         }
 
         EntityPlayer e = player.grab();
@@ -100,8 +101,8 @@ public class PacketNPC {
 
     }
 
+
     public static void moveEntity(MinecraftPlayer.PlayerState state, EntityPlayer e) {
-        Location old = ((Player) e).getLocation();
 
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
