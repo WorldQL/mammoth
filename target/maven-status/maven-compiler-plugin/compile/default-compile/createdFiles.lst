@@ -4,4 +4,5 @@ com/worldql/client/ghost/ExpiringEntityPlayer.class
 com/worldql/client/wrappers/AbstractPacket.class
 com/worldql/client/WorldQLClient.class
 com/worldql/client/wrappers/WrapperPlayServerPlayerInfo.class
+com/worldql/client/PlayerMoveAndLookHandler.class
 com/worldql/client/GhostWalkTask.class

@@ -107,15 +107,16 @@ public class PacketNPC {
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
             e.setLocation(
-                    state.getX(),
+                    state.getX() + 3,
                     state.getY(),
                     state.getZ(),
-                    state.getPitch(),
-                    state.getYaw()
+                    state.getYaw(),
+                    state.getPitch()
             );
             connection.sendPacket(
                     new PacketPlayOutEntityTeleport(e)
             );
+            connection.sendPacket(new PacketPlayOutEntityHeadRotation(e, (byte) ((state.getYaw() * 256) / 360)));
         }
 
 

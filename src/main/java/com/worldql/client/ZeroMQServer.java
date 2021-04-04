@@ -24,6 +24,7 @@ public class ZeroMQServer implements Runnable {
 
             while (!Thread.currentThread().isInterrupted()) {
                 byte[] reply = socket.recv(0);
+
                 try {
                     WorldQLQuery.WQL message = WorldQLQuery.WQL.parseFrom(reply);
                     if (message.hasPlayerState()) {
@@ -33,6 +34,8 @@ public class ZeroMQServer implements Runnable {
                 } catch (InvalidProtocolBufferException e) {
                     e.printStackTrace();
                 }
+
+
             }
             socket.close();
             context.destroy();
