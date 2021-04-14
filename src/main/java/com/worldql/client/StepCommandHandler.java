@@ -25,7 +25,6 @@ public class StepCommandHandler implements CommandExecutor {
         sender.sendMessage("Hey there champoo!");
         Player player = (Player)sender;
 
-        BukkitTask task = new GhostWalkTask(plugin, 25, player).runTaskTimer(plugin, 10, 3);
 
         return false;
     }

@@ -19,7 +19,7 @@ import java.net.URL;
 import java.util.Hashtable;
 import java.util.UUID;
 
-public class PacketNPC {
+public class PacketNPCManager {
     private static Hashtable<UUID, String[]> skinCache = new Hashtable<>();
 
     private static Hashtable<UUID, ExpiringEntityPlayer> hashtableNPCs = new Hashtable<>();
@@ -32,7 +32,7 @@ public class PacketNPC {
             player = hashtableNPCs.get(playerUUID);
         } else {
             // TODO: Change this when there is support for multiple worlds, accidentally left this out of the protobuf.
-            player = PacketNPC.createNPC(state.getName(), playerUUID, new Location(Bukkit.getServer().getWorld("world"), state.getX(), state.getY(), state.getZ()));
+            player = PacketNPCManager.createNPC(state.getName(), playerUUID, new Location(Bukkit.getServer().getWorld("world"), state.getX(), state.getY(), state.getZ()));
             sendNPCJoinPacket(player.grab());
             hashtableNPCs.put(playerUUID, player);
         }
@@ -57,11 +57,6 @@ public class PacketNPC {
                 new Property("textures", skinData[0], skinData[1])
         );
 
-        /* Moved this logic to updateNPC
-        NPC.put(uuid, new ExpiringEntityPlayer(npc));
-        sendNPCJoinPacket(npc);
-
-         */
 
         return new ExpiringEntityPlayer(npc);
     }
@@ -76,6 +71,7 @@ public class PacketNPC {
         }
     }
 
+    // useless, teleport packet can be used for everything.
     private static short computeMovementDelta(float current, float previous) {
         return (short) ((short) (current * 32 - previous * 32) * 128);
     }
@@ -101,6 +97,10 @@ public class PacketNPC {
 
     }
 
+    public static void updateHeldItem() {
+
+    }
+
 
     public static void moveEntity(MinecraftPlayer.PlayerState state, EntityPlayer e) {
 
@@ -122,30 +122,4 @@ public class PacketNPC {
 
     }
 
-
-    @Deprecated
-    public static void moveForwards(Player player) {
-        PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
-        /*
-        for (ExpiringEntityPlayer expiringEntityPlayer : NPC) {
-            EntityPlayer e = expiringEntityPlayer.grab();
-
-            connection.sendPacket(
-                    new PacketPlayOutEntity.PacketPlayOutRelEntityMove(e.getId(), computeMovementDelta(1, 1.00F), computeMovementDelta(0, 0), computeMovementDelta(1, 0), true)
-            );
-
-
-            double targetX = 60.950;
-            double targetY = 63.000;
-            double targetZ = 253.391;
-
-            e.setLocation(targetX, targetY, targetZ, 25, 25);
-
-            connection.sendPacket(
-                    new PacketPlayOutEntityTeleport(e)
-            );
-
-        }
-        */
-    }
 }

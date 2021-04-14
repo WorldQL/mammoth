@@ -3,7 +3,7 @@ package com.worldql.client;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.worldql.client.compiled_protobuf.MinecraftPlayer;
 import com.worldql.client.compiled_protobuf.WorldQLQuery;
-import com.worldql.client.ghost.PacketNPC;
+import com.worldql.client.ghost.PacketNPCManager;
 import org.bukkit.plugin.Plugin;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
@@ -29,7 +29,7 @@ public class ZeroMQServer implements Runnable {
                     WorldQLQuery.WQL message = WorldQLQuery.WQL.parseFrom(reply);
                     if (message.hasPlayerState()) {
                         MinecraftPlayer.PlayerState state = message.getPlayerState();
-                        PacketNPC.updateNPC(state);
+                        PacketNPCManager.updateNPC(state);
                     }
                 } catch (InvalidProtocolBufferException e) {
                     e.printStackTrace();

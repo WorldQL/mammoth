@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-option java_package = "com.worldql.client.compiled_protobuf";
-
-// Simple request which accepts a string payload and will return it using the same message multiplied by repeat.
-message EchoRequest {
-  string payload = 1;
-  int32 repeat = 2;
-}
