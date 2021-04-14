@@ -23,6 +23,7 @@ public class ZeroMQServer implements Runnable {
             socket.bind("tcp://*:29900");
 
             while (!Thread.currentThread().isInterrupted()) {
+                System.out.println("Waiting for push...");
                 byte[] reply = socket.recv(0);
 
                 try {

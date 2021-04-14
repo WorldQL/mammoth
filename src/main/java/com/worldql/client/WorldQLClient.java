@@ -8,6 +8,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 
 public class WorldQLClient extends JavaPlugin {
@@ -27,11 +29,23 @@ public class WorldQLClient extends JavaPlugin {
 
         ZContext context = new ZContext();
         ZMQ.Socket socket = context.createSocket(SocketType.PUSH);
+
+
         ZMQ.Socket handshake_socket = context.createSocket(SocketType.REQ);
         handshake_socket.connect("tcp://127.0.0.1:5556");
-        handshake_socket.send("hey".getBytes(ZMQ.CHARSET), 0);
+
+        String myIP = "";
+
+        try(final DatagramSocket datagramSocket = new DatagramSocket()){
+            datagramSocket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            myIP = datagramSocket.getLocalAddress().getHostAddress();
+        } catch (Exception e) {
+
+        }
+        handshake_socket.send(myIP.getBytes(ZMQ.CHARSET), 0);
         byte[] reply = handshake_socket.recv(0);
         System.out.println(new String(reply, ZMQ.CHARSET));
+
         socket.connect("tcp://127.0.0.1:5555");
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(socket), this);
         ZeroMQThread = new Thread(new ZeroMQServer(this));
