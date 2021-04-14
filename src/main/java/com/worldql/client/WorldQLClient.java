@@ -44,11 +44,11 @@ public class WorldQLClient extends JavaPlugin {
         }
         handshake_socket.send(myIP.getBytes(ZMQ.CHARSET), 0);
         byte[] reply = handshake_socket.recv(0);
-        System.out.println(new String(reply, ZMQ.CHARSET));
+        String assignedZeroMQPort = new String(reply, ZMQ.CHARSET);
 
         socket.connect("tcp://127.0.0.1:5555");
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(socket), this);
-        ZeroMQThread = new Thread(new ZeroMQServer(this));
+        ZeroMQThread = new Thread(new ZeroMQServer(this, assignedZeroMQPort));
         ZeroMQThread.start();
     }
 

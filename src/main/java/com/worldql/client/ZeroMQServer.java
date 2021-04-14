@@ -11,16 +11,18 @@ import org.zeromq.ZMQ;
 
 public class ZeroMQServer implements Runnable {
     private static Plugin plugin;
+    private static String port;
 
-    public ZeroMQServer(Plugin plugin) {
+    public ZeroMQServer(Plugin plugin, String port) {
         this.plugin = plugin;
+        this.port = port;
     }
 
     @Override
     public void run() {
         try (ZContext context = new ZContext()) {
             ZMQ.Socket socket = context.createSocket(SocketType.PULL);
-            socket.bind("tcp://*:29900");
+            socket.bind("tcp://*:"+port);
 
             while (!Thread.currentThread().isInterrupted()) {
                 System.out.println("Waiting for push...");
