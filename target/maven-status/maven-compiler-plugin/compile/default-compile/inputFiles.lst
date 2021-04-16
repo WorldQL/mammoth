@@ -3,11 +3,13 @@
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/StepCommandHandler.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/compiled_protobuf/EchoRequestOuterClass.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/wrappers/AbstractPacket.java
+/home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/PlayerCrouchListener.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/SpawnCommandHandler.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/compiled_protobuf/WorldQLQuery.java
+/home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/PlayerInteractEventListener.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/wrappers/WrapperPlayServerPlayerInfo.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/ZeroMQServer.java
-/home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/ghost/PacketNPC.java
+/home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/PlayerJoinEventListener.java
+/home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/ghost/PlayerGhostManager.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/ghost/ExpiringEntityPlayer.java
-/home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/GhostWalkTask.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/WorldQLClient.java

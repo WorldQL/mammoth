@@ -71,6 +71,18 @@ public final class MinecraftPlayer {
      */
     com.google.protobuf.ByteString
         getNameBytes();
+
+    /**
+     * <code>string action = 8;</code>
+     * @return The action.
+     */
+    java.lang.String getAction();
+    /**
+     * <code>string action = 8;</code>
+     * @return The bytes for action.
+     */
+    com.google.protobuf.ByteString
+        getActionBytes();
   }
   /**
    * Protobuf type {@code PlayerState}
@@ -87,6 +99,7 @@ public final class MinecraftPlayer {
     private PlayerState() {
       uUID_ = "";
       name_ = "";
+      action_ = "";
     }
 
     @java.lang.Override
@@ -154,6 +167,12 @@ public final class MinecraftPlayer {
               java.lang.String s = input.readStringRequireUtf8();
 
               name_ = s;
+              break;
+            }
+            case 66: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              action_ = s;
               break;
             }
             default: {
@@ -319,6 +338,44 @@ public final class MinecraftPlayer {
       }
     }
 
+    public static final int ACTION_FIELD_NUMBER = 8;
+    private volatile java.lang.Object action_;
+    /**
+     * <code>string action = 8;</code>
+     * @return The action.
+     */
+    @java.lang.Override
+    public java.lang.String getAction() {
+      java.lang.Object ref = action_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        action_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string action = 8;</code>
+     * @return The bytes for action.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getActionBytes() {
+      java.lang.Object ref = action_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        action_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -353,6 +410,9 @@ public final class MinecraftPlayer {
       }
       if (!getNameBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 7, name_);
+      }
+      if (!getActionBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 8, action_);
       }
       unknownFields.writeTo(output);
     }
@@ -389,6 +449,9 @@ public final class MinecraftPlayer {
       if (!getNameBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(7, name_);
       }
+      if (!getActionBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(8, action_);
+      }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
       return size;
@@ -423,6 +486,8 @@ public final class MinecraftPlayer {
           .equals(other.getUUID())) return false;
       if (!getName()
           .equals(other.getName())) return false;
+      if (!getAction()
+          .equals(other.getAction())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -453,6 +518,8 @@ public final class MinecraftPlayer {
       hash = (53 * hash) + getUUID().hashCode();
       hash = (37 * hash) + NAME_FIELD_NUMBER;
       hash = (53 * hash) + getName().hashCode();
+      hash = (37 * hash) + ACTION_FIELD_NUMBER;
+      hash = (53 * hash) + getAction().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -600,6 +667,8 @@ public final class MinecraftPlayer {
 
         name_ = "";
 
+        action_ = "";
+
         return this;
       }
 
@@ -633,6 +702,7 @@ public final class MinecraftPlayer {
         result.yaw_ = yaw_;
         result.uUID_ = uUID_;
         result.name_ = name_;
+        result.action_ = action_;
         onBuilt();
         return result;
       }
@@ -702,6 +772,10 @@ public final class MinecraftPlayer {
         }
         if (!other.getName().isEmpty()) {
           name_ = other.name_;
+          onChanged();
+        }
+        if (!other.getAction().isEmpty()) {
+          action_ = other.action_;
           onChanged();
         }
         this.mergeUnknownFields(other.unknownFields);
@@ -1039,6 +1113,82 @@ public final class MinecraftPlayer {
         onChanged();
         return this;
       }
+
+      private java.lang.Object action_ = "";
+      /**
+       * <code>string action = 8;</code>
+       * @return The action.
+       */
+      public java.lang.String getAction() {
+        java.lang.Object ref = action_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          action_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string action = 8;</code>
+       * @return The bytes for action.
+       */
+      public com.google.protobuf.ByteString
+          getActionBytes() {
+        java.lang.Object ref = action_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          action_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string action = 8;</code>
+       * @param value The action to set.
+       * @return This builder for chaining.
+       */
+      public Builder setAction(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        action_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string action = 8;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearAction() {
+        
+        action_ = getDefaultInstance().getAction();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string action = 8;</code>
+       * @param value The bytes for action to set.
+       * @return This builder for chaining.
+       */
+      public Builder setActionBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        action_ = value;
+        onChanged();
+        return this;
+      }
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -1106,11 +1256,11 @@ public final class MinecraftPlayer {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\025MinecraftPlayer.proto\"f\n\013PlayerState\022\t" +
+      "\n\025MinecraftPlayer.proto\"v\n\013PlayerState\022\t" +
       "\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\022\t\n\001z\030\003 \001(\002\022\r\n\005pitch" +
       "\030\004 \001(\002\022\013\n\003yaw\030\005 \001(\002\022\014\n\004UUID\030\006 \001(\t\022\014\n\004nam" +
-      "e\030\007 \001(\tB&\n$com.worldql.client.compiled_p" +
-      "rotobufb\006proto3"
+      "e\030\007 \001(\t\022\016\n\006action\030\010 \001(\tB&\n$com.worldql.c" +
+      "lient.compiled_protobufb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -1121,7 +1271,7 @@ public final class MinecraftPlayer {
     internal_static_PlayerState_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_PlayerState_descriptor,
-        new java.lang.String[] { "X", "Y", "Z", "Pitch", "Yaw", "UUID", "Name", });
+        new java.lang.String[] { "X", "Y", "Z", "Pitch", "Yaw", "UUID", "Name", "Action", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

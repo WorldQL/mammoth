@@ -10,17 +10,11 @@ import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
 public class PlayerMoveAndLookHandler implements Listener {
-    private ZMQ.Socket socket;
 
-    public PlayerMoveAndLookHandler(ZMQ.Socket socket) {
-        this.socket = socket;
-    }
 
     @EventHandler
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
-        System.out.println(e.getTo().getPitch() + " " + e.getTo().getYaw());
-        System.out.println(e.getTo().getX());
-        String hi = Float.toString(e.getTo().getPitch());
+
 
         MinecraftPlayer.PlayerState playerState = MinecraftPlayer.PlayerState.newBuilder().setX((float) e.getTo().getX())
                 .setY((float) e.getTo().getY())
@@ -32,7 +26,7 @@ public class PlayerMoveAndLookHandler implements Listener {
                 .build();
         WorldQLQuery.WQL message = WorldQLQuery.WQL.newBuilder().setPlayerState(playerState).build();
 
-        socket.send(message.toByteArray(), 0);
+        WorldQLClient.push_socket.send(message.toByteArray(), 0);
 
     }
 }
