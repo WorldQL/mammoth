@@ -27,6 +27,16 @@ public class PlayerGhostManager {
     public static final Hashtable<UUID, Boolean> playerNeedsGhosts = new Hashtable<>();
 
     public static void updateNPC(MinecraftPlayer.PlayerState state) {
+
+        // TODO: Make this faster.
+        // Don't do packet tricks for local players
+        for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+            if (state.getUUID().equals(player.getUniqueId().toString())) {
+                // player is local
+                return;
+            }
+        }
+
         UUID playerUUID = UUID.fromString(state.getUUID());
         // Do we have this NPC in our expiring entity player?
         ExpiringEntityPlayer expiringEntityPlayer;

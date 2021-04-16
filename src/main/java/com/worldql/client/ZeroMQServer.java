@@ -45,22 +45,5 @@ public class ZeroMQServer implements Runnable {
         }
     }
 
-    /*
-    new BukkitRunnable() {
 
-                   @Override
-                   public void run() {
-                       // What you want to schedule goes here
-                       plugin_instance.getServer().broadcastMessage(
-                               "Welcome to Bukkit! Remember to read the documentation!");
-                   }
-
-               }.runTask(plugin_instance);
-
-               try {
-                   Thread.sleep(1000);
-               } catch (InterruptedException e) {
-                   e.printStackTrace();
-               }
-     */
 }
