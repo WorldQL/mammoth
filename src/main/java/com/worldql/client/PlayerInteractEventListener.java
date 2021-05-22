@@ -1,5 +1,8 @@
 package com.worldql.client;
 
+import WorldQLFB.StandardEvents.Update;
+import WorldQLFB.StandardEvents.Vec3;
+import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.compiled_protobuf.MinecraftPlayer;
 import com.worldql.client.compiled_protobuf.WorldQLQuery;
 import org.bukkit.Location;
@@ -10,19 +13,26 @@ import org.bukkit.event.player.PlayerInteractEvent;
 public class PlayerInteractEventListener implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
-        // swing arm
         Location l = e.getPlayer().getLocation();
-        MinecraftPlayer.PlayerState playerState = MinecraftPlayer.PlayerState.newBuilder()
-                .setX((float) l.getX())
-                .setY((float) l.getY())
-                .setZ((float) l.getZ())
-                .setPitch(l.getPitch())
-                .setYaw(l.getYaw())
-                .setUUID(e.getPlayer().getUniqueId().toString())
-                .setName(e.getPlayer().getName())
-                .setAction("punch")
-                .build();
-        WorldQLQuery.WQL message = WorldQLQuery.WQL.newBuilder().setPlayerState(playerState).build();
-        WorldQLClient.push_socket.send(message.toByteArray(), 0);
+        FlatBufferBuilder builder = new FlatBufferBuilder(1024);
+        int uuid = builder.createString(e.getPlayer().getUniqueId().toString());
+        int name = builder.createString(e.getPlayer().getName());
+        int instruction = builder.createString("MinecraftPlayerMove");
+        int crouch_action = builder.createString("punch");
+        int[] actions_array = {crouch_action};
+        int actions = Update.createEntityactionsVector(builder, actions_array);
+        Update.startUpdate(builder);
+        Update.addUuid(builder, uuid);
+        Update.addPosition(builder, Vec3.createVec3(builder, (float)l.getX(), (float)l.getY(), (float)l.getZ()));
+        Update.addPitch(builder, l.getPitch());
+        Update.addYaw(builder, l.getYaw());
+        Update.addName(builder, name);
+        Update.addInstruction(builder, instruction);
+        Update.addEntityactions(builder, actions);
+        int player = Update.endUpdate(builder);
+        builder.finish(player);
+
+        byte[] buf = builder.sizedByteArray();
+        WorldQLClient.push_socket.send(buf, 0);
     }
 }

@@ -1,32 +1,39 @@
 package com.worldql.client;
 
+import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.compiled_protobuf.MinecraftPlayer;
 import com.worldql.client.compiled_protobuf.WorldQLQuery;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.zeromq.SocketType;
-import org.zeromq.ZContext;
-import org.zeromq.ZMQ;
+import WorldQLFB.StandardEvents.*;
 
 public class PlayerMoveAndLookHandler implements Listener {
 
 
     @EventHandler
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
+        System.out.println("Sending player move event");
+
+        FlatBufferBuilder builder = new FlatBufferBuilder(1024);
+        int uuid = builder.createString(e.getPlayer().getUniqueId().toString());
+        int name = builder.createString(e.getPlayer().getName());
+        int instruction = builder.createString("MinecraftPlayerMove");
+        Update.startUpdate(builder);
+        Update.addUuid(builder, uuid);
+        Update.addPosition(builder, Vec3.createVec3(builder, (float)e.getTo().getX(), (float)e.getTo().getY(), (float)e.getTo().getZ()));
+        Update.addPitch(builder, e.getTo().getPitch());
+        Update.addYaw(builder, e.getTo().getYaw());
+        Update.addName(builder, name);
+        Update.addInstruction(builder, instruction);
+        int player = Update.endUpdate(builder);
+        builder.finish(player);
+
+        byte[] buf = builder.sizedByteArray();
 
 
-        MinecraftPlayer.PlayerState playerState = MinecraftPlayer.PlayerState.newBuilder().setX((float) e.getTo().getX())
-                .setY((float) e.getTo().getY())
-                .setZ((float) e.getTo().getZ())
-                .setPitch(e.getTo().getPitch())
-                .setYaw(e.getTo().getYaw())
-                .setUUID(e.getPlayer().getUniqueId().toString())
-                .setName(e.getPlayer().getName())
-                .build();
-        WorldQLQuery.WQL message = WorldQLQuery.WQL.newBuilder().setPlayerState(playerState).build();
-
-        WorldQLClient.push_socket.send(message.toByteArray(), 0);
+        WorldQLClient.push_socket.send(buf, 0);
+        System.out.println("Sent successfully");
 
     }
 }

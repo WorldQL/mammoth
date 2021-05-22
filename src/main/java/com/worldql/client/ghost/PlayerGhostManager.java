@@ -1,5 +1,6 @@
 package com.worldql.client.ghost;
 
+import WorldQLFB.StandardEvents.Update;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
@@ -26,25 +27,25 @@ public class PlayerGhostManager {
     private static final Hashtable<UUID, ExpiringEntityPlayer> hashtableNPCs = new Hashtable<>();
     public static final Hashtable<UUID, Boolean> playerNeedsGhosts = new Hashtable<>();
 
-    public static void updateNPC(MinecraftPlayer.PlayerState state) {
+    public static void updateNPC(Update state) {
 
         // TODO: Make this faster.
         // Don't do packet tricks for local players
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-            if (state.getUUID().equals(player.getUniqueId().toString())) {
+            if (state.uuid().equals(player.getUniqueId().toString())) {
                 // player is local
                 return;
             }
         }
 
-        UUID playerUUID = UUID.fromString(state.getUUID());
+        UUID playerUUID = UUID.fromString(state.uuid());
         // Do we have this NPC in our expiring entity player?
         ExpiringEntityPlayer expiringEntityPlayer;
         if (hashtableNPCs.containsKey(playerUUID)) {
             expiringEntityPlayer = hashtableNPCs.get(playerUUID);
         } else {
             // TODO: Change this when there is support for multiple worlds, accidentally left this out of the protobuf.
-            expiringEntityPlayer = PlayerGhostManager.createNPC(state.getName(), playerUUID, new Location(Bukkit.getServer().getWorld("world"), state.getX(), state.getY(), state.getZ()));
+            expiringEntityPlayer = PlayerGhostManager.createNPC(state.name(), playerUUID, new Location(Bukkit.getServer().getWorld("world"), state.position().x(), state.position().y(), state.position().z()));
             sendNPCJoinPacket(expiringEntityPlayer.grab());
             hashtableNPCs.put(playerUUID, expiringEntityPlayer);
         }
@@ -135,24 +136,45 @@ public class PlayerGhostManager {
         }
     }
 
-    public static void moveEntity(MinecraftPlayer.PlayerState state, EntityPlayer e) {
+    public static void moveEntity(Update state, EntityPlayer e) {
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             ensurePlayerHasJoinPackets(player);
 
             PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
             e.setLocation(
-                    state.getX(),
-                    state.getY(),
-                    state.getZ(),
-                    state.getYaw(),
-                    state.getPitch()
+                    state.position().x(),
+                    state.position().y(),
+                    state.position().z(),
+                    state.yaw(),
+                    state.pitch()
             );
             connection.sendPacket(
                     new PacketPlayOutEntityTeleport(e)
             );
 
-            connection.sendPacket(new PacketPlayOutEntityHeadRotation(e, (byte) ((state.getYaw() * 256) / 360)));
+            connection.sendPacket(new PacketPlayOutEntityHeadRotation(e, (byte) ((state.yaw() * 256) / 360)));
 
+            for (int i = 0; i < state.entityactionsLength(); i++) {
+                String action = state.entityactions(i);
+                DataWatcher dw = new DataWatcher(null);
+                if (action.equals("crouch")) {
+                    dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.CROUCHING);
+                    PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(e.getId(), dw, true);
+                    connection.sendPacket(packet);
+                } else if (action.equals("uncrouch")) {
+                    dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.STANDING);
+                    PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(e.getId(), dw, true);
+                    connection.sendPacket(packet);
+                }
+
+                if (action.equals("punch")) {
+                    PacketPlayOutAnimation punch = new PacketPlayOutAnimation(e, (byte) 0);
+                    connection.sendPacket(punch);
+                    //PacketPlayOutAnimation damage = new PacketPlayOutAnimation(e, (byte) 1);
+                    //connection.sendPacket(damage);
+                }
+            }
+            /*
             DataWatcher dw = new DataWatcher(null);
             System.out.println(state.getAction());
             if (state.getAction().equals("crouch")) {
@@ -171,6 +193,8 @@ public class PlayerGhostManager {
                 //PacketPlayOutAnimation damage = new PacketPlayOutAnimation(e, (byte) 1);
                 //connection.sendPacket(damage);
             }
+
+             */
         }
 
 
