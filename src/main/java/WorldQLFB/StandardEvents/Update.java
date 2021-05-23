@@ -42,8 +42,16 @@ public final class Update extends Table {
   public FloatVector numericalParamsVector(FloatVector obj) { int o = __offset(20); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
   public ByteBuffer numericalParamsAsByteBuffer() { return __vector_as_bytebuffer(20, 4); }
   public ByteBuffer numericalParamsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 20, 4); }
+  public String worldName() { int o = __offset(22); return o != 0 ? __string(o + bb_pos) : null; }
+  public ByteBuffer worldNameAsByteBuffer() { return __vector_as_bytebuffer(22, 1); }
+  public ByteBuffer worldNameInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 22, 1); }
+  public String commands(int j) { int o = __offset(24); return o != 0 ? __string(__vector(o) + j * 4) : null; }
+  public int commandsLength() { int o = __offset(24); return o != 0 ? __vector_len(o) : 0; }
+  public StringVector commandsVector() { return commandsVector(new StringVector()); }
+  public StringVector commandsVector(StringVector obj) { int o = __offset(24); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
+  public int senderid() { int o = __offset(26); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
 
-  public static void startUpdate(FlatBufferBuilder builder) { builder.startTable(9); }
+  public static void startUpdate(FlatBufferBuilder builder) { builder.startTable(12); }
   public static void addInstruction(FlatBufferBuilder builder, int instructionOffset) { builder.addOffset(0, instructionOffset, 0); }
   public static void addPosition(FlatBufferBuilder builder, int positionOffset) { builder.addStruct(1, positionOffset, 0); }
   public static void addName(FlatBufferBuilder builder, int nameOffset) { builder.addOffset(2, nameOffset, 0); }
@@ -59,6 +67,11 @@ public final class Update extends Table {
   public static void addNumericalParams(FlatBufferBuilder builder, int numericalParamsOffset) { builder.addOffset(8, numericalParamsOffset, 0); }
   public static int createNumericalParamsVector(FlatBufferBuilder builder, float[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addFloat(data[i]); return builder.endVector(); }
   public static void startNumericalParamsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addWorldName(FlatBufferBuilder builder, int worldNameOffset) { builder.addOffset(9, worldNameOffset, 0); }
+  public static void addCommands(FlatBufferBuilder builder, int commandsOffset) { builder.addOffset(10, commandsOffset, 0); }
+  public static int createCommandsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
+  public static void startCommandsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addSenderid(FlatBufferBuilder builder, int senderid) { builder.addInt(11, senderid, 0); }
   public static int endUpdate(FlatBufferBuilder builder) {
     int o = builder.endTable();
     return o;

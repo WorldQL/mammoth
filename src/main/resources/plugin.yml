@@ -3,11 +3,8 @@ version: 1.0
 api-version: 1.16
 main: com.worldql.client.WorldQLClient
 commands:
-  spawnghost:
-    description: Test player ghost functionality.
-    usage: /spawnghost
-    permission: worldqlclient.spawnghost
-  stepghost:
-    permission: worldqlclient.
+  refreshworld:
+    description: Pull and apply all block actions from database;
+    usage: /refreshworld
+    permission: worldqlclient.refreshworld
 
-depend: [ProtocolLib]

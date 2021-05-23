@@ -1,9 +1,6 @@
 package com.worldql.client;
 
 import WorldQLFB.StandardEvents.Update;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.worldql.client.compiled_protobuf.MinecraftPlayer;
-import com.worldql.client.compiled_protobuf.WorldQLQuery;
 import com.worldql.client.ghost.PlayerGhostManager;
 import org.bukkit.plugin.Plugin;
 import org.zeromq.SocketType;
@@ -29,9 +26,15 @@ public class ZeroMQServer implements Runnable {
                 System.out.println("Waiting for push...");
                 byte[] reply = socket.recv(0);
                 java.nio.ByteBuffer buf = java.nio.ByteBuffer.wrap(reply);
+                System.out.println(buf);
                 Update update = Update.getRootAsUpdate(buf);
 
+                System.out.println(update.instruction());
+
                 if (update.instruction().equals("MinecraftPlayerMove")) {
+                    PlayerGhostManager.updateNPC(update);
+                }
+                if (update.instruction().equals("MinecraftPlayerQuit")) {
                     PlayerGhostManager.updateNPC(update);
                 }
 

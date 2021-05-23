@@ -1,8 +1,7 @@
-package com.worldql.client;
+package com.worldql.client.listeners;
 
 import com.google.flatbuffers.FlatBufferBuilder;
-import com.worldql.client.compiled_protobuf.MinecraftPlayer;
-import com.worldql.client.compiled_protobuf.WorldQLQuery;
+import com.worldql.client.WorldQLClient;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;

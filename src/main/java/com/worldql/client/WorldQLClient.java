@@ -1,8 +1,7 @@
 package com.worldql.client;
 
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
 
+import com.worldql.client.listeners.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
@@ -12,20 +11,16 @@ import java.net.InetAddress;
 
 
 public class WorldQLClient extends JavaPlugin {
-    private ProtocolManager manager;
     private static JavaPlugin plugin_instance;
     private static Thread ZeroMQThread;
     public static ZMQ.Socket push_socket;
 
     @Override
     public void onEnable() {
-        manager = ProtocolLibrary.getProtocolManager();
         plugin_instance = this;
 
 
         getLogger().info("Initializing Mammoth WorldQL client.");
-        this.getCommand("spawnghost").setExecutor(new SpawnCommandHandler(manager));
-        this.getCommand("stepghost").setExecutor(new StepCommandHandler(manager, this));
 
         ZContext context = new ZContext();
         push_socket = context.createSocket(SocketType.PUSH);
@@ -52,6 +47,11 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerCrouchListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerLogOutListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerBlockPlaceListener(), this);
+
+        this.getCommand("refreshworld").setExecutor(new TestRefreshWorldCommand());
+
         ZeroMQThread = new Thread(new ZeroMQServer(this, assignedZeroMQPort));
         ZeroMQThread.start();
     }

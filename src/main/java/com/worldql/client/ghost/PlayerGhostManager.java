@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import com.worldql.client.compiled_protobuf.MinecraftPlayer;
 import net.minecraft.server.v1_16_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -52,6 +51,10 @@ public class PlayerGhostManager {
 
         EntityPlayer e = expiringEntityPlayer.grab();
 
+        if (state.instruction().equals("MinecraftPlayerQuit")) {
+            sendNPCJoinPacket(e);
+        }
+
         moveEntity(state, e);
 
 
@@ -75,6 +78,13 @@ public class PlayerGhostManager {
         return new ExpiringEntityPlayer(npc);
     }
 
+    private static void sendNPCLeavePacket(EntityPlayer npc) {
+        for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+            PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
+            connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, npc));
+            connection.sendPacket(new PacketPlayOutEntityDestroy(npc.getId()));
+        }
+    }
 
     private static void sendNPCJoinPacket(EntityPlayer npc) {
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
