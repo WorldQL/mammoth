@@ -49,7 +49,7 @@ public class PlayerBlockPlaceListener implements Listener {
         WorldQLClient.push_socket.send(buf, 0);
     }
 
-    private int createRoundedVec3(FlatBufferBuilder builder, double x, double y, double z) {
+    public static int createRoundedVec3(FlatBufferBuilder builder, double x, double y, double z) {
         return Vec3.createVec3(builder, Math.round(x), Math.round(y), Math.round(z));
     }
 }

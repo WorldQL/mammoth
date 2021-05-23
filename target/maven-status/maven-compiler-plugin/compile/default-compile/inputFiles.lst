@@ -11,6 +11,7 @@
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/ZeroMQServer.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/ByteBufferUtil.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/FlexBuffers.java
+/home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/listeners/PlayerEditSignListener.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/WorldQLFB/StandardEvents/Update.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/LongVector.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/ArrayReadWriteBuf.java
@@ -20,6 +21,7 @@
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/Utf8.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/WorldQLClient.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/BooleanVector.java
+/home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/DirectionalUtilities.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/StringVector.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/listeners/PlayerCrouchListener.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/Utf8Safe.java
