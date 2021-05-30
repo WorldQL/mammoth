@@ -12,8 +12,6 @@ public class PlayerMoveAndLookHandler implements Listener {
 
     @EventHandler
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
-        System.out.println("Sending player move event");
-
         FlatBufferBuilder builder = new FlatBufferBuilder(1024);
         int uuid = builder.createString(e.getPlayer().getUniqueId().toString());
         int name = builder.createString(e.getPlayer().getName());
@@ -27,12 +25,7 @@ public class PlayerMoveAndLookHandler implements Listener {
         Update.addInstruction(builder, instruction);
         int player = Update.endUpdate(builder);
         builder.finish(player);
-
         byte[] buf = builder.sizedByteArray();
-
-
         WorldQLClient.push_socket.send(buf, 0);
-        System.out.println("Sent successfully");
-
     }
 }

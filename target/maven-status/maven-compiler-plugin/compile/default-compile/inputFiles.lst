@@ -3,6 +3,7 @@
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/listeners/PlayerLogOutListener.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/listeners/PlayerMoveAndLookHandler.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/WorldQLFB/StandardEvents/Vec3.java
+/home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/listeners/PortalCreateEventListener.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/FloatVector.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/DoubleVector.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/IntVector.java

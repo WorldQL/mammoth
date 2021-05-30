@@ -1,41 +1,61 @@
 package com.worldql.client;
 
-
 import com.worldql.client.listeners.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
+
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class WorldQLClient extends JavaPlugin {
-    private static JavaPlugin plugin_instance;
+    public static JavaPlugin plugin_instance;
     private static Thread ZeroMQThread;
+    private static ZContext context;
     public static ZMQ.Socket push_socket;
 
     @Override
     public void onEnable() {
         plugin_instance = this;
-
-
         getLogger().info("Initializing Mammoth WorldQL client.");
-
-        ZContext context = new ZContext();
+        context = new ZContext();
         push_socket = context.createSocket(SocketType.PUSH);
-
-
         ZMQ.Socket handshake_socket = context.createSocket(SocketType.REQ);
         handshake_socket.connect("tcp://127.0.0.1:5556");
 
         String myIP;
-
-        try(final DatagramSocket datagramSocket = new DatagramSocket()){
+        try (final DatagramSocket datagramSocket = new DatagramSocket()) {
             datagramSocket.connect(InetAddress.getByName("8.8.8.8"), 10002);
             myIP = datagramSocket.getLocalAddress().getHostAddress();
         } catch (Exception e) {
             throw new RuntimeException("Couldn't determine our IP address.");
+        }
+
+        Connection connection = null;
+        try {
+            // create a database connection
+            connection = DriverManager.getConnection("jdbc:sqlite:worldql.db");
+            Statement statement = connection.createStatement();
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+
+            statement.executeUpdate("create table if not exists chunk_sync (x integer, y integer, last_update integer) WITHOUT ROWID;");
+        } catch (SQLException e) {
+            // if the error message is "out of memory",
+            // it probably means no database file is found
+            System.err.println(e.getMessage());
+        } finally {
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (SQLException e) {
+                // connection close failed.
+                System.err.println(e.getMessage());
+            }
         }
 
         handshake_socket.send(myIP.getBytes(ZMQ.CHARSET), 0);
@@ -50,16 +70,22 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerLogOutListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerBlockPlaceListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerEditSignListener(), this);
+        getServer().getPluginManager().registerEvents(new PortalCreateEventListener(), this);
 
         this.getCommand("refreshworld").setExecutor(new TestRefreshWorldCommand());
 
-        ZeroMQThread = new Thread(new ZeroMQServer(this, assignedZeroMQPort));
+        ZeroMQThread = new Thread(new ZeroMQServer(this, assignedZeroMQPort, context));
         ZeroMQThread.start();
     }
 
     @Override
     public void onDisable() {
         getLogger().info("Shutting down ZeroMQ thread.");
-        ZeroMQThread.interrupt();
+        context.close();
+        try {
+            ZeroMQThread.interrupt();
+            ZeroMQThread.join();
+        } catch (InterruptedException e) {
+        }
     }
 }

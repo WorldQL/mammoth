@@ -6,9 +6,11 @@ com/google/flatbuffers/Utf8Old$Cache.class
 com/worldql/client/listeners/PlayerLogOutListener.class
 com/google/flatbuffers/ReadBuf.class
 com/google/flatbuffers/Table$1.class
+com/worldql/client/listeners/PortalCreateEventListener.class
 com/worldql/client/ghost/PlayerGhostManager.class
 com/google/flatbuffers/FloatVector.class
 com/google/flatbuffers/FlexBuffers$Vector.class
+com/worldql/client/listeners/PlayerBlockPlaceListener$1.class
 com/worldql/client/DirectionalUtilities.class
 com/google/flatbuffers/FlexBuffers$Key.class
 com/google/flatbuffers/Struct.class
