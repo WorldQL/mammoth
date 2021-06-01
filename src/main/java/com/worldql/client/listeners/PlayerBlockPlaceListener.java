@@ -107,6 +107,7 @@ public class PlayerBlockPlaceListener implements Listener {
         int blockupdate = Update.endUpdate(builder);
         builder.finish(blockupdate);
 
+
         byte[] buf = builder.sizedByteArray();
         WorldQLClient.push_socket.send(buf, 0);
     }
