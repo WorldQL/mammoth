@@ -5,12 +5,23 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import net.minecraft.server.v1_16_R3.*;
+import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.syncher.DataWatcher;
+import net.minecraft.network.syncher.DataWatcherObject;
+import net.minecraft.network.syncher.DataWatcherRegistry;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.*;
+import net.minecraft.server.level.PlayerInteractManager;
+import net.minecraft.server.level.WorldServer;
+import net.minecraft.server.network.PlayerConnection;
+import net.minecraft.world.entity.EntityPose;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_16_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
@@ -65,7 +76,7 @@ public class PlayerGhostManager {
         MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
         WorldServer world = ((CraftWorld) location.getWorld()).getHandle();
         GameProfile profile = new GameProfile(uuid, name);
-        EntityPlayer npc = new EntityPlayer(server, world, profile, new PlayerInteractManager(world));
+        EntityPlayer npc = new EntityPlayer(server, world, profile);
         npc.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
 
         //String[] skinData = getSkin(uuid);
@@ -80,26 +91,26 @@ public class PlayerGhostManager {
 
     private static void sendNPCLeavePacket(EntityPlayer npc) {
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-            PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
-            connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, npc));
+            PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
+            connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.e, npc));
             connection.sendPacket(new PacketPlayOutEntityDestroy(npc.getId()));
         }
     }
 
     private static void sendNPCJoinPacket(EntityPlayer npc) {
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-            PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
-            connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, npc));
+            PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
+            connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, npc));
             connection.sendPacket(new PacketPlayOutNamedEntitySpawn(npc));
-            connection.sendPacket(new PacketPlayOutEntityHeadRotation(npc, (byte) ((npc.yaw * 256) / 360)));
+            connection.sendPacket(new PacketPlayOutEntityHeadRotation(npc, (byte) ((npc.getYRot() * 256) / 360)));
         }
     }
 
     private static void sendNPCJoinPacket(EntityPlayer npc, Player player) {
-        PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
-        connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, npc));
+        PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
+        connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, npc));
         connection.sendPacket(new PacketPlayOutNamedEntitySpawn(npc));
-        connection.sendPacket(new PacketPlayOutEntityHeadRotation(npc, (byte) ((npc.yaw * 256) / 360)));
+        connection.sendPacket(new PacketPlayOutEntityHeadRotation(npc, (byte) ((npc.getYRot() * 256) / 360)));
     }
 
     // useless, teleport packet can be used for everything.
@@ -150,7 +161,7 @@ public class PlayerGhostManager {
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             ensurePlayerHasJoinPackets(player);
 
-            PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
+            PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
             e.setLocation(
                     state.position().x(),
                     state.position().y(),
@@ -168,11 +179,11 @@ public class PlayerGhostManager {
                 String action = state.entityactions(i);
                 DataWatcher dw = new DataWatcher(null);
                 if (action.equals("crouch")) {
-                    dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.CROUCHING);
+                    dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.f);
                     PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(e.getId(), dw, true);
                     connection.sendPacket(packet);
                 } else if (action.equals("uncrouch")) {
-                    dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.STANDING);
+                    dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.a);
                     PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(e.getId(), dw, true);
                     connection.sendPacket(packet);
                 }

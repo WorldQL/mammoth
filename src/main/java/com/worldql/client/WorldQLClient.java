@@ -43,7 +43,7 @@ public class WorldQLClient extends JavaPlugin {
             Statement statement = connection.createStatement();
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
-            statement.executeUpdate("create table if not exists chunk_sync (x integer, y integer, last_update integer) WITHOUT ROWID;");
+            statement.executeUpdate("create table if not exists chunk_sync (pk INTEGER PRIMARY KEY, x integer, y integer, last_update integer);");
         } catch (SQLException e) {
             // if the error message is "out of memory",
             // it probably means no database file is found
@@ -71,6 +71,7 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerBlockPlaceListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerEditSignListener(), this);
         getServer().getPluginManager().registerEvents(new PortalCreateEventListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerLoadChunkListener(), this);
 
         this.getCommand("refreshworld").setExecutor(new TestRefreshWorldCommand());
 

@@ -1,3 +1,4 @@
+/home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/listeners/PlayerLoadChunkListener.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/ShortVector.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/FlexBuffersBuilder.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/listeners/PlayerLogOutListener.java
@@ -15,6 +16,7 @@
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/listeners/PlayerEditSignListener.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/WorldQLFB/StandardEvents/Update.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/LongVector.java
+/home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/ghost/PlayerGhost.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/ArrayReadWriteBuf.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/ByteVector.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/listeners/PlayerInteractEventListener.java

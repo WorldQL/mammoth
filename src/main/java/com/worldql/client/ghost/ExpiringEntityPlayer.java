@@ -3,7 +3,7 @@ package com.worldql.client.ghost;
 // This implements a version of entity player which stores the last time it was updated / accessed
 // This is used so the server can clean up unused EntityPlayers
 
-import net.minecraft.server.v1_16_R3.EntityPlayer;
+import net.minecraft.server.level.EntityPlayer;
 
 import java.time.Instant;
 
