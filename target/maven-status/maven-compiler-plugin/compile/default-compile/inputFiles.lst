@@ -28,6 +28,7 @@
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/StringVector.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/listeners/PlayerCrouchListener.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/Utf8Safe.java
+/home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/PacketReader.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/TestRefreshWorldCommand.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/Table.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/ByteBufferReadWriteBuf.java

@@ -6,6 +6,7 @@ com/worldql/client/ghost/PlayerGhost$SkinTextures$1.class
 com/worldql/client/ghost/PlayerGhost$UnsafeFunction.class
 com/google/flatbuffers/Utf8Old$Cache.class
 com/worldql/client/listeners/PlayerLogOutListener.class
+com/worldql/client/PacketReader.class
 com/google/flatbuffers/ReadBuf.class
 com/google/flatbuffers/Table$1.class
 com/worldql/client/listeners/PortalCreateEventListener.class
@@ -25,6 +26,7 @@ com/google/flatbuffers/ByteBufferReadWriteBuf.class
 com/worldql/client/ghost/PlayerGhost$EntityState.class
 com/google/flatbuffers/UnionVector.class
 WorldQLFB/StandardEvents/Vec3.class
+com/worldql/client/PacketReader$1.class
 com/worldql/client/WorldQLClient.class
 com/google/flatbuffers/FlexBuffers$Map.class
 com/google/flatbuffers/FlexBuffersBuilder$1.class

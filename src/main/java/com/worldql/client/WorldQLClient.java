@@ -13,6 +13,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+
 public class WorldQLClient extends JavaPlugin {
     public static JavaPlugin plugin_instance;
     private static Thread ZeroMQThread;
@@ -28,6 +29,7 @@ public class WorldQLClient extends JavaPlugin {
         push_socket = context.createSocket(SocketType.PUSH);
         ZMQ.Socket handshake_socket = context.createSocket(SocketType.REQ);
         handshake_socket.connect("tcp://127.0.0.1:5556");
+
 
         String myIP;
         try (final DatagramSocket datagramSocket = new DatagramSocket()) {
