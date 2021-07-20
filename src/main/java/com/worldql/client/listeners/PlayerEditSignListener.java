@@ -21,11 +21,14 @@ public class PlayerEditSignListener implements Listener {
         int commands = Update.createCommandsVector(builder, commands_array);
         int[] params_array = {blockdata};
         int params = Update.createParamsVector(builder, params_array);
+        int worldName = builder.createString(e.getBlock().getWorld().getName());
         Update.startUpdate(builder);
         Update.addInstruction(builder, instruction);
         Update.addPosition(builder, PlayerBlockPlaceListener.createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
         Update.addParams(builder, params);
         Update.addCommands(builder, commands);
+        Update.addSenderid(builder, WorldQLClient.zmqPortClientId);
+        Update.addWorldName(builder, worldName);
         int blockupdate = Update.endUpdate(builder);
         builder.finish(blockupdate);
 

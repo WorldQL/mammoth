@@ -16,6 +16,7 @@ public class PlayerLogOutListener implements Listener {
         Update.startUpdate(builder);
         Update.addUuid(builder, uuid);
         Update.addInstruction(builder, instruction);
+        Update.addSenderid(builder, WorldQLClient.zmqPortClientId);
         int player = Update.endUpdate(builder);
         builder.finish(player);
 

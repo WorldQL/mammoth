@@ -32,6 +32,7 @@ public class PortalCreateEventListener implements Listener {
                 Update.addWorldName(builder, worldName);
                 Update.addPosition(builder, PlayerBlockPlaceListener.createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
                 Update.addParams(builder, params);
+                Update.addSenderid(builder, WorldQLClient.zmqPortClientId);
                 int blockupdate = Update.endUpdate(builder);
                 builder.finish(blockupdate);
 
@@ -59,6 +60,7 @@ public class PortalCreateEventListener implements Listener {
             Update.addWorldName(builder, worldName);
             Update.addPosition(builder, PlayerBlockPlaceListener.createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
             Update.addParams(builder, params);
+            Update.addSenderid(builder, WorldQLClient.zmqPortClientId);
             int blockupdate = Update.endUpdate(builder);
             builder.finish(blockupdate);
 

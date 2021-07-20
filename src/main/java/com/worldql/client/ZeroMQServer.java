@@ -65,19 +65,18 @@ public class ZeroMQServer implements Runnable {
                                 }
 
 
-
-
-
                                 if (block_datas.length > 1) {
                                     new BukkitRunnable() {
                                         @Override
                                         public void run() {
                                             System.out.println("SIGN");
-                                            Sign sign = (Sign) world.getBlockAt(new Location(world, blockx, blocky, blockz)).getState();
-                                            for (int j = 1; j < block_datas.length; j++) {
-                                                sign.setLine(j - 1, block_datas[j]);
+                                            if (world.getBlockAt(new Location(world, blockx, blocky, blockz)).getState() instanceof Sign) {
+                                                Sign sign = (Sign) world.getBlockAt(new Location(world, blockx, blocky, blockz)).getState();
+                                                for (int j = 1; j < block_datas.length; j++) {
+                                                    sign.setLine(j - 1, block_datas[j]);
+                                                }
+                                                sign.update();
                                             }
-                                            sign.update();
                                         }
                                     }.runTaskLater(plugin, 2);
                                 }

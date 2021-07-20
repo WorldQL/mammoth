@@ -28,6 +28,7 @@ public class PlayerBlockPlaceListener implements Listener {
         Update.addWorldName(builder, worldName);
         Update.addPosition(builder, createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
         Update.addParams(builder, params);
+        Update.addSenderid(builder, WorldQLClient.zmqPortClientId);
         int blockupdate = Update.endUpdate(builder);
         builder.finish(blockupdate);
 
@@ -81,6 +82,7 @@ public class PlayerBlockPlaceListener implements Listener {
                         Update.addWorldName(builder, worldName);
                         Update.addPosition(builder, createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
                         Update.addParams(builder, params);
+                        Update.addSenderid(builder, WorldQLClient.zmqPortClientId);
                         int blockupdate = Update.endUpdate(builder);
                         builder.finish(blockupdate);
 
@@ -104,6 +106,7 @@ public class PlayerBlockPlaceListener implements Listener {
         Update.addWorldName(builder, worldName);
         Update.addPosition(builder, createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
         Update.addParams(builder, params);
+        Update.addSenderid(builder, WorldQLClient.zmqPortClientId);
         int blockupdate = Update.endUpdate(builder);
         builder.finish(blockupdate);
 

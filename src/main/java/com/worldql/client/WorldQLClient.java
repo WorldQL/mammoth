@@ -18,6 +18,7 @@ public class WorldQLClient extends JavaPlugin {
     private static Thread ZeroMQThread;
     private static ZContext context;
     public static ZMQ.Socket push_socket;
+    public static int zmqPortClientId;
 
     @Override
     public void onEnable() {
@@ -61,6 +62,7 @@ public class WorldQLClient extends JavaPlugin {
         handshake_socket.send(myIP.getBytes(ZMQ.CHARSET), 0);
         byte[] reply = handshake_socket.recv(0);
         String assignedZeroMQPort = new String(reply, ZMQ.CHARSET);
+        zmqPortClientId = Integer.parseInt(assignedZeroMQPort);
 
         push_socket.connect("tcp://127.0.0.1:5555");
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(), this);

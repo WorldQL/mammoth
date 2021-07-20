@@ -23,6 +23,7 @@ public class PlayerMoveAndLookHandler implements Listener {
         Update.addYaw(builder, e.getTo().getYaw());
         Update.addName(builder, name);
         Update.addInstruction(builder, instruction);
+        Update.addSenderid(builder, WorldQLClient.zmqPortClientId);
         int player = Update.endUpdate(builder);
         builder.finish(player);
         byte[] buf = builder.sizedByteArray();

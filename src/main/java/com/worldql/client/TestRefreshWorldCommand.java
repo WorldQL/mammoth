@@ -20,6 +20,7 @@ public class TestRefreshWorldCommand implements CommandExecutor {
             Update.addSenderid(b, Bukkit.getServer().getPort());
             Update.addWorldName(b, world);
             Update.addInstruction(b, instruction);
+            Update.addSenderid(b, WorldQLClient.zmqPortClientId);
             int update = Update.endUpdate(b);
             b.finish(update);
 

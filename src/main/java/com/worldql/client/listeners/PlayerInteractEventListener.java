@@ -28,6 +28,7 @@ public class PlayerInteractEventListener implements Listener {
         Update.addName(builder, name);
         Update.addInstruction(builder, instruction);
         Update.addEntityactions(builder, actions);
+        Update.addSenderid(builder, WorldQLClient.zmqPortClientId);
         int player = Update.endUpdate(builder);
         builder.finish(player);
 

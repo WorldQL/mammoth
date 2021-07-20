@@ -9,7 +9,6 @@ public class PlayerLoadChunkListener implements Listener {
     @EventHandler
     public void onPlayerLoadChunk(ChunkLoadEvent e) {
         if (e.isNewChunk()) {
-            System.out.println(e.getChunk());
         }
     }
 }
