@@ -47,6 +47,7 @@ com/google/flatbuffers/IntVector.class
 com/google/flatbuffers/Utf8.class
 com/worldql/client/listeners/PlayerBlockPlaceListener.class
 com/google/flatbuffers/FlatBufferBuilder$HeapByteBufferFactory.class
+com/worldql/client/events/IncomingPlayerHitEvent.class
 com/google/flatbuffers/LongVector.class
 com/worldql/client/listeners/PlayerCrouchListener.class
 com/worldql/client/ZeroMQServer.class
@@ -62,6 +63,7 @@ com/google/flatbuffers/ReadWriteBuf.class
 com/google/flatbuffers/FlexBuffers$KeyVector.class
 com/worldql/client/listeners/PlayerInteractEventListener.class
 com/google/flatbuffers/FlexBuffersBuilder$Value.class
+com/worldql/client/listeners/IncomingPlayerHitListener.class
 com/worldql/client/listeners/PlayerMoveAndLookHandler.class
 com/google/flatbuffers/FlexBuffers.class
 com/worldql/client/ZeroMQServer$1$1.class

@@ -36,6 +36,7 @@ public class PlayerGhostManager {
 
     private static final Hashtable<UUID, ExpiringEntityPlayer> hashtableNPCs = new Hashtable<>();
     public static final Hashtable<UUID, Boolean> playerNeedsGhosts = new Hashtable<>();
+    public static final Hashtable<Integer, ExpiringEntityPlayer> integerNPCLookup = new Hashtable<>();
 
     public static void updateNPC(Update state) {
 
@@ -58,6 +59,7 @@ public class PlayerGhostManager {
             expiringEntityPlayer = PlayerGhostManager.createNPC(state.name(), playerUUID, new Location(Bukkit.getServer().getWorld("world"), state.position().x(), state.position().y(), state.position().z()));
             sendNPCJoinPacket(expiringEntityPlayer.grab());
             hashtableNPCs.put(playerUUID, expiringEntityPlayer);
+            integerNPCLookup.put(expiringEntityPlayer.grab().getId(), expiringEntityPlayer);
         }
 
         EntityPlayer e = expiringEntityPlayer.grab();

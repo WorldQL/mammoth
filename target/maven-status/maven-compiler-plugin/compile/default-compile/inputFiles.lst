@@ -30,8 +30,10 @@
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/Utf8Safe.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/PacketReader.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/TestRefreshWorldCommand.java
+/home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/listeners/IncomingPlayerHitListener.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/Table.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/ByteBufferReadWriteBuf.java
+/home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/worldql/client/events/IncomingPlayerHitEvent.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/FlatBufferBuilder.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/Constants.java
 /home/jackson/IdeaProjects/WorldQLClient/src/main/java/com/google/flatbuffers/Struct.java
