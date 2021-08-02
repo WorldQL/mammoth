@@ -31,13 +31,15 @@ public class WorldQLClient extends JavaPlugin {
         handshake_socket.connect("tcp://127.0.0.1:5556");
 
 
-        String myIP;
+        String myIP = "127.0.0.1";
+        /*
         try (final DatagramSocket datagramSocket = new DatagramSocket()) {
             datagramSocket.connect(InetAddress.getByName("8.8.8.8"), 10002);
             myIP = datagramSocket.getLocalAddress().getHostAddress();
         } catch (Exception e) {
             throw new RuntimeException("Couldn't determine our IP address.");
         }
+         */
 
         Connection connection = null;
         try {
@@ -76,7 +78,7 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerEditSignListener(), this);
         getServer().getPluginManager().registerEvents(new PortalCreateEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerLoadChunkListener(), this);
-        getServer().getPluginManager().registerEvents(new IncomingPlayerHitListener(), this);
+        getServer().getPluginManager().registerEvents(new OutgoingPlayerHitListener(), this);
 
         this.getCommand("refreshworld").setExecutor(new TestRefreshWorldCommand());
 
