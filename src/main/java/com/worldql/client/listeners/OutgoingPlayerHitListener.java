@@ -18,6 +18,9 @@ public class OutgoingPlayerHitListener implements Listener {
         System.out.println("SENDING OUTGOING PLAYER HIT EVENT");
 
         ExpiringEntityPlayer hitPlayer = PlayerGhostManager.integerNPCLookup.get(e.getPlayerId());
+        if (hitPlayer == null) {
+            return;
+        }
         String UUIDString = hitPlayer.grab().getUniqueIDString();
         System.out.println(UUIDString);
 

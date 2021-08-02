@@ -7,6 +7,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
+import net.minecraft.server.network.PlayerConnection;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -42,10 +44,22 @@ public class PacketReader {
 
     public void readPacket(Player player, Packet<?> packet) {
         if (packet.getClass().getSimpleName().equalsIgnoreCase("PacketPlayInUseEntity")) {
-            if (getValue(packet, "b").getClass().getName() == "net.minecraft.network.protocol.game.PacketPlayInUseEntity$1") {
-                int playerId = (int)getValue(packet, "a");
+            if (getValue(packet,
+                    "b").getClass().getName() == "net.minecraft.network.protocol.game.PacketPlayInUseEntity$1") {
+                int playerId = (int) getValue(packet, "a");
                 ExpiringEntityPlayer p = PlayerGhostManager.integerNPCLookup.get(playerId);
-                Bukkit.getScheduler().runTask(WorldQLClient.plugin_instance, () -> Bukkit.getPluginManager().callEvent(new OutgoingPlayerHitEvent(playerId)));
+
+                PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
+
+
+                if (p == null) {
+                    return;
+                }
+                Bukkit.getScheduler().runTask(WorldQLClient.plugin_instance,
+                        () -> Bukkit.getPluginManager().callEvent(new OutgoingPlayerHitEvent(playerId)));
+
+                PacketPlayOutAnimation damage = new PacketPlayOutAnimation(p.grab(), (byte) 1);
+                connection.sendPacket(damage);
             }
             /*
             if (getValue(packet, "b").getClass().getName() == "net.minecraft.network.protocol.game.PacketPlayInUseEntity$d") {

@@ -575,7 +575,7 @@ public class FlexBuffers {
          * Appends a text(JSON) representation to a `StringBuilder`
          */
         StringBuilder toString(StringBuilder sb) {
-            //TODO: Original C++ implementation escape strings.
+            //T/ODO: Original C++ implementation escape strings.
             // probably we should do it as well.
             switch (type) {
                 case FBT_NULL:

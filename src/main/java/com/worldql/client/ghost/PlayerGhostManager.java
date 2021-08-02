@@ -27,10 +27,7 @@ import org.bukkit.entity.Player;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerGhostManager {
 
@@ -55,8 +52,9 @@ public class PlayerGhostManager {
         if (hashtableNPCs.containsKey(playerUUID)) {
             expiringEntityPlayer = hashtableNPCs.get(playerUUID);
         } else {
-            // TODO: Change this when there is support for multiple worlds, accidentally left this out of the protobuf.
-            expiringEntityPlayer = PlayerGhostManager.createNPC(state.name(), playerUUID, new Location(Bukkit.getServer().getWorld("world"), state.position().x(), state.position().y(), state.position().z()));
+            expiringEntityPlayer = PlayerGhostManager.createNPC(state.name(), playerUUID,
+                    new Location(Bukkit.getServer().getWorld(Objects.requireNonNull(state.worldName())),
+                            state.position().x(), state.position().y(), state.position().z()));
             sendNPCJoinPacket(expiringEntityPlayer.grab());
             hashtableNPCs.put(playerUUID, expiringEntityPlayer);
             integerNPCLookup.put(expiringEntityPlayer.grab().getId(), expiringEntityPlayer);
@@ -135,7 +133,8 @@ public class PlayerGhostManager {
         }
         // get player skin blob and signature in hex.
         try {
-            JsonObject prop = new JsonParser().parse(reader).getAsJsonObject().get("properties").getAsJsonArray().get(0).getAsJsonObject();
+            JsonObject prop = new JsonParser().parse(reader).getAsJsonObject().get("properties").getAsJsonArray().get(
+                    0).getAsJsonObject();
             String texture = prop.get("value").getAsString();
             String signature = prop.get("signature").getAsString();
             return new String[]{texture, signature};

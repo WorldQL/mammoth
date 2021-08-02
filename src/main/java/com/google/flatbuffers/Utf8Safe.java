@@ -343,7 +343,7 @@ final public class Utf8Safe extends Utf8 {
           if (inIx + 1 == inLength || !isSurrogatePair(c, (low = in.charAt(++inIx)))) {
             throw new UnpairedSurrogateException(inIx, inLength);
           }
-          // TODO(nathanmittler): Consider using putInt() to improve performance.
+          // T/ODO(nathanmittler): Consider using putInt() to improve performance.
           int codePoint = toCodePoint(c, low);
           out.put(outIx++, (byte) ((0xF << 4) | (codePoint >>> 18)));
           out.put(outIx++, (byte) (0x80 | (0x3F & (codePoint >>> 12))));
@@ -355,7 +355,7 @@ final public class Utf8Safe extends Utf8 {
       // Successfully encoded the entire string.
       out.position(outIx);
     } catch (IndexOutOfBoundsException e) {
-      // TODO(nathanmittler): Consider making the API throw IndexOutOfBoundsException instead.
+      // T/ODO(nathanmittler): Consider making the API throw IndexOutOfBoundsException instead.
 
       // If we failed in the outer ASCII loop, outIx will not have been updated. In this case,
       // use inIx to determine the bad write index.
