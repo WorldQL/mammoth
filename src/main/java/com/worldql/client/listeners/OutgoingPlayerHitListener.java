@@ -28,10 +28,17 @@ public class OutgoingPlayerHitListener implements Listener {
         int instruction = builder.createString("EntityHitEvent");
         int playerUUID = builder.createString(UUIDString);
         int[] params_array = {playerUUID};
+        float[] numerical_params_array = {
+                (float) e.getDirection().getX(),
+                (float) e.getDirection().getY(),
+                (float) e.getDirection().getZ()
+        };
         int params = Update.createParamsVector(builder, params_array);
+        int numerical_params = Update.createNumericalParamsVector(builder, numerical_params_array);
         Update.startUpdate(builder);
         Update.addInstruction(builder, instruction);
         Update.addParams(builder, params);
+        Update.addNumericalParams(builder, numerical_params);
         Update.addSenderid(builder, WorldQLClient.zmqPortClientId);
         int update = Update.endUpdate(builder);
         builder.finish(update);

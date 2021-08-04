@@ -55,8 +55,9 @@ public class PacketReader {
                 if (p == null) {
                     return;
                 }
+
                 Bukkit.getScheduler().runTask(WorldQLClient.plugin_instance,
-                        () -> Bukkit.getPluginManager().callEvent(new OutgoingPlayerHitEvent(playerId)));
+                        () -> Bukkit.getPluginManager().callEvent(new OutgoingPlayerHitEvent(playerId, player.getLocation().getDirection())));
 
                 PacketPlayOutAnimation damage = new PacketPlayOutAnimation(p.grab(), (byte) 1);
                 connection.sendPacket(damage);
