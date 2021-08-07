@@ -23,10 +23,12 @@ public class PlayerHit {
                     @Override
                     public void run() {
                         System.out.println("attempting to set velocity");
-                        System.out.println(update.numericalParams(0));
-                        System.out.println(update.numericalParams(1));
-                        System.out.println(update.numericalParams(2));
-                        player.setVelocity(player.getVelocity().add(new Vector(.1d, .1d, 0)));
+                        player.setVelocity(player.getVelocity().add(new Vector(
+                                        update.numericalParams(0),
+                                        update.numericalParams(1),
+                                        update.numericalParams(2)
+                                ).multiply(0.8).add(new Vector(0, 0.5, 0))
+                        ));
                     }
                 }.runTask(plugin);
                 return;
