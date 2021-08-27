@@ -198,7 +198,7 @@ public class PlayerGhostManager {
             }
             /*
             DataWatcher dw = new DataWatcher(null);
-            System.out.println(state.getAction());
+            WorldQLClient.logger.info(state.getAction());
             if (state.getAction().equals("crouch")) {
                 dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.CROUCHING);
                 PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(e.getId(), dw, true);

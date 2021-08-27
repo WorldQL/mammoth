@@ -6,6 +6,7 @@ import com.worldql.client.WorldQLClient;
 import com.worldql.client.events.OutgoingPlayerHitEvent;
 import com.worldql.client.ghost.ExpiringEntityPlayer;
 import com.worldql.client.ghost.PlayerGhostManager;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,15 +15,12 @@ public class OutgoingPlayerHitListener implements Listener {
 
     @EventHandler
     public void onPlayerHit(OutgoingPlayerHitEvent e) {
-        System.out.println(e.getPlayerId());
-        System.out.println("SENDING OUTGOING PLAYER HIT EVENT");
-
         ExpiringEntityPlayer hitPlayer = PlayerGhostManager.integerNPCLookup.get(e.getPlayerId());
         if (hitPlayer == null) {
             return;
         }
         String UUIDString = hitPlayer.grab().getUniqueIDString();
-        System.out.println(UUIDString);
+        //WorldQLClient.logger.info(UUIDString);
 
         FlatBufferBuilder builder = new FlatBufferBuilder(1024);
         int instruction = builder.createString("EntityHitEvent");

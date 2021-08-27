@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Logger;
 
 
 public class WorldQLClient extends JavaPlugin {
@@ -20,10 +21,12 @@ public class WorldQLClient extends JavaPlugin {
     private static ZContext context;
     public static ZMQ.Socket push_socket;
     public static int zmqPortClientId;
+    public static Logger logger;
 
     @Override
     public void onEnable() {
         plugin_instance = this;
+        logger = getLogger();
         getLogger().info("Initializing Mammoth WorldQL client.");
         context = new ZContext();
         push_socket = context.createSocket(SocketType.PUSH);

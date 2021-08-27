@@ -3,6 +3,7 @@ package com.worldql.client.listeners;
 import WorldQLFB.StandardEvents.Update;
 import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.WorldQLClient;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -15,10 +16,10 @@ import org.bukkit.event.world.PortalCreateEvent;
 public class PortalCreateEventListener implements Listener {
     @EventHandler
     public void onPortalCreate(PortalCreateEvent e) {
-        System.out.println(e.getReason());
-        System.out.println("!!!");
+        //WorldQLClient.logger.info(String.valueOf(e.getReason()));
+        //WorldQLClient.logger.info("!!!");
         for (BlockState b : e.getBlocks()) {
-            System.out.println(b.getBlockData().getMaterial().toString());
+            //WorldQLClient.logger.info(b.getBlockData().getMaterial().toString());
             if (b.getBlockData().getMaterial().equals(Material.NETHER_PORTAL) || b.getBlockData().getMaterial().equals(Material.OBSIDIAN)) {
                 Location l = b.getLocation();
                 FlatBufferBuilder builder = new FlatBufferBuilder(1024);
@@ -47,7 +48,7 @@ public class PortalCreateEventListener implements Listener {
     public void onBlockPhysics(BlockPhysicsEvent e) {
         if(e.getChangedType() == Material.NETHER_PORTAL && e.getSourceBlock().getBlockData().getMaterial().equals(Material.AIR)) {
 
-            System.out.println("BLOCKPHYSICS ON NETHER PORTAL");
+            //WorldQLClient.logger.info("BLOCKPHYSICS ON NETHER PORTAL");
             Location l = e.getBlock().getLocation();
             FlatBufferBuilder builder = new FlatBufferBuilder(1024);
             int instruction = builder.createString("MinecraftBlockBreak");

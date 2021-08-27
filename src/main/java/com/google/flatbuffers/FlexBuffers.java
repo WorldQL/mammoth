@@ -39,7 +39,7 @@ import java.nio.charset.StandardCharsets;
  * ReadBuf bb = ... // load message from file or network
  * FlexBuffers.Reference r = FlexBuffers.getRoot(bb); // Reads the root element
  * FlexBuffers.Map map = r.asMap(); // We assumed root object is a map
- * System.out.println(map.get("name").asString()); // prints element with key "name"
+ * WorldQLClient.logger.info(map.get("name").asString()); // prints element with key "name"
  * </pre>
  */
 public class FlexBuffers {

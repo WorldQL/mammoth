@@ -64,7 +64,7 @@ public class PacketReader {
             }
             /*
             if (getValue(packet, "b").getClass().getName() == "net.minecraft.network.protocol.game.PacketPlayInUseEntity$d") {
-                System.out.println("RIGHT CLICK");
+                WorldQLClient.logger.info("RIGHT CLICK");
             }
 
              */

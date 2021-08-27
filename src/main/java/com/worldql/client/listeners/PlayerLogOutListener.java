@@ -4,6 +4,7 @@ import WorldQLFB.StandardEvents.Update;
 import WorldQLFB.StandardEvents.Vec3;
 import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.WorldQLClient;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -24,7 +25,7 @@ public class PlayerLogOutListener implements Listener {
 
 
         WorldQLClient.push_socket.send(buf, 0);
-        System.out.println("Sent successfully");
+        //WorldQLClient.logger.info("Sent successfully");
     }
 }
 

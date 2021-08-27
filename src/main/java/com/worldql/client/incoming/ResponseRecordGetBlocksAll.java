@@ -2,6 +2,7 @@ package com.worldql.client.incoming;
 
 import WorldQLFB.StandardEvents.Update;
 import com.worldql.client.DirectionalUtilities;
+import com.worldql.client.WorldQLClient;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Tag;
@@ -21,7 +22,7 @@ public class ResponseRecordGetBlocksAll {
                 World world = Bukkit.getWorld(update.worldName());
                 for (int i = 0; i < update.paramsLength(); i++) {
                     String block_data = update.params(i);
-                    System.out.println(block_data);
+                    //WorldQLClient.logger.info(block_data);
                     double blockx = update.numericalParams(i * 3);
                     double blocky = update.numericalParams(i * 3 + 1);
                     double blockz = update.numericalParams(i * 3 + 2);
@@ -44,7 +45,7 @@ public class ResponseRecordGetBlocksAll {
                         new BukkitRunnable() {
                             @Override
                             public void run() {
-                                System.out.println("SIGN");
+                                //WorldQLClient.logger.info("SIGN");
                                 if (world.getBlockAt(
                                         new Location(world, blockx, blocky, blockz)).getState() instanceof Sign) {
                                     Sign sign = (Sign) world.getBlockAt(
