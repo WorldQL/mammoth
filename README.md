@@ -1,4 +1,5 @@
-# Mammoth: a WorldQL plugin for Spigot-based servers
+# Mammoth: Horizontally scalable Minecraft server
+### A WorldQL plugin for Spigot-based servers
 
 ## What is WorldQL?
 WorldQL is a 3D database that's fast enough to use as a game server. Similarly to how SQL allow you to easily insert and query tabular data, WorldQL provides a simple interface to create and track 3D objects.
