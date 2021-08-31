@@ -69,7 +69,11 @@ public class PlayerBlockPlaceListener implements Listener {
                         e.getBlock().getRelative(0, 0, -1).getBlockData().getAsString(),
                 };
                 for (int i = 0; i < 6; i++) {
-                    if (!relatives[i].equals(newRelatives[i])) {
+                    // seems like the 1.17.1 update made this entire "wait 3 ticks" trick worthless. door adjacent blocks
+                    // update before the event handler is called.
+                    if (!relatives[i].equals(newRelatives[i]) ||
+                            (newRelatives[i].contains("door") && newRelatives[i].contains("half=upper"))
+                    ) {
                         Location l = relative_locations[i];
                         FlatBufferBuilder builder = new FlatBufferBuilder(1024);
                         int instruction = builder.createString("MinecraftBlockPlace");

@@ -30,6 +30,7 @@ public class PlayerHit {
                                         update.numericalParams(2)
                                 ).multiply(0.8).add(new Vector(0, 0.5, 0))
                         ));
+                        player.damage(1);
                     }
                 }.runTask(plugin);
                 return;

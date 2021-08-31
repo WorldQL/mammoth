@@ -16,7 +16,7 @@ import org.bukkit.event.world.PortalCreateEvent;
 public class PortalCreateEventListener implements Listener {
     @EventHandler
     public void onPortalCreate(PortalCreateEvent e) {
-        //WorldQLClient.logger.info(String.valueOf(e.getReason()));
+        WorldQLClient.logger.info(String.valueOf(e.getReason()));
         //WorldQLClient.logger.info("!!!");
         for (BlockState b : e.getBlocks()) {
             //WorldQLClient.logger.info(b.getBlockData().getMaterial().toString());
@@ -46,6 +46,7 @@ public class PortalCreateEventListener implements Listener {
 
     @EventHandler
     public void onBlockPhysics(BlockPhysicsEvent e) {
+        /*
         if(e.getChangedType() == Material.NETHER_PORTAL && e.getSourceBlock().getBlockData().getMaterial().equals(Material.AIR)) {
 
             //WorldQLClient.logger.info("BLOCKPHYSICS ON NETHER PORTAL");
@@ -68,6 +69,8 @@ public class PortalCreateEventListener implements Listener {
             byte[] buf = builder.sizedByteArray();
             WorldQLClient.push_socket.send(buf, 0);
         }
+
+         */
     }
 
 }
