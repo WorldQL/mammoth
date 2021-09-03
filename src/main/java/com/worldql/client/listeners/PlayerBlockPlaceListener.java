@@ -10,6 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import zmq.ZMQ;
 
 import java.util.Arrays;
 
@@ -18,27 +19,31 @@ public class PlayerBlockPlaceListener implements Listener {
     public void onPlayerBreakBlockEvent(BlockBreakEvent e) {
         Location l = e.getBlock().getLocation();
         FlatBufferBuilder builder = new FlatBufferBuilder(1024);
+
         int instruction = builder.createString("MinecraftBlockBreak");
         int worldName = builder.createString(e.getBlock().getWorld().getName());
         int blockdata = builder.createString(e.getBlock().getBlockData().getAsString());
-        int[] params_array = {blockdata};
-        int params = Update.createParamsVector(builder, params_array);
+
+        int[] paramsArray = {blockdata};
+        int params = Update.createParamsVector(builder, paramsArray);
+
         Update.startUpdate(builder);
         Update.addInstruction(builder, instruction);
         Update.addWorldName(builder, worldName);
         Update.addPosition(builder, createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
         Update.addParams(builder, params);
-        Update.addSenderid(builder, WorldQLClient.zmqPortClientId);
+        Update.addSenderid(builder, WorldQLClient.getPluginInstance().getZmqPortClientId());
+
         int blockupdate = Update.endUpdate(builder);
         builder.finish(blockupdate);
 
         byte[] buf = builder.sizedByteArray();
-        WorldQLClient.push_socket.send(buf, 0);
+        WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
     }
 
     @EventHandler
     public void onPlayerPlaceBlockEvent(BlockPlaceEvent e) {
-        String[] relatives = {
+        final String[] relatives = {
                 e.getBlock().getRelative(1, 0, 0).getBlockData().getAsString(),
                 e.getBlock().getRelative(-1, 0, 0).getBlockData().getAsString(),
                 e.getBlock().getRelative(0, 1, 0).getBlockData().getAsString(),
@@ -46,7 +51,7 @@ public class PlayerBlockPlaceListener implements Listener {
                 e.getBlock().getRelative(0, 0, 1).getBlockData().getAsString(),
                 e.getBlock().getRelative(0, 0, -1).getBlockData().getAsString(),
         };
-        Location[] relative_locations = {
+        final Location[] relativeLocations = {
                 e.getBlock().getRelative(1, 0, 0).getLocation(),
                 e.getBlock().getRelative(-1, 0, 0).getLocation(),
                 e.getBlock().getRelative(0, 1, 0).getLocation(),
@@ -74,49 +79,57 @@ public class PlayerBlockPlaceListener implements Listener {
                     if (!relatives[i].equals(newRelatives[i]) ||
                             (newRelatives[i].contains("door") && newRelatives[i].contains("half=upper"))
                     ) {
-                        Location l = relative_locations[i];
+                        Location l = relativeLocations[i];
                         FlatBufferBuilder builder = new FlatBufferBuilder(1024);
+
                         int instruction = builder.createString("MinecraftBlockPlace");
-                        int blockdata = builder.createString(newRelatives[i]);
+                        int blockData = builder.createString(newRelatives[i]);
                         int worldName = builder.createString(e.getBlock().getWorld().getName());
-                        int[] params_array = {blockdata};
-                        int params = Update.createParamsVector(builder, params_array);
+
+                        int[] paramsArray = {blockData};
+                        int params = Update.createParamsVector(builder, paramsArray);
+
                         Update.startUpdate(builder);
                         Update.addInstruction(builder, instruction);
                         Update.addWorldName(builder, worldName);
                         Update.addPosition(builder, createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
                         Update.addParams(builder, params);
-                        Update.addSenderid(builder, WorldQLClient.zmqPortClientId);
+                        Update.addSenderid(builder, WorldQLClient.getPluginInstance().getZmqPortClientId());
+
                         int blockupdate = Update.endUpdate(builder);
                         builder.finish(blockupdate);
 
                         byte[] buf = builder.sizedByteArray();
-                        WorldQLClient.push_socket.send(buf, 0);
+                        WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
                     }
                 }
             }
-        }.runTaskLater(WorldQLClient.plugin_instance, 3);
+        }.runTaskLater(WorldQLClient.getPluginInstance(), 3);
 
 
         Location l = e.getBlock().getLocation();
         FlatBufferBuilder builder = new FlatBufferBuilder(1024);
+
         int instruction = builder.createString("MinecraftBlockPlace");
-        int blockdata = builder.createString(e.getBlock().getBlockData().getAsString());
+        int blockData = builder.createString(e.getBlock().getBlockData().getAsString());
         int worldName = builder.createString(e.getBlock().getWorld().getName());
-        int[] params_array = {blockdata};
-        int params = Update.createParamsVector(builder, params_array);
+
+        int[] paramsArray = {blockData};
+        int params = Update.createParamsVector(builder, paramsArray);
+
         Update.startUpdate(builder);
         Update.addInstruction(builder, instruction);
         Update.addWorldName(builder, worldName);
         Update.addPosition(builder, createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
         Update.addParams(builder, params);
-        Update.addSenderid(builder, WorldQLClient.zmqPortClientId);
-        int blockupdate = Update.endUpdate(builder);
-        builder.finish(blockupdate);
+        Update.addSenderid(builder, WorldQLClient.getPluginInstance().getZmqPortClientId());
+
+        int blockUpdate = Update.endUpdate(builder);
+        builder.finish(blockUpdate);
 
 
         byte[] buf = builder.sizedByteArray();
-        WorldQLClient.push_socket.send(buf, 0);
+        WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
     }
 
     public static int createRoundedVec3(FlatBufferBuilder builder, double x, double y, double z) {

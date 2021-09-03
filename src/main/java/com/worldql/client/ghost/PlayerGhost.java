@@ -125,7 +125,7 @@ public class PlayerGhost {
     }
 
     public void teleportNPC(Collection<Player> players, Location location, boolean onGround) {
-        players.forEach(p->this.teleportNPC(p, location, onGround));
+        players.forEach(p -> this.teleportNPC(p, location, onGround));
     }
 
     public void teleportNPC(Player player, Location location, boolean onGround) {
@@ -186,7 +186,7 @@ public class PlayerGhost {
     }
 
     public void playAnimation(Collection<Player> players, Animation animation) {
-        players.forEach(p->this.playAnimation(p, animation));
+        players.forEach(p -> this.playAnimation(p, animation));
     }
 
     public void playAnimation(Player player, Animation animation) {
@@ -194,7 +194,7 @@ public class PlayerGhost {
     }
 
     public void rotateHead(Collection<Player> players, float pitch, float yaw) {
-        players.forEach(p->this.rotateHead(p, pitch, yaw));
+        players.forEach(p -> this.rotateHead(p, pitch, yaw));
     }
 
     public void rotateHead(Player player, float pitch, float yaw) {
@@ -209,7 +209,7 @@ public class PlayerGhost {
     }
 
     public void setEquipment(Collection<Player> players, ItemSlot slot, org.bukkit.inventory.ItemStack itemStack) {
-        players.forEach(p->this.setEquipment(p, slot, itemStack));
+        players.forEach(p -> this.setEquipment(p, slot, itemStack));
     }
 
     public void setEquipment(Player player, ItemSlot slot, org.bukkit.inventory.ItemStack itemStack) {
@@ -217,7 +217,7 @@ public class PlayerGhost {
     }
 
     public void setPassenger(Collection<Player> players, int... entityIDs) {
-        players.forEach(p->this.setPassenger(p, entityIDs));
+        players.forEach(p -> this.setPassenger(p, entityIDs));
     }
 
     public void setPassenger(Player player, int... entityIDs) {
@@ -225,16 +225,16 @@ public class PlayerGhost {
     }
 
     private void sendPacket(Player player, Packet<?> packet) {
-        ((CraftPlayer)(player)).getHandle().b.sendPacket(packet);
+        ((CraftPlayer) (player)).getHandle().b.sendPacket(packet);
     }
 
     public void setNameTagVisibility(Collection<Player> players, boolean show) {
-        players.forEach(p->this.setNameTagVisibility(p, show));
+        players.forEach(p -> this.setNameTagVisibility(p, show));
     }
 
     public void setNameTagVisibility(Player player, boolean show) {
         ScoreboardTeam team = new ScoreboardTeam(new Scoreboard(), this.hideTeam);
-        if(show) {
+        if (show) {
             PacketPlayOutScoreboardTeam leavePacket = PacketPlayOutScoreboardTeam.a(team, this.profile.getName(), PacketPlayOutScoreboardTeam.a.b);
             this.sendPacket(player, leavePacket);
         } else {
@@ -247,7 +247,7 @@ public class PlayerGhost {
     }
 
     private PacketPlayOutMount getEntityAttachPacket(int[] entityIDs) {
-        return this.createDataSerializer(data->{
+        return this.createDataSerializer(data -> {
             data.d(this.entityID);
             data.a(entityIDs);
             return new PacketPlayOutMount(data);
@@ -255,48 +255,48 @@ public class PlayerGhost {
     }
 
     private PacketPlayOutEntity.PacketPlayOutEntityLook getEntityLookPacket() {
-        return new PacketPlayOutEntity.PacketPlayOutEntityLook(this.entityID, (byte)((int)(this.location.getYaw() * 256.0F / 360.0F)), (byte)((int)(this.location.getPitch() * 256.0F / 360.0F)), true);
+        return new PacketPlayOutEntity.PacketPlayOutEntityLook(this.entityID, (byte) ((int) (this.location.getYaw() * 256.0F / 360.0F)), (byte) ((int) (this.location.getPitch() * 256.0F / 360.0F)), true);
     }
 
     private PacketPlayOutEntityTeleport getEntityTeleportPacket(boolean onGround) {
-        return this.createDataSerializer(data->{
+        return this.createDataSerializer(data -> {
             data.d(this.entityID);
             data.writeDouble(this.location.getX());
             data.writeDouble(this.location.getY());
             data.writeDouble(this.location.getZ());
-            data.writeByte((byte)((int)(this.location.getYaw() * 256.0F / 360.0F)));
-            data.writeByte((byte)((int)(this.location.getPitch() * 256.0F / 360.0F)));
+            data.writeByte((byte) ((int) (this.location.getYaw() * 256.0F / 360.0F)));
+            data.writeByte((byte) ((int) (this.location.getPitch() * 256.0F / 360.0F)));
             data.writeBoolean(onGround);
             return new PacketPlayOutEntityTeleport(data);
         });
     }
 
     private PacketPlayOutEntityHeadRotation getEntityHeadRotatePacket() {
-        return this.createDataSerializer(data->{
+        return this.createDataSerializer(data -> {
             data.d(this.entityID);
-            data.writeByte((byte)((int)(this.location.getYaw() * 256.0F / 360.0F)));
+            data.writeByte((byte) ((int) (this.location.getYaw() * 256.0F / 360.0F)));
             return new PacketPlayOutEntityHeadRotation(data);
         });
     }
 
     private PacketPlayOutEntityEquipment getEntityEquipmentPacket(EnumItemSlot slot, ItemStack itemStack) {
-        return new PacketPlayOutEntityEquipment(this.entityID, Arrays.asList(new Pair<EnumItemSlot, ItemStack>(slot, itemStack)));
+        return new PacketPlayOutEntityEquipment(this.entityID, Collections.singletonList(new Pair<>(slot, itemStack)));
     }
 
     private PacketPlayOutAnimation getEntityAnimationPacket(Animation animation) {
-        return this.createDataSerializer((data)->{
+        return this.createDataSerializer((data) -> {
             data.d(this.entityID);
-            data.writeByte((byte)animation.getType());
+            data.writeByte((byte) animation.getType());
             return new PacketPlayOutAnimation(data);
         });
     }
 
-    private PacketPlayOutEntityDestroy getEntityDestroyPacket(){
+    private PacketPlayOutEntityDestroy getEntityDestroyPacket() {
         return new PacketPlayOutEntityDestroy(this.entityID);
     }
 
     private PacketPlayOutEntityMetadata getEntityMetadataPacket() {
-        return this.createDataSerializer((data)->{
+        return this.createDataSerializer((data) -> {
             data.d(this.entityID);
             DataWatcher.a(this.metadata.getList(), data);
             return new PacketPlayOutEntityMetadata(data);
@@ -304,27 +304,27 @@ public class PlayerGhost {
     }
 
     private PacketPlayOutNamedEntitySpawn getEntitySpawnPacket() {
-        return this.createDataSerializer((data)->{
+        return this.createDataSerializer((data) -> {
             data.d(this.entityID);
             data.a(this.profile.getId());
             data.writeDouble(this.location.getX());
             data.writeDouble(this.location.getY());
             data.writeDouble(this.location.getZ());
-            data.writeByte((byte)((int)(this.location.getYaw() * 256.0F / 360.0F)));
-            data.writeByte((byte)((int)(this.location.getPitch() * 256.0F / 360.0F)));
+            data.writeByte((byte) ((int) (this.location.getYaw() * 256.0F / 360.0F)));
+            data.writeByte((byte) ((int) (this.location.getPitch() * 256.0F / 360.0F)));
             return new PacketPlayOutNamedEntitySpawn(data);
         });
     }
 
     public PacketPlayOutPlayerInfo getPlayerInfoPacket(PlayerInfo playerInfo) {
-        return this.createDataSerializer((data)->{
+        return this.createDataSerializer((data) -> {
             PacketPlayOutPlayerInfo.EnumPlayerInfoAction action = playerInfo.getPlayerInfo();
             PacketPlayOutPlayerInfo.PlayerInfoData playerInfoData = new PacketPlayOutPlayerInfo.PlayerInfoData(this.profile, this.ping.getMilliseconds(), this.gamemode.getGamemode(), CraftChatMessage.fromString(this.displayName)[0]);
-            List<PacketPlayOutPlayerInfo.PlayerInfoData> list = Arrays.asList(playerInfoData);
+            List<PacketPlayOutPlayerInfo.PlayerInfoData> list = Collections.singletonList(playerInfoData);
             data.a(playerInfo.getPlayerInfo());
             Method method = playerInfo.getPlayerInfo().getDeclaringClass().getDeclaredMethod("a", PacketDataSerializer.class, PacketPlayOutPlayerInfo.PlayerInfoData.class);
             method.setAccessible(true);
-            data.a(list, (a,b)->this.unsafe(()->method.invoke(action, a, b)));
+            data.a(list, (a, b) -> this.unsafe(() -> method.invoke(action, a, b)));
             return new PacketPlayOutPlayerInfo(data);
         });
     }
@@ -378,23 +378,23 @@ public class PlayerGhost {
     }
 
     public void setASyncSkinByUsername(Plugin plugin, Player player, String username, BiConsumer<Boolean, PlayerGhost> callback) {
-        SkinTextures.getByUsername(plugin, username, (success, skin)->setASyncSkin(success, skin, player, callback));
+        SkinTextures.getByUsername(plugin, username, (success, skin) -> setASyncSkin(success, skin, player, callback));
     }
 
     public void setASyncSkinByUsername(Plugin plugin, Collection<Player> players, String username, BiConsumer<Boolean, PlayerGhost> callback) {
-        SkinTextures.getByUsername(plugin, username, (success, skin)->setASyncSkin(success, skin, players, callback));
+        SkinTextures.getByUsername(plugin, username, (success, skin) -> setASyncSkin(success, skin, players, callback));
     }
 
     public void setASyncSkinByUUID(Plugin plugin, Player player, UUID uuid, BiConsumer<Boolean, PlayerGhost> callback) {
-        SkinTextures.getByUUID(plugin, uuid, (success, skin)->setASyncSkin(success, skin, player, callback));
+        SkinTextures.getByUUID(plugin, uuid, (success, skin) -> setASyncSkin(success, skin, player, callback));
     }
 
     public void setASyncSkinByUUID(Plugin plugin, Collection<Player> players, UUID uuid, BiConsumer<Boolean, PlayerGhost> callback) {
-        SkinTextures.getByUUID(plugin, uuid, (success, skin)->setASyncSkin(success, skin, players, callback));
+        SkinTextures.getByUUID(plugin, uuid, (success, skin) -> setASyncSkin(success, skin, players, callback));
     }
 
     private void setASyncSkin(boolean success, SkinTextures skin, Collection<Player> players, BiConsumer<Boolean, PlayerGhost> callback) {
-        if(success) {
+        if (success) {
             this.setSkin(skin);
             this.reloadNPC(players);
         }
@@ -402,7 +402,7 @@ public class PlayerGhost {
     }
 
     private void setASyncSkin(boolean success, SkinTextures skin, Player player, BiConsumer<Boolean, PlayerGhost> callback) {
-        this.setASyncSkin(success, skin, Arrays.asList(player), callback);
+        this.setASyncSkin(success, skin, Collections.singletonList(player), callback);
     }
 
     public void setPing(Ping ping) {
@@ -423,7 +423,7 @@ public class PlayerGhost {
     public class NPCMetaData {
 
         //Entity metadata
-        private final DataWatcher.Item<Byte> entityState = a(0, (byte)EntityState.createMask(EntityState.DEFAULT));
+        private final DataWatcher.Item<Byte> entityState = a(0, (byte) EntityState.createMask(EntityState.DEFAULT));
         private final DataWatcher.Item<Integer> airTicks = a(1, 300);
         private final DataWatcher.Item<Optional<IChatBaseComponent>> customName = a(2, Optional.empty(), DataWatcherRegistry.f);
         private final DataWatcher.Item<Boolean> customNameVisible = a(3, false);
@@ -433,7 +433,7 @@ public class PlayerGhost {
         private final DataWatcher.Item<Integer> frozenTicks = a(7, 0); //shaking at tick 140
 
         //LivingEntity metadata
-        private final DataWatcher.Item<Byte> handStatus = a(8, (byte)HandStatus.createMask(HandStatus.MAIN_HAND));
+        private final DataWatcher.Item<Byte> handStatus = a(8, (byte) HandStatus.createMask(HandStatus.MAIN_HAND));
         private final DataWatcher.Item<Float> health = a(9, 1.0F);
         private final DataWatcher.Item<Integer> potionEffectColor = a(10, 0);
         private final DataWatcher.Item<Boolean> isPotionEffectAmbient = a(11, false);
@@ -444,8 +444,8 @@ public class PlayerGhost {
         //Player metadata
         private final DataWatcher.Item<Float> additionalHearts = a(15, 0.0F);
         private final DataWatcher.Item<Integer> score = a(16, 0);
-        private final DataWatcher.Item<Byte> skinStatus = a(17, (byte)SkinStatus.createMask(SkinStatus.ALL_ENABLED));
-        private final DataWatcher.Item<Byte> hand = a(18, (byte)Hand.RIGHT.getType());
+        private final DataWatcher.Item<Byte> skinStatus = a(17, (byte) SkinStatus.createMask(SkinStatus.ALL_ENABLED));
+        private final DataWatcher.Item<Byte> hand = a(18, (byte) Hand.RIGHT.getType());
         private final DataWatcher.Item<NBTTagCompound> leftShoulder = a(19, new NBTTagCompound());
         private final DataWatcher.Item<NBTTagCompound> rightShoulder = a(20, new NBTTagCompound());
 
@@ -645,9 +645,9 @@ public class PlayerGhost {
         }
 
         public NBTTagCompound createParrot(Consumer<Parrot> callback, World world) {
-            EntityParrot entityParrot = new EntityParrot(EntityTypes.al, ((CraftWorld)world).getHandle());
+            EntityParrot entityParrot = new EntityParrot(EntityTypes.al, ((CraftWorld) world).getHandle());
             CraftParrot parrot = new CraftParrot((CraftServer) Bukkit.getServer(), entityParrot);
-            callback.accept((Parrot) parrot);
+            callback.accept(parrot);
             NBTTagCompound nbtTagCompound = new NBTTagCompound();
             entityParrot.d(nbtTagCompound);
             return nbtTagCompound;
@@ -672,30 +672,30 @@ public class PlayerGhost {
         private static <T> DataWatcher.Item<T> a(int index, T value) {
             DataWatcherSerializer<?> serializer = null;
 
-            if(value instanceof Byte) {
+            if (value instanceof Byte) {
                 serializer = DataWatcherRegistry.a;
-            } else if(value instanceof Float) {
+            } else if (value instanceof Float) {
                 serializer = DataWatcherRegistry.c;
-            } else if(value instanceof Integer) {
+            } else if (value instanceof Integer) {
                 serializer = DataWatcherRegistry.b;
-            } else if(value instanceof String) {
+            } else if (value instanceof String) {
                 serializer = DataWatcherRegistry.d;
-            } else if(value instanceof Boolean) {
+            } else if (value instanceof Boolean) {
                 serializer = DataWatcherRegistry.i;
-            } else if(value instanceof NBTTagCompound) {
+            } else if (value instanceof NBTTagCompound) {
                 serializer = DataWatcherRegistry.p;
-            } else if(value instanceof BlockPosition) {
+            } else if (value instanceof BlockPosition) {
                 serializer = DataWatcherRegistry.m;
-            } else if(value instanceof IChatBaseComponent) {
+            } else if (value instanceof IChatBaseComponent) {
                 serializer = DataWatcherRegistry.e;
-            } else if(value instanceof EntityPose) {
+            } else if (value instanceof EntityPose) {
                 serializer = DataWatcherRegistry.s;
             }
-            return a(index, value, (DataWatcherSerializer<T>)serializer);
+            return a(index, value, (DataWatcherSerializer<T>) serializer);
         }
 
         private static <T> DataWatcher.Item<T> a(int index, T value, DataWatcherSerializer<T> serializer) {
-            return new DataWatcher.Item<T>(new DataWatcherObject<T>(index, serializer), value);
+            return new DataWatcher.Item<>(new DataWatcherObject<>(index, serializer), value);
         }
 
     }
@@ -736,8 +736,8 @@ public class PlayerGhost {
         }
 
         public static Hand fromByte(byte type) {
-            for(Hand hand : values()) {
-                if(type == hand.type) {
+            for (Hand hand : values()) {
+                if (type == hand.type) {
                     return hand;
                 }
             }
@@ -767,8 +767,8 @@ public class PlayerGhost {
         }
 
         public static Pose fromPose(EntityPose entityPose) {
-            for(Pose pose : values()) {
-                if(entityPose == pose.pose) {
+            for (Pose pose : values()) {
+                if (entityPose == pose.pose) {
                     return pose;
                 }
             }
@@ -800,7 +800,7 @@ public class PlayerGhost {
 
         public static int createMask(SkinStatus... skinStatuses) {
             int mask = 0;
-            for(SkinStatus handStatus : skinStatuses) {
+            for (SkinStatus handStatus : skinStatuses) {
                 mask |= handStatus.mask;
             }
             return mask;
@@ -808,12 +808,12 @@ public class PlayerGhost {
 
         public static SkinStatus[] fromMask(int mask) {
             List<SkinStatus> list = new ArrayList<>();
-            for(SkinStatus skinStatus : values()) {
-                if((skinStatus.mask & mask) == skinStatus.mask) {
+            for (SkinStatus skinStatus : values()) {
+                if ((skinStatus.mask & mask) == skinStatus.mask) {
                     list.add(skinStatus);
                 }
             }
-            return list.toArray(new SkinStatus[list.size()]);
+            return list.toArray(new SkinStatus[0]);
         }
     }
 
@@ -837,7 +837,7 @@ public class PlayerGhost {
 
         public static int createMask(HandStatus... handStatuses) {
             int mask = 0;
-            for(HandStatus handStatus : handStatuses) {
+            for (HandStatus handStatus : handStatuses) {
                 mask |= handStatus.mask;
             }
             return mask;
@@ -845,12 +845,12 @@ public class PlayerGhost {
 
         public static HandStatus[] fromMask(int mask) {
             List<HandStatus> list = new ArrayList<>();
-            for(HandStatus handStatus : values()) {
-                if((handStatus.mask & mask) == handStatus.mask) {
+            for (HandStatus handStatus : values()) {
+                if ((handStatus.mask & mask) == handStatus.mask) {
                     list.add(handStatus);
                 }
             }
-            return list.toArray(new HandStatus[list.size()]);
+            return list.toArray(new HandStatus[0]);
         }
     }
 
@@ -900,7 +900,7 @@ public class PlayerGhost {
 
         public static int createMask(EntityState... entityStates) {
             int mask = 0;
-            for(EntityState entityState : entityStates) {
+            for (EntityState entityState : entityStates) {
                 mask |= entityState.mask;
             }
             return mask;
@@ -908,12 +908,12 @@ public class PlayerGhost {
 
         public static EntityState[] fromMask(int mask) {
             List<EntityState> list = new ArrayList<>();
-            for(EntityState entityState : values()) {
-                if((entityState.mask & mask) == entityState.mask) {
+            for (EntityState entityState : values()) {
+                if ((entityState.mask & mask) == entityState.mask) {
                     list.add(entityState);
                 }
             }
-            return list.toArray(new EntityState[list.size()]);
+            return list.toArray(new EntityState[0]);
         }
     }
 
@@ -996,7 +996,7 @@ public class PlayerGhost {
         }
 
         public static void getByUsername(Plugin plugin, String username, BiConsumer<Boolean, SkinTextures> callback) {
-            new BukkitRunnable(){
+            new BukkitRunnable() {
                 @Override
                 public void run() {
                     JSONArray array = new JSONArray();
@@ -1011,9 +1011,9 @@ public class PlayerGhost {
                                 .build();
 
                         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-                        if(response.statusCode() == HttpURLConnection.HTTP_OK) {
+                        if (response.statusCode() == HttpURLConnection.HTTP_OK) {
                             JSONArray uuidArray = (JSONArray) new JSONParser().parse(response.body());
-                            if(uuidArray.size() > 0) {
+                            if (!uuidArray.isEmpty()) {
                                 String uuidStr = (String) ((JSONObject) uuidArray.get(0)).get("id");
                                 result = UUID.fromString(uuidStr.replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
                             }
@@ -1023,8 +1023,8 @@ public class PlayerGhost {
                         e.printStackTrace();
                     }
 
-                    if(result == null) {
-                        new BukkitRunnable(){
+                    if (result == null) {
+                        new BukkitRunnable() {
                             @Override
                             public void run() {
                                 callback.accept(false, null);
@@ -1038,7 +1038,7 @@ public class PlayerGhost {
         }
 
         public static void getByUUID(Plugin plugin, UUID uuid, BiConsumer<Boolean, SkinTextures> callback) {
-            new BukkitRunnable(){
+            new BukkitRunnable() {
                 @Override
                 public void run() {
                     SkinTextures result = null;
@@ -1051,12 +1051,12 @@ public class PlayerGhost {
 
                         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 
-                        if(response.statusCode() == HttpURLConnection.HTTP_OK) {
+                        if (response.statusCode() == HttpURLConnection.HTTP_OK) {
                             JSONArray properties = (JSONArray) ((JSONObject) new JSONParser().parse(response.body())).get("properties");
-                            for(int t = 0; t < properties.size(); t++) {
-                                JSONObject obj = (JSONObject) properties.get(t);
-                                if(obj.containsKey("name") && obj.get("name").equals("textures")) {
-                                    result = new SkinTextures((String)obj.get("value"), (String)obj.get("signature"));
+                            for (Object property : properties) {
+                                JSONObject obj = (JSONObject) property;
+                                if (obj.containsKey("name") && obj.get("name").equals("textures")) {
+                                    result = new SkinTextures((String) obj.get("value"), (String) obj.get("signature"));
                                 }
                             }
                         }
@@ -1067,10 +1067,10 @@ public class PlayerGhost {
 
                     final SkinTextures skinTextures = result;
 
-                    new BukkitRunnable(){
+                    new BukkitRunnable() {
                         @Override
                         public void run() {
-                            if(skinTextures == null) {
+                            if (skinTextures == null) {
                                 callback.accept(false, null);
                             } else {
                                 callback.accept(true, skinTextures);

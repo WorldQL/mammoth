@@ -20,13 +20,16 @@ import java.util.Map;
 import java.util.UUID;
 
 public class PacketReader {
-    Channel channel;
-    public static Map<UUID, Channel> channels = new HashMap<UUID, Channel>();
+    //public final Map<UUID, Channel> channels;
+
+    public PacketReader() {
+        //this.channels = new HashMap<>();
+    }
 
     public void inject(Player player) {
         CraftPlayer craftPlayer = (CraftPlayer) player;
-        channel = craftPlayer.getHandle().b.a.k;
-        channels.put(player.getUniqueId(), channel);
+        Channel channel = craftPlayer.getHandle().b.a.k;
+        //channels.put(player.getUniqueId(), channel);
 
         if (channel.pipeline().get("PacketInjector") != null) {
             return;
@@ -45,7 +48,7 @@ public class PacketReader {
     public void readPacket(Player player, Packet<?> packet) {
         if (packet.getClass().getSimpleName().equalsIgnoreCase("PacketPlayInUseEntity")) {
             if (getValue(packet,
-                    "b").getClass().getName() == "net.minecraft.network.protocol.game.PacketPlayInUseEntity$1") {
+                    "b").getClass().getName().equals("net.minecraft.network.protocol.game.PacketPlayInUseEntity$1")) {
                 int playerId = (int) getValue(packet, "a");
                 ExpiringEntityPlayer p = PlayerGhostManager.integerNPCLookup.get(playerId);
 
@@ -56,7 +59,7 @@ public class PacketReader {
                     return;
                 }
 
-                Bukkit.getScheduler().runTask(WorldQLClient.plugin_instance,
+                Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(),
                         () -> Bukkit.getPluginManager().callEvent(new OutgoingPlayerHitEvent(playerId, player.getLocation().getDirection())));
 
                 PacketPlayOutAnimation damage = new PacketPlayOutAnimation(p.grab(), (byte) 1);
@@ -73,7 +76,6 @@ public class PacketReader {
     }
 
     private Object getValue(Object instance, String name) {
-
         Object result = null;
 
         try {
@@ -81,7 +83,7 @@ public class PacketReader {
             field.setAccessible(true);
             result = field.get(instance);
             field.setAccessible(false);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
 

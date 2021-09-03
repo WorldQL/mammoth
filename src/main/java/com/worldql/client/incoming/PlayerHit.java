@@ -23,7 +23,7 @@ public class PlayerHit {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        WorldQLClient.logger.info("Incoming combat event.");
+                        WorldQLClient.getPluginInstance().getLogger().info("Incoming combat event.");
                         player.setVelocity(player.getVelocity().add(new Vector(
                                         update.numericalParams(0),
                                         update.numericalParams(1),

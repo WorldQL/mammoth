@@ -8,18 +8,21 @@ import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
+import zmq.ZMQ;
 
 public class PlayerInteractEventListener implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
         Location l = e.getPlayer().getLocation();
         FlatBufferBuilder builder = new FlatBufferBuilder(1024);
+
         int uuid = builder.createString(e.getPlayer().getUniqueId().toString());
         int name = builder.createString(e.getPlayer().getName());
         int instruction = builder.createString("MinecraftPlayerMove");
-        int crouch_action = builder.createString("punch");
-        int[] actions_array = {crouch_action};
-        int actions = Update.createEntityactionsVector(builder, actions_array);
+        int crouchAction = builder.createString("punch");
+        int[] actionsArray = {crouchAction};
+        int actions = Update.createEntityactionsVector(builder, actionsArray);
+
         Update.startUpdate(builder);
         Update.addUuid(builder, uuid);
         Update.addPosition(builder, Vec3.createVec3(builder, (float)l.getX(), (float)l.getY(), (float)l.getZ()));
@@ -28,11 +31,12 @@ public class PlayerInteractEventListener implements Listener {
         Update.addName(builder, name);
         Update.addInstruction(builder, instruction);
         Update.addEntityactions(builder, actions);
-        Update.addSenderid(builder, WorldQLClient.zmqPortClientId);
+        Update.addSenderid(builder, WorldQLClient.pluginInstance.getZmqPortClientId());
+
         int player = Update.endUpdate(builder);
         builder.finish(player);
 
         byte[] buf = builder.sizedByteArray();
-        WorldQLClient.push_socket.send(buf, 0);
+        WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
     }
 }

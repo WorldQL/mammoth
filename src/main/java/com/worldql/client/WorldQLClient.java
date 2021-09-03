@@ -6,32 +6,29 @@ import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Logger;
 
 
 public class WorldQLClient extends JavaPlugin {
-    public static JavaPlugin plugin_instance;
-    private static Thread ZeroMQThread;
-    private static ZContext context;
-    public static ZMQ.Socket push_socket;
-    public static int zmqPortClientId;
-    public static Logger logger;
+    public static WorldQLClient pluginInstance;
+    private Thread zeroMQThread;
+    private ZContext context;
+    private ZMQ.Socket pushSocket;
+    private int zmqPortClientId;
+    private PacketReader packetReader;
 
     @Override
     public void onEnable() {
-        plugin_instance = this;
-        logger = getLogger();
+        pluginInstance = this;
         getLogger().info("Initializing Mammoth WorldQL client.");
         context = new ZContext();
-        push_socket = context.createSocket(SocketType.PUSH);
-        ZMQ.Socket handshake_socket = context.createSocket(SocketType.REQ);
-        handshake_socket.connect("tcp://127.0.0.1:5556");
+        pushSocket = context.createSocket(SocketType.PUSH);
+        packetReader = new PacketReader();
+        ZMQ.Socket handshakeSocket = context.createSocket(SocketType.REQ);
+        handshakeSocket.connect("tcp://127.0.0.1:5556");
 
 
         String myIP = "127.0.0.1";
@@ -48,30 +45,24 @@ public class WorldQLClient extends JavaPlugin {
         try {
             // create a database connection
             connection = DriverManager.getConnection("jdbc:sqlite:worldql.db");
-            Statement statement = connection.createStatement();
-            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+            try (Statement statement = connection.createStatement()) {
+                statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
-            statement.executeUpdate("create table if not exists chunk_sync (pk INTEGER PRIMARY KEY, x integer, y integer, last_update integer);");
+                statement.executeUpdate("create table if not exists chunk_sync (pk INTEGER PRIMARY KEY, x integer, y integer, last_update integer);");
+            }
         } catch (SQLException e) {
             // if the error message is "out of memory",
             // it probably means no database file is found
-            System.err.println(e.getMessage());
-        } finally {
-            try {
-                if (connection != null)
-                    connection.close();
-            } catch (SQLException e) {
-                // connection close failed.
-                System.err.println(e.getMessage());
-            }
+            getLogger().severe(e.getMessage());
         }
 
-        handshake_socket.send(myIP.getBytes(ZMQ.CHARSET), 0);
-        byte[] reply = handshake_socket.recv(0);
+        handshakeSocket.send(myIP.getBytes(ZMQ.CHARSET), zmq.ZMQ.ZMQ_DONTWAIT);
+        byte[] reply = handshakeSocket.recv(zmq.ZMQ.ZMQ_DONTWAIT);
         String assignedZeroMQPort = new String(reply, ZMQ.CHARSET);
         zmqPortClientId = Integer.parseInt(assignedZeroMQPort);
 
-        push_socket.connect("tcp://127.0.0.1:5555");
+        pushSocket.connect("tcp://127.0.0.1:5555");
+
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerCrouchListener(), this);
@@ -85,8 +76,8 @@ public class WorldQLClient extends JavaPlugin {
 
         this.getCommand("refreshworld").setExecutor(new TestRefreshWorldCommand());
 
-        ZeroMQThread = new Thread(new ZeroMQServer(this, assignedZeroMQPort, context));
-        ZeroMQThread.start();
+        zeroMQThread = new Thread(new ZeroMQServer(this, assignedZeroMQPort, context));
+        zeroMQThread.start();
     }
 
     @Override
@@ -94,9 +85,25 @@ public class WorldQLClient extends JavaPlugin {
         getLogger().info("Shutting down ZeroMQ thread.");
         context.close();
         try {
-            ZeroMQThread.interrupt();
-            ZeroMQThread.join();
-        } catch (InterruptedException e) {
+            zeroMQThread.interrupt();
+            zeroMQThread.join();
+        } catch (InterruptedException ignored) {
         }
+    }
+
+    public static WorldQLClient getPluginInstance() {
+        return pluginInstance;
+    }
+
+    public PacketReader getPacketReader() {
+        return packetReader;
+    }
+
+    public ZMQ.Socket getPushSocket() {
+        return pushSocket;
+    }
+
+    public int getZmqPortClientId() {
+        return zmqPortClientId;
     }
 }

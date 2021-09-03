@@ -4,20 +4,16 @@ import WorldQLFB.StandardEvents.Update;
 import com.worldql.client.ghost.PlayerGhostManager;
 import com.worldql.client.incoming.PlayerHit;
 import com.worldql.client.incoming.ResponseRecordGetBlocksAll;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQException;
 
-import java.util.Objects;
-
 public class ZeroMQServer implements Runnable {
-    private static Plugin plugin;
-    private static String port;
-    private static ZContext context;
+    private final Plugin plugin;
+    private final String port;
+    private final ZContext context;
 
     public ZeroMQServer(Plugin plugin, String port, ZContext context) {
         this.plugin = plugin;
