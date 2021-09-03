@@ -14,21 +14,33 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class ResponseRecordGetBlocksAll {
+    private ResponseRecordGetBlocksAll() {
+
+    }
+
     public static void process(Update update, Plugin plugin) {
         new BukkitRunnable() {
             @Override
             public void run() {
+                String worldName = update.worldName();
+                if (worldName == null) return;
+
                 // What you want to schedule goes here
-                World world = Bukkit.getWorld(update.worldName());
+                World world = Bukkit.getWorld(worldName);
+                if (world == null) return;
+
                 for (int i = 0; i < update.paramsLength(); i++) {
-                    String block_data = update.params(i);
+                    String blockCustomData = update.params(i);
+                    if (blockCustomData == null) return;
+
                     //WorldQLClient.logger.info(block_data);
-                    double blockx = update.numericalParams(i * 3);
-                    double blocky = update.numericalParams(i * 3 + 1);
-                    double blockz = update.numericalParams(i * 3 + 2);
-                    String[] block_datas = block_data.split("\n");
-                    BlockData blockData = Bukkit.getServer().createBlockData(block_datas[0]);
-                    Location l = new Location(world, blockx, blocky, blockz);
+                    double blockX = update.numericalParams(i * 3);
+                    double blockY = update.numericalParams(i * 3 + 1);
+                    double blockZ = update.numericalParams(i * 3 + 2);
+
+                    String[] blockDatas = blockCustomData.split("\n");
+                    BlockData blockData = Bukkit.getServer().createBlockData(blockDatas[0]);
+                    Location l = new Location(world, blockX, blockY, blockZ);
                     world.getBlockAt(l).setBlockData(blockData);
 
                     // we only get bed feet so we need to create the rest of the bed.
@@ -41,17 +53,17 @@ public class ResponseRecordGetBlocksAll {
                     }
 
 
-                    if (block_datas.length > 1) {
+                    if (blockDatas.length > 1) {
                         new BukkitRunnable() {
                             @Override
                             public void run() {
                                 //WorldQLClient.logger.info("SIGN");
                                 if (world.getBlockAt(
-                                        new Location(world, blockx, blocky, blockz)).getState() instanceof Sign) {
+                                        new Location(world, blockX, blockY, blockZ)).getState() instanceof Sign) {
                                     Sign sign = (Sign) world.getBlockAt(
-                                            new Location(world, blockx, blocky, blockz)).getState();
-                                    for (int j = 1; j < block_datas.length; j++) {
-                                        sign.setLine(j - 1, block_datas[j]);
+                                            new Location(world, blockX, blockY, blockZ)).getState();
+                                    for (int j = 1; j < blockDatas.length; j++) {
+                                        sign.setLine(j - 1, blockDatas[j]);
                                     }
                                     sign.update();
                                 }

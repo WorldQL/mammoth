@@ -12,33 +12,37 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.world.PortalCreateEvent;
+import zmq.ZMQ;
 
 public class PortalCreateEventListener implements Listener {
     @EventHandler
     public void onPortalCreate(PortalCreateEvent e) {
-        WorldQLClient.logger.info(String.valueOf(e.getReason()));
+        WorldQLClient.getPluginInstance().getLogger().info(String.valueOf(e.getReason()));
         //WorldQLClient.logger.info("!!!");
-        for (BlockState b : e.getBlocks()) {
+        for (final BlockState b : e.getBlocks()) {
             //WorldQLClient.logger.info(b.getBlockData().getMaterial().toString());
             if (b.getBlockData().getMaterial().equals(Material.NETHER_PORTAL) || b.getBlockData().getMaterial().equals(Material.OBSIDIAN)) {
                 Location l = b.getLocation();
                 FlatBufferBuilder builder = new FlatBufferBuilder(1024);
+
                 int instruction = builder.createString("MinecraftBlockPlace");
-                int blockdata = builder.createString(b.getBlockData().getAsString());
+                int blockData = builder.createString(b.getBlockData().getAsString());
                 int worldName = builder.createString(b.getBlock().getWorld().getName());
-                int[] params_array = {blockdata};
-                int params = Update.createParamsVector(builder, params_array);
+                int[] paramsArray = {blockData};
+                int params = Update.createParamsVector(builder, paramsArray);
+
                 Update.startUpdate(builder);
                 Update.addInstruction(builder, instruction);
                 Update.addWorldName(builder, worldName);
                 Update.addPosition(builder, PlayerBlockPlaceListener.createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
                 Update.addParams(builder, params);
-                Update.addSenderid(builder, WorldQLClient.zmqPortClientId);
-                int blockupdate = Update.endUpdate(builder);
-                builder.finish(blockupdate);
+                Update.addSenderid(builder, WorldQLClient.getPluginInstance().getZmqPortClientId());
+
+                int blockUpdate = Update.endUpdate(builder);
+                builder.finish(blockUpdate);
 
                 byte[] buf = builder.sizedByteArray();
-                WorldQLClient.push_socket.send(buf, 0);
+                WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
             }
         }
     }

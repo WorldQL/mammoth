@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import zmq.ZMQ;
 
 public class OutgoingPlayerHitListener implements Listener {
 
@@ -19,30 +20,35 @@ public class OutgoingPlayerHitListener implements Listener {
         if (hitPlayer == null) {
             return;
         }
-        String UUIDString = hitPlayer.grab().getUniqueIDString();
+        String uuidString = hitPlayer.grab().getUniqueIDString();
         //WorldQLClient.logger.info(UUIDString);
 
         FlatBufferBuilder builder = new FlatBufferBuilder(1024);
+
         int instruction = builder.createString("EntityHitEvent");
-        int playerUUID = builder.createString(UUIDString);
-        int[] params_array = {playerUUID};
-        float[] numerical_params_array = {
+        int playerUUID = builder.createString(uuidString);
+
+        int[] paramsArray = {playerUUID};
+        float[] numericalParamsArray = {
                 (float) e.getDirection().getX(),
                 (float) e.getDirection().getY(),
                 (float) e.getDirection().getZ()
         };
-        int params = Update.createParamsVector(builder, params_array);
-        int numerical_params = Update.createNumericalParamsVector(builder, numerical_params_array);
+
+        int params = Update.createParamsVector(builder, paramsArray);
+        int numericalParams = Update.createNumericalParamsVector(builder, numericalParamsArray);
+
         Update.startUpdate(builder);
         Update.addInstruction(builder, instruction);
         Update.addParams(builder, params);
-        Update.addNumericalParams(builder, numerical_params);
-        Update.addSenderid(builder, WorldQLClient.zmqPortClientId);
+        Update.addNumericalParams(builder, numericalParams);
+        Update.addSenderid(builder, WorldQLClient.getPluginInstance().getZmqPortClientId());
+
         int update = Update.endUpdate(builder);
         builder.finish(update);
 
         byte[] buf = builder.sizedByteArray();
-        WorldQLClient.push_socket.send(buf, 0);
+        WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
 
     }
 }

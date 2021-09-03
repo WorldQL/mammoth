@@ -9,7 +9,7 @@ import java.time.Instant;
 
 public class ExpiringEntityPlayer {
     private long lastAccessed;
-    private EntityPlayer entityPlayer;
+    private final EntityPlayer entityPlayer;
 
     public ExpiringEntityPlayer(EntityPlayer e) {
         this.lastAccessed = Instant.now().getEpochSecond();
@@ -23,10 +23,6 @@ public class ExpiringEntityPlayer {
 
     public boolean shouldExpire() {
         long difference = Instant.now().getEpochSecond() - lastAccessed;
-        if (difference > 120) {
-            return true;
-        } else {
-            return false;
-        }
+        return difference > 120;
     }
 }
