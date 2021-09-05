@@ -4,7 +4,7 @@
 ## What is WorldQL?
 WorldQL is a 3D database that's fast enough to use as a game server. Similarly to how SQL allow you to easily insert and query tabular data, WorldQL provides a simple interface to create and track 3D objects.
 
-The benefit of using WorldQL for your next multiplayer game development project is enormous. Save dozens of hours by starting with a player modifiable 3D world with optional persistence. Download the WorldQL alpha from our website (coming soon) and join our Discord community here (coming soon).
+The benefit of using WorldQL for your next multiplayer game development project is enormous. Save dozens of hours by starting with a player modifiable 3D world with optional persistence. Next week (~Sept. 8 2021), you'll be able to download the WorldQL alpha from our [website](https://www.worldql.com/). Be sure to [join our Discord community](https://discord.gg/tDZkXQPzEw).
 
 ## What is Mammoth?
 Mammoth uses WorldQL to scale a single Minecraft world across multiple server processes. Running multiple Minecraft server processes allows for better core utilization and allows for thousands of players to enjoy a single world. A collection of Minecraft servers using this plugin to sync with a WorldQL server is called a *Mammoth cluster*.
@@ -21,7 +21,7 @@ Mammoth has a number of features:
 3. Block states instantly sync between worlds. Even weird stuff, like nether portals, signs, doors, beds, and glass panes.
 4. Chests maintain a correct inventory no matter where they're accessed from. 
 
-5. ~~Redstone support is coming soon!~~
+5. Redstone support is coming soon!
 
 ## How to build this plugin and use Mammoth yourself!
 I recommend using IntelliJ IDEA and following the guides on the Spigot website to set up your Java 16 environment.
