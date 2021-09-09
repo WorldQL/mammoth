@@ -63,7 +63,9 @@ public class PlayerGhostManager {
         EntityPlayer e = expiringEntityPlayer.grab();
 
         if (state.instruction().equals("MinecraftPlayerQuit")) {
-            sendNPCJoinPacket(e);
+            sendNPCLeavePacket(e);
+            hashtableNPCs.remove(playerUUID);
+            integerNPCLookup.remove(playerUUID);
         }
 
         moveEntity(state, e);

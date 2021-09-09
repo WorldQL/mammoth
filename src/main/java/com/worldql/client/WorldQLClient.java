@@ -56,8 +56,8 @@ public class WorldQLClient extends JavaPlugin {
             getLogger().severe(e.getMessage());
         }
 
-        handshakeSocket.send(myIP.getBytes(ZMQ.CHARSET), zmq.ZMQ.ZMQ_DONTWAIT);
-        byte[] reply = handshakeSocket.recv(zmq.ZMQ.ZMQ_DONTWAIT);
+        handshakeSocket.send(myIP.getBytes(ZMQ.CHARSET), 0);
+        byte[] reply = handshakeSocket.recv(0);
         String assignedZeroMQPort = new String(reply, ZMQ.CHARSET);
         zmqPortClientId = Integer.parseInt(assignedZeroMQPort);
 
@@ -73,6 +73,7 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PortalCreateEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerLoadChunkListener(), this);
         getServer().getPluginManager().registerEvents(new OutgoingPlayerHitListener(), this);
+        getServer().getPluginManager().registerEvents(new BlockDropItemEventListener(), this);
 
         this.getCommand("refreshworld").setExecutor(new TestRefreshWorldCommand());
 
