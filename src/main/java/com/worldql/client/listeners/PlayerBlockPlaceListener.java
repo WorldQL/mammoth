@@ -3,6 +3,7 @@ package com.worldql.client.listeners;
 import WorldQLFB.StandardEvents.Update;
 import WorldQLFB.StandardEvents.Vec3;
 import com.google.flatbuffers.FlatBufferBuilder;
+import com.worldql.client.NoRepeatBlockBreak;
 import com.worldql.client.WorldQLClient;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
@@ -11,8 +12,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import zmq.ZMQ;
-
-import java.util.Arrays;
 
 public class PlayerBlockPlaceListener implements Listener {
     @EventHandler
@@ -39,6 +38,8 @@ public class PlayerBlockPlaceListener implements Listener {
 
         byte[] buf = builder.sizedByteArray();
         WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
+
+        NoRepeatBlockBreak.sendInitBlockBreakMessage(e);
     }
 
     @EventHandler

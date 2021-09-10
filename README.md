@@ -26,7 +26,30 @@ Mammoth has a number of features:
 ## How to build this plugin and use Mammoth yourself!
 I recommend using IntelliJ IDEA and following the guides on the Spigot website to set up your Java 16 environment.
 
-Then just clone this repo, open it in IntelliJ, and use the maven "package" lifecycle action to build the plugin.
+Then just clone this repo, open it in IntelliJ, and use the maven "package" lifecycle action to build the plugin. It's required to run Spigot BuildTools first to install a 1.17.1 jar in your local maven repo.
+Also, you'll need to create a PostgreSQL database:
+
+```sql
+CREATE DATABASE worldql;
+CREATE USER dbuser_worldql WITH PASSWORD 'worldql';
+GRANT ALL PRIVILEGES ON DATABASE worldql TO dbuser_worldql;
+```
+Connect to the worldql database and create the table (in the future this will be automated)
+```sql
+create table worldql_record_blocks
+(
+    x_coordinate double precision,
+    y_coordinate double precision,
+    z_coordinate double precision,
+    chunk_x int,
+    chunk_y int,
+    block_data varchar,
+    block_metadata varchar,
+    unix_timestamp_ms bigint,
+    world_name varchar
+);
+```
+
 
 ## History of Mammoth
 - March 2020: Inspired by large Minecraft events (like Square Garden) and 2b2t, the original goal for horizontally scaling a Minecraft server by splitting the world was realized. I wanted a quarantine project, so I started working on it.

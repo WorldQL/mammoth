@@ -46,6 +46,10 @@ public class ZeroMQServer implements Runnable {
                     PlayerHit.process(update, this.plugin);
                 }
 
+                if (update.instruction().equals("NoRepeat.BlockBreak")) {
+                    NoRepeatBlockBreak.spawnDrops(update);
+                }
+
             } catch (ZMQException e) {
                 if (e.getErrorCode() == ZMQ.Error.ETERM.getCode()) {
                     break;

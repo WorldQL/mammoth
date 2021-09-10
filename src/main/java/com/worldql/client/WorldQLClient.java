@@ -74,6 +74,7 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerLoadChunkListener(), this);
         getServer().getPluginManager().registerEvents(new OutgoingPlayerHitListener(), this);
         getServer().getPluginManager().registerEvents(new BlockDropItemEventListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerTeleportEventListener(), this);
 
         this.getCommand("refreshworld").setExecutor(new TestRefreshWorldCommand());
 

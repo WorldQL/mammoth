@@ -46,6 +46,7 @@ public class PlayerGhostManager {
             }
         }
 
+
         UUID playerUUID = UUID.fromString(state.uuid());
         // Do we have this NPC in our expiring entity player?
         ExpiringEntityPlayer expiringEntityPlayer;
@@ -64,13 +65,14 @@ public class PlayerGhostManager {
 
         if (state.instruction().equals("MinecraftPlayerQuit")) {
             sendNPCLeavePacket(e);
+            int npcId = hashtableNPCs.get(playerUUID).grab().getId();
             hashtableNPCs.remove(playerUUID);
-            integerNPCLookup.remove(playerUUID);
+            integerNPCLookup.remove(npcId);
+            playerNeedsGhosts.remove(playerUUID);
+            return;
         }
 
         moveEntity(state, e);
-
-
     }
 
     private static ExpiringEntityPlayer createNPC(String name, UUID uuid, Location location) {
