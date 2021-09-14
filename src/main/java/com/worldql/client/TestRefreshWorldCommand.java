@@ -14,8 +14,7 @@ public class TestRefreshWorldCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (sender instanceof Player player) {
-            FlatBufferBuilder b = new FlatBufferBuilder(512);
-
+            FlatBufferBuilder b = new FlatBufferBuilder(256);
             int instruction = b.createString("Record.Get.Blocks.all");
             int world = b.createString(player.getWorld().getName());
 
@@ -31,8 +30,6 @@ public class TestRefreshWorldCommand implements CommandExecutor {
             byte[] buf = b.sizedByteArray();
             WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
         }
-
-
         return false;
     }
 }
