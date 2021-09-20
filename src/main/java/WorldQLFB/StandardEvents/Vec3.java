@@ -12,15 +12,15 @@ public final class Vec3 extends Struct {
   public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public Vec3 __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public float x() { return bb.getFloat(bb_pos + 0); }
-  public float y() { return bb.getFloat(bb_pos + 4); }
-  public float z() { return bb.getFloat(bb_pos + 8); }
+  public double x() { return bb.getDouble(bb_pos + 0); }
+  public double y() { return bb.getDouble(bb_pos + 8); }
+  public double z() { return bb.getDouble(bb_pos + 16); }
 
-  public static int createVec3(FlatBufferBuilder builder, float x, float y, float z) {
-    builder.prep(4, 12);
-    builder.putFloat(z);
-    builder.putFloat(y);
-    builder.putFloat(x);
+  public static int createVec3(FlatBufferBuilder builder, double x, double y, double z) {
+    builder.prep(8, 24);
+    builder.putDouble(z);
+    builder.putDouble(y);
+    builder.putDouble(x);
     return builder.offset();
   }
 

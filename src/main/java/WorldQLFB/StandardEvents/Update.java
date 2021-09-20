@@ -50,8 +50,13 @@ public final class Update extends Table {
   public StringVector commandsVector() { return commandsVector(new StringVector()); }
   public StringVector commandsVector(StringVector obj) { int o = __offset(24); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
   public int senderid() { int o = __offset(26); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public WorldQLFB.StandardEvents.Record records(int j) { return records(new WorldQLFB.StandardEvents.Record(), j); }
+  public WorldQLFB.StandardEvents.Record records(WorldQLFB.StandardEvents.Record obj, int j) { int o = __offset(28); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
+  public int recordsLength() { int o = __offset(28); return o != 0 ? __vector_len(o) : 0; }
+  public WorldQLFB.StandardEvents.Record.Vector recordsVector() { return recordsVector(new WorldQLFB.StandardEvents.Record.Vector()); }
+  public WorldQLFB.StandardEvents.Record.Vector recordsVector(WorldQLFB.StandardEvents.Record.Vector obj) { int o = __offset(28); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
 
-  public static void startUpdate(FlatBufferBuilder builder) { builder.startTable(12); }
+  public static void startUpdate(FlatBufferBuilder builder) { builder.startTable(13); }
   public static void addInstruction(FlatBufferBuilder builder, int instructionOffset) { builder.addOffset(0, instructionOffset, 0); }
   public static void addPosition(FlatBufferBuilder builder, int positionOffset) { builder.addStruct(1, positionOffset, 0); }
   public static void addName(FlatBufferBuilder builder, int nameOffset) { builder.addOffset(2, nameOffset, 0); }
@@ -72,6 +77,9 @@ public final class Update extends Table {
   public static int createCommandsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
   public static void startCommandsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static void addSenderid(FlatBufferBuilder builder, int senderid) { builder.addInt(11, senderid, 0); }
+  public static void addRecords(FlatBufferBuilder builder, int recordsOffset) { builder.addOffset(12, recordsOffset, 0); }
+  public static int createRecordsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
+  public static void startRecordsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static int endUpdate(FlatBufferBuilder builder) {
     int o = builder.endTable();
     return o;
