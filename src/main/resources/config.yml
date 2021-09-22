@@ -1,0 +1,8 @@
+# WorldQL Connection Details
+worldql:
+  host: '127.0.0.1'
+  push-port: 5555
+  handshake-port: 5556
+
+# Client (self) Host
+host: '127.0.0.1'
