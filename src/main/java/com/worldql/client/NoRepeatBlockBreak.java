@@ -16,6 +16,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.Material;
 import zmq.ZMQ;
 import WorldQLFB.StandardEvents.Update;
 
@@ -73,10 +74,18 @@ public class NoRepeatBlockBreak {
                     if (!update.params(2).equals("")) {
                         ItemStack[] containerDrops = MinecraftUtil.itemStackArrayFromBase64(update.params(2));
                         for (ItemStack item : containerDrops) {
+                            if (item.getType() == Material.AIR){
+                                ///If air, it needs to skip that item to avoid errors.
+                                return;
+                            }
                             world.dropItemNaturally(l, item);
                         }
                     }
                     for (ItemStack item : drop) {
+                        if (item.getType() == Material.AIR){
+                            ///If air, it needs to skip that item to avoid errors.
+                            return;
+                        }
                         world.dropItemNaturally(l, item);
                     }
                 } catch (IOException e) {
