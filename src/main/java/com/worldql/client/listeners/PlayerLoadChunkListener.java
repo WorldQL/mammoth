@@ -9,7 +9,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
 import zmq.ZMQ;
 
+import java.util.Hashtable;
+
 public class PlayerLoadChunkListener implements Listener {
+    public static final Hashtable<String, Long> chunkLastRefreshed = new Hashtable<>();
+
 
     @EventHandler
     public void onPlayerLoadChunk(ChunkLoadEvent e) {
@@ -18,6 +22,14 @@ public class PlayerLoadChunkListener implements Listener {
         float[] numericalParamsArray = {
                 0, 256
         };
+
+        String chunkKey = e.getChunk().getX() + "," + e.getChunk().getZ();
+
+        if (chunkLastRefreshed.containsKey(chunkKey)) {
+            if (System.currentTimeMillis() - chunkLastRefreshed.get(chunkKey) < 30000) {
+                return;
+            }
+        }
 
         int numericalParams = Update.createNumericalParamsVector(builder, numericalParamsArray);
 
@@ -32,5 +44,7 @@ public class PlayerLoadChunkListener implements Listener {
 
         byte[] buf = builder.sizedByteArray();
         WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
+
+        chunkLastRefreshed.put(chunkKey, System.currentTimeMillis());
     }
 }

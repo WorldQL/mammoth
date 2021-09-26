@@ -6,10 +6,7 @@ import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.Hashtable;
 
 
 public class WorldQLClient extends JavaPlugin {
@@ -41,20 +38,6 @@ public class WorldQLClient extends JavaPlugin {
         }
          */
 
-        Connection connection = null;
-        try {
-            // create a database connection
-            connection = DriverManager.getConnection("jdbc:sqlite:worldql.db");
-            try (Statement statement = connection.createStatement()) {
-                statement.setQueryTimeout(30);  // set timeout to 30 sec.
-
-                statement.executeUpdate("create table if not exists chunk_sync (pk INTEGER PRIMARY KEY, x integer, y integer, last_update integer);");
-            }
-        } catch (SQLException e) {
-            // if the error message is "out of memory",
-            // it probably means no database file is found
-            getLogger().severe(e.getMessage());
-        }
 
         handshakeSocket.send(myIP.getBytes(ZMQ.CHARSET), 0);
         byte[] reply = handshakeSocket.recv(0);
