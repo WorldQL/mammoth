@@ -35,21 +35,6 @@ CREATE DATABASE worldql;
 CREATE USER dbuser_worldql WITH PASSWORD 'worldql';
 GRANT ALL PRIVILEGES ON DATABASE worldql TO dbuser_worldql;
 ```
-Connect to the worldql database and create the table (in the future this will be automated)
-```sql
-create table worldql_record_blocks
-(
-    x_coordinate double precision,
-    y_coordinate double precision,
-    z_coordinate double precision,
-    chunk_x int,
-    chunk_y int,
-    block_data varchar,
-    block_metadata varchar,
-    unix_timestamp_ms bigint,
-    world_name varchar
-);
-```
 
 
 ## History of Mammoth
