@@ -21,30 +21,35 @@ public class WorldQLClient extends JavaPlugin {
     public void onEnable() {
         pluginInstance = this;
         getLogger().info("Initializing Mammoth WorldQL client.");
+        saveDefaultConfig();
+
+        String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
+        int worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);
+        int worldqlHandshakePort = getConfig().getInt("worldql.handshake-port", 5556);
+
         context = new ZContext();
         pushSocket = context.createSocket(SocketType.PUSH);
         packetReader = new PacketReader();
         ZMQ.Socket handshakeSocket = context.createSocket(SocketType.REQ);
-        handshakeSocket.connect("tcp://127.0.0.1:5556");
+        handshakeSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlHandshakePort));
 
-
-        String myIP = "127.0.0.1";
+        String selfHostname = getConfig().getString("host", "127.0.0.1");
         /*
         try (final DatagramSocket datagramSocket = new DatagramSocket()) {
             datagramSocket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-            myIP = datagramSocket.getLocalAddress().getHostAddress();
+            selfHostname = datagramSocket.getLocalAddress().getHostAddress();
         } catch (Exception e) {
             throw new RuntimeException("Couldn't determine our IP address.");
         }
          */
 
 
-        handshakeSocket.send(myIP.getBytes(ZMQ.CHARSET), 0);
+        handshakeSocket.send(selfHostname.getBytes(ZMQ.CHARSET), 0);
         byte[] reply = handshakeSocket.recv(0);
         String assignedZeroMQPort = new String(reply, ZMQ.CHARSET);
         zmqPortClientId = Integer.parseInt(assignedZeroMQPort);
 
-        pushSocket.connect("tcp://127.0.0.1:5555");
+        pushSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlPushPort));
 
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), this);
