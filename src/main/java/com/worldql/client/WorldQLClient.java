@@ -27,19 +27,19 @@ public class WorldQLClient extends JavaPlugin {
         Integer worldqlPushPort, worldqlHandshakePort;
 
 
-        if (System.getenv("WQL_HOST") == null){
+        if (System.getenv("WQL_HOST") == null) {
             saveDefaultConfig();
             worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
             worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);
             worldqlHandshakePort = getConfig().getInt("worldql.handshake-port", 5556);
         } else {
-            worldqlHost = System.getenv("WQL_HOST").trim();
-            worldqlPushPort = Integer.parseInt(System.getenv("WQL_PUSH_PORT").trim());
-            worldqlHandshakePort = Integer.parseInt(System.getenv("WQL_HANDSHAKE_PORT").trim());
-            if (System.getenv("WQL_PUSH_PORT") == null || System.getenv("WQL_HANDSHAKE_PORT") == null){
+            if (System.getenv("WQL_PUSH_PORT") == null || System.getenv("WQL_HANDSHAKE_PORT") == null) {
                 getLogger().info("Please set 'WQL_PUSH_PORT' and 'WQL_PUSH_PORT' variables!");
                 return;
             }
+            worldqlHost = System.getenv("WQL_HOST").trim();
+            worldqlPushPort = Integer.parseInt(System.getenv("WQL_PUSH_PORT").trim());
+            worldqlHandshakePort = Integer.parseInt(System.getenv("WQL_HANDSHAKE_PORT").trim());
         }
 
         if (worldqlHost.equals("localhost") || worldqlHost.equals("127.0.0.1")) {
