@@ -14,6 +14,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.Material;
@@ -28,13 +29,16 @@ import static com.worldql.client.listeners.PlayerBlockPlaceListener.createRounde
 public class NoRepeatBlockBreak {
     public static void sendInitBlockBreakMessage(BlockBreakEvent event) {
         BlockState blockState = event.getBlock().getState();
-        String containerContentsBase64 = "";
-        if (blockState instanceof Container) {
-            ItemStack[] items = ((Container) blockState).getInventory().getContents();
-            containerContentsBase64 = MinecraftUtil.itemStackArrayToBase64(items);
+
+        // check whether player is in creative mode and if the block isn't a container
+        if (String.valueOf(event.getPlayer().getGameMode()).equals("CREATIVE") && !(event.getBlock() instanceof Container)) {
+            // prevent item from dropping if the above conditions are met
+            return;
         }
+
         Location l = event.getBlock().getLocation();
         ItemStack[] itemDropsArray = event.getBlock().getDrops().toArray(new ItemStack[0]);
+
         String itemDropsBase64 = MinecraftUtil.itemStackArrayToBase64(itemDropsArray);
 
         FlatBufferBuilder builder = new FlatBufferBuilder(1024);
@@ -42,10 +46,9 @@ public class NoRepeatBlockBreak {
         int instruction = builder.createString("NoRepeat.BlockBreak");
         int worldName = builder.createString(event.getBlock().getWorld().getName());
         int blockData = builder.createString(event.getBlock().getBlockData().getAsString());
-        int containerContents = builder.createString(containerContentsBase64);
         int itemDrops = builder.createString(itemDropsBase64);
 
-        int[] paramsArray = {blockData, itemDrops, containerContents};
+        int[] paramsArray = {blockData, itemDrops};
         int params = Update.createParamsVector(builder, paramsArray);
 
         Update.startUpdate(builder);
@@ -71,8 +74,8 @@ public class NoRepeatBlockBreak {
                         update.position().x(), update.position().y(), update.position().z());
                 try {
                     ItemStack[] drop = MinecraftUtil.itemStackArrayFromBase64(update.params(1));
-                    if (!update.params(2).equals("")) {
-                        ItemStack[] containerDrops = MinecraftUtil.itemStackArrayFromBase64(update.params(2));
+                    if (!update.params(1).equals("")) {
+                        ItemStack[] containerDrops = MinecraftUtil.itemStackArrayFromBase64(update.params(1));
                         for (ItemStack item : containerDrops) {
                             if (item.getType() == Material.AIR){
                                 ///If air, it needs to skip that item to avoid errors.
@@ -80,13 +83,14 @@ public class NoRepeatBlockBreak {
                             }
                             world.dropItemNaturally(l, item);
                         }
-                    }
-                    for (ItemStack item : drop) {
-                        if (item.getType() == Material.AIR){
-                            ///If air, it needs to skip that item to avoid errors.
-                            return;
+                    } else {
+                        for (ItemStack item : drop) {
+                            if (item.getType() == Material.AIR){
+                                ///If air, it needs to skip that item to avoid errors.
+                                return;
+                            }
+                            world.dropItemNaturally(l, item);
                         }
-                        world.dropItemNaturally(l, item);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
