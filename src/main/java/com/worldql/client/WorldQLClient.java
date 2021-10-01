@@ -33,13 +33,9 @@ public class WorldQLClient extends JavaPlugin {
             worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);
             worldqlHandshakePort = getConfig().getInt("worldql.handshake-port", 5556);
         } else {
-            if (System.getenv("WQL_PUSH_PORT") == null || System.getenv("WQL_HANDSHAKE_PORT") == null) {
-                getLogger().info("Please set 'WQL_PUSH_PORT' and 'WQL_PUSH_PORT' variables!");
-                return;
-            }
-            worldqlHost = System.getenv("WQL_HOST").trim();
-            worldqlPushPort = Integer.parseInt(System.getenv("WQL_PUSH_PORT").trim());
-            worldqlHandshakePort = Integer.parseInt(System.getenv("WQL_HANDSHAKE_PORT").trim());
+            worldqlHost = getEnvVar("WQL_HOST");
+            worldqlPushPort = Integer.parseInt(getEnvVar("WQL_PUSH_PORT"));
+            worldqlHandshakePort = Integer.parseInt(getEnvVar("WQL_HANDSHAKE_PORT"));
         }
 
         if (worldqlHost.equals("localhost") || worldqlHost.equals("127.0.0.1")) {
@@ -111,5 +107,13 @@ public class WorldQLClient extends JavaPlugin {
 
     public int getZmqPortClientId() {
         return zmqPortClientId;
+    }
+
+    private static String getEnvVar(String name) {
+        final String value = System.getenv(name);
+        if (value == null || value.isEmpty() || value.trim().isEmpty()) {
+            throw new RuntimeException("Please set [%s] variable!!!".formatted(name));
+        }
+        return value;
     }
 }
