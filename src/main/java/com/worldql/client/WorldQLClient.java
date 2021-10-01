@@ -24,8 +24,7 @@ public class WorldQLClient extends JavaPlugin {
         getLogger().info("Initializing Mammoth WorldQL client.");
 
         String selfHostname, worldqlHost;
-        Integer worldqlPushPort, worldqlHandshakePort;
-
+        int worldqlPushPort, worldqlHandshakePort;
 
         if (System.getenv("WQL_HOST") == null) {
             saveDefaultConfig();
@@ -84,11 +83,15 @@ public class WorldQLClient extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        getLogger().info("Shutting down ZeroMQ thread.");
-        context.close();
         try {
-            zeroMQThread.interrupt();
-            zeroMQThread.join();
+            if (zeroMQThread != null) {
+                getLogger().info("Shutting down ZeroMQ thread.");
+                zeroMQThread.interrupt();
+                zeroMQThread.join();
+            }
+            if (context != null) {
+                context.close();
+            }
         } catch (InterruptedException ignored) {
         }
     }
