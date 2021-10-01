@@ -6,7 +6,8 @@ import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
-import java.util.Hashtable;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 
 public class WorldQLClient extends JavaPlugin {
@@ -21,27 +22,42 @@ public class WorldQLClient extends JavaPlugin {
     public void onEnable() {
         pluginInstance = this;
         getLogger().info("Initializing Mammoth WorldQL client.");
-        saveDefaultConfig();
 
-        String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
-        int worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);
-        int worldqlHandshakePort = getConfig().getInt("worldql.handshake-port", 5556);
+        String selfHostname, worldqlHost;
+        Integer worldqlPushPort, worldqlHandshakePort;
+
+
+        if (System.getenv("WQL_HOST") == null){
+            saveDefaultConfig();
+            worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
+            worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);
+            worldqlHandshakePort = getConfig().getInt("worldql.handshake-port", 5556);
+        } else {
+            worldqlHost = System.getenv("WQL_HOST").trim();
+            worldqlPushPort = Integer.parseInt(System.getenv("WQL_PUSH_PORT").trim());
+            worldqlHandshakePort = Integer.parseInt(System.getenv("WQL_HANDSHAKE_PORT").trim());
+            if (System.getenv("WQL_PUSH_PORT") == null || System.getenv("WQL_HANDSHAKE_PORT") == null){
+                getLogger().info("Please set 'WQL_PUSH_PORT' and 'WQL_PUSH_PORT' variables!");
+                return;
+            }
+        }
+
+        if (worldqlHost.equals("localhost") || worldqlHost.equals("127.0.0.1")) {
+            selfHostname = "127.0.0.1";
+        } else {
+            try (final DatagramSocket datagramSocket = new DatagramSocket()) {
+                datagramSocket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+                selfHostname = datagramSocket.getLocalAddress().getHostAddress();
+            } catch (Exception e) {
+                throw new RuntimeException("Couldn't determine our IP address.");
+            }
+        }
 
         context = new ZContext();
         pushSocket = context.createSocket(SocketType.PUSH);
         packetReader = new PacketReader();
         ZMQ.Socket handshakeSocket = context.createSocket(SocketType.REQ);
         handshakeSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlHandshakePort));
-
-        String selfHostname = getConfig().getString("host", "127.0.0.1");
-        /*
-        try (final DatagramSocket datagramSocket = new DatagramSocket()) {
-            datagramSocket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-            selfHostname = datagramSocket.getLocalAddress().getHostAddress();
-        } catch (Exception e) {
-            throw new RuntimeException("Couldn't determine our IP address.");
-        }
-         */
 
 
         handshakeSocket.send(selfHostname.getBytes(ZMQ.CHARSET), 0);
