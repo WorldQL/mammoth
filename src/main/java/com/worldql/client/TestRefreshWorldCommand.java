@@ -1,6 +1,6 @@
 package com.worldql.client;
 
-import WorldQLFB.StandardEvents.Update;
+import WorldQLFB_OLD.StandardEvents.Update;
 import com.google.flatbuffers.FlatBufferBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;

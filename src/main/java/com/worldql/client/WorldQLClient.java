@@ -11,6 +11,7 @@ import java.util.Hashtable;
 
 public class WorldQLClient extends JavaPlugin {
     public static WorldQLClient pluginInstance;
+    public static String worldQLClientId;
     private Thread zeroMQThread;
     private ZContext context;
     private ZMQ.Socket pushSocket;
@@ -25,31 +26,16 @@ public class WorldQLClient extends JavaPlugin {
 
         String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
         int worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);
-        int worldqlHandshakePort = getConfig().getInt("worldql.handshake-port", 5556);
+        worldQLClientId = java.util.UUID.randomUUID().toString();
 
         context = new ZContext();
         pushSocket = context.createSocket(SocketType.PUSH);
         packetReader = new PacketReader();
-        ZMQ.Socket handshakeSocket = context.createSocket(SocketType.REQ);
-        handshakeSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlHandshakePort));
+        getLogger().info("Attempting to connect to WorldQL server.");
+        pushSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlPushPort));
 
         String selfHostname = getConfig().getString("host", "127.0.0.1");
         /*
-        try (final DatagramSocket datagramSocket = new DatagramSocket()) {
-            datagramSocket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-            selfHostname = datagramSocket.getLocalAddress().getHostAddress();
-        } catch (Exception e) {
-            throw new RuntimeException("Couldn't determine our IP address.");
-        }
-         */
-
-
-        handshakeSocket.send(selfHostname.getBytes(ZMQ.CHARSET), 0);
-        byte[] reply = handshakeSocket.recv(0);
-        String assignedZeroMQPort = new String(reply, ZMQ.CHARSET);
-        zmqPortClientId = Integer.parseInt(assignedZeroMQPort);
-
-        pushSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlPushPort));
 
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), this);
@@ -64,9 +50,11 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BlockDropItemEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerTeleportEventListener(), this);
 
+         */
+
         this.getCommand("refreshworld").setExecutor(new TestRefreshWorldCommand());
 
-        zeroMQThread = new Thread(new ZeroMQServer(this, assignedZeroMQPort, context));
+        zeroMQThread = new Thread(new ZeroMQServer(this, context, selfHostname));
         zeroMQThread.start();
     }
 

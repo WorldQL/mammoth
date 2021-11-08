@@ -1,6 +1,10 @@
 package com.worldql.client;
 
-import WorldQLFB.StandardEvents.Update;
+import WorldQLFB_OLD.StandardEvents.Update;
+import com.worldql.client.Messages.Message;
+import com.worldql.client.Messages.Instruction;
+
+import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.ghost.PlayerGhostManager;
 import com.worldql.client.incoming.PlayerHit;
 import com.worldql.client.incoming.ResponseRecordGetBlocksAll;
@@ -12,19 +16,32 @@ import org.zeromq.ZMQException;
 
 public class ZeroMQServer implements Runnable {
     private final Plugin plugin;
-    private final String port;
     private final ZContext context;
+    private final String hostname;
 
-    public ZeroMQServer(Plugin plugin, String port, ZContext context) {
+    public ZeroMQServer(Plugin plugin, ZContext context, String hostname) {
         this.plugin = plugin;
-        this.port = port;
         this.context = context;
+        this.hostname = hostname;
     }
 
     @Override
     public void run() {
         ZMQ.Socket socket = context.createSocket(SocketType.PULL);
-        socket.bind("tcp://*:" + port);
+        int port = socket.bindToRandomPort("tcp://" + hostname, 29000, 30000);
+        System.out.println("BOUND TO PORT " + port);
+
+        FlatBufferBuilder builder = new FlatBufferBuilder(1024);
+        int parameter = builder.createString(hostname + ":" + port);
+        int client_uuid = builder.createString(WorldQLClient.worldQLClientId);
+        Message.startMessage(builder);
+        Message.addInstruction(builder, Instruction.Handshake);
+        Message.addParameter(builder, parameter);
+        Message.addSenderUuid(builder, client_uuid);
+        int message = Message.endMessage(builder);
+        builder.finish(message);
+        byte[] handshakeBuf = builder.sizedByteArray();
+        WorldQLClient.getPluginInstance().getPushSocket().send(handshakeBuf, ZMQ.DONTWAIT);
 
         while (!Thread.currentThread().isInterrupted()) {
             try {

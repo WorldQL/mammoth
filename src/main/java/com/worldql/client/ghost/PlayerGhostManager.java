@@ -1,6 +1,6 @@
 package com.worldql.client.ghost;
 
-import WorldQLFB.StandardEvents.Update;
+import WorldQLFB_OLD.StandardEvents.Update;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
@@ -11,9 +11,6 @@ import net.minecraft.network.syncher.DataWatcherObject;
 import net.minecraft.network.syncher.DataWatcherRegistry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.server.*;
-import net.minecraft.server.level.PlayerInteractManager;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.entity.EntityPose;

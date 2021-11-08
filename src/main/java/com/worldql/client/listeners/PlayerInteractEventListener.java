@@ -1,7 +1,7 @@
 package com.worldql.client.listeners;
 
-import WorldQLFB.StandardEvents.Update;
-import WorldQLFB.StandardEvents.Vec3;
+import WorldQLFB_OLD.StandardEvents.Update;
+import WorldQLFB_OLD.StandardEvents.Vec3;
 import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.WorldQLClient;
 import org.bukkit.Location;

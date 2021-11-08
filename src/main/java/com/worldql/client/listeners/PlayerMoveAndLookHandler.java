@@ -1,11 +1,13 @@
 package com.worldql.client.listeners;
 
+import WorldQLFB_OLD.StandardEvents.Update;
+import WorldQLFB_OLD.StandardEvents.Vec3;
 import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.WorldQLClient;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
-import WorldQLFB.StandardEvents.*;
+import WorldQLFB_OLD.StandardEvents.*;
 import zmq.ZMQ;
 
 public class PlayerMoveAndLookHandler implements Listener {
