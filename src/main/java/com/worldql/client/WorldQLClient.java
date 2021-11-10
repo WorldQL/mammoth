@@ -1,6 +1,7 @@
 package com.worldql.client;
 
 import com.worldql.client.listeners.*;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
@@ -29,16 +30,9 @@ public class WorldQLClient extends JavaPlugin {
         pushSocket = context.createSocket(SocketType.PUSH);
         packetReader = new PacketReader();
         ZMQ.Socket handshakeSocket = context.createSocket(SocketType.REQ);
-        handshakeSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlHandshakePort));
-
         String selfHostname = getConfig().getString("host", "127.0.0.1");
 
-        handshakeSocket.send(selfHostname.getBytes(ZMQ.CHARSET), 0);
-        byte[] reply = handshakeSocket.recv(0);
-        String assignedZeroMQPort = new String(reply, ZMQ.CHARSET);
-        zmqPortClientId = Integer.parseInt(assignedZeroMQPort);
-
-        pushSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlPushPort));
+        connect(handshakeSocket, selfHostname, worldqlHost, worldqlHandshakePort, worldqlPushPort);
 
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), this);
@@ -54,19 +48,40 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerTeleportEventListener(), this);
 
         this.getCommand("refreshworld").setExecutor(new TestRefreshWorldCommand());
-
-        zeroMQThread = new Thread(new ZeroMQServer(this, assignedZeroMQPort, context));
-        zeroMQThread.start();
     }
 
     @Override
     public void onDisable() {
         getLogger().info("Shutting down ZeroMQ thread.");
         context.close();
+
+        if (zeroMQThread != null) {
+            try {
+                zeroMQThread.interrupt();
+                zeroMQThread.join();
+            } catch (InterruptedException ignored) { }
+        }
+    }
+
+    private void connect(ZMQ.Socket handshakeSocket, String selfHostname, String worldqlHost, int worldqlHandshakePort, int worldqlPushPort) {
         try {
-            zeroMQThread.interrupt();
-            zeroMQThread.join();
-        } catch (InterruptedException ignored) {
+            handshakeSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlHandshakePort));
+
+            handshakeSocket.send(selfHostname.getBytes(ZMQ.CHARSET), 0);
+            byte[] reply = handshakeSocket.recv(0);
+            String assignedZeroMQPort = new String(reply, ZMQ.CHARSET);
+            zmqPortClientId = Integer.parseInt(assignedZeroMQPort);
+
+            pushSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlPushPort));
+
+            zeroMQThread = new Thread(new ZeroMQServer(this, assignedZeroMQPort, context));
+            zeroMQThread.start();
+        } catch (Exception exception) {
+            Bukkit.getScheduler().runTaskLaterAsynchronously(
+                    pluginInstance,
+                    () -> connect(handshakeSocket, selfHostname, worldqlHost, worldqlHandshakePort, worldqlPushPort),
+                    2 * 60 * 20
+            );
         }
     }
 
