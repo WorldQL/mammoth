@@ -8,6 +8,7 @@ import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.ghost.PlayerGhostManager;
 import com.worldql.client.incoming.PlayerHit;
 import com.worldql.client.incoming.ResponseRecordGetBlocksAll;
+import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
@@ -29,7 +30,6 @@ public class ZeroMQServer implements Runnable {
     public void run() {
         ZMQ.Socket socket = context.createSocket(SocketType.PULL);
         int port = socket.bindToRandomPort("tcp://" + hostname, 29000, 30000);
-        System.out.println("BOUND TO PORT " + port);
 
         FlatBufferBuilder builder = new FlatBufferBuilder(1024);
         int parameter = builder.createString(hostname + ":" + port);
@@ -47,25 +47,12 @@ public class ZeroMQServer implements Runnable {
             try {
                 byte[] reply = socket.recv(0);
                 java.nio.ByteBuffer buf = java.nio.ByteBuffer.wrap(reply);
-                Update update = Update.getRootAsUpdate(buf);
+                var incoming = Message.getRootAsMessage(buf);
 
-                if (update.instruction().equals("Response.Record.Get.Blocks.all")) {
-                    ResponseRecordGetBlocksAll.process(update, this.plugin);
-                }
-
-                if (update.instruction().equals("MinecraftPlayerMove")) {
-                    PlayerGhostManager.updateNPC(update);
-                }
-                if (update.instruction().equals("MinecraftPlayerQuit")) {
-                    PlayerGhostManager.updateNPC(update);
-                }
-                if (update.instruction().equals("EntityHitEvent")) {
-                    PlayerHit.process(update, this.plugin);
+                if (incoming.instruction() == Instruction.Handshake) {
+                    WorldQLClient.getPluginInstance().getLogger().info("Response from WorldQL handshake: " + incoming.parameter());
                 }
 
-                if (update.instruction().equals("NoRepeat.BlockBreak")) {
-                    NoRepeatBlockBreak.spawnDrops(update);
-                }
 
             } catch (ZMQException e) {
                 if (e.getErrorCode() == ZMQ.Error.ETERM.getCode()) {
