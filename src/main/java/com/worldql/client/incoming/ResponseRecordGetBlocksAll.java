@@ -2,7 +2,6 @@ package com.worldql.client.incoming;
 
 import WorldQLFB.StandardEvents.Update;
 import com.worldql.client.DirectionalUtilities;
-import com.worldql.client.WorldQLClient;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Tag;
@@ -38,8 +37,8 @@ public class ResponseRecordGetBlocksAll {
                     double blockY = update.numericalParams(i * 3 + 1);
                     double blockZ = update.numericalParams(i * 3 + 2);
 
-                    String[] blockDatas = blockCustomData.split("\n");
-                    BlockData blockData = Bukkit.getServer().createBlockData(blockDatas[0]);
+                    String[] blockDataArray = blockCustomData.split("\n");
+                    BlockData blockData = Bukkit.getServer().createBlockData(blockDataArray[0]);
                     Location l = new Location(world, blockX, blockY, blockZ);
                     world.getBlockAt(l).setBlockData(blockData);
 
@@ -53,17 +52,15 @@ public class ResponseRecordGetBlocksAll {
                     }
 
 
-                    if (blockDatas.length > 1) {
+                    if (blockDataArray.length > 1) {
                         new BukkitRunnable() {
                             @Override
                             public void run() {
                                 //WorldQLClient.logger.info("SIGN");
                                 if (world.getBlockAt(
-                                        new Location(world, blockX, blockY, blockZ)).getState() instanceof Sign) {
-                                    Sign sign = (Sign) world.getBlockAt(
-                                            new Location(world, blockX, blockY, blockZ)).getState();
-                                    for (int j = 1; j < blockDatas.length; j++) {
-                                        sign.setLine(j - 1, blockDatas[j]);
+                                        new Location(world, blockX, blockY, blockZ)).getState() instanceof Sign sign) {
+                                    for (int j = 1; j < blockDataArray.length; j++) {
+                                        sign.setLine(j - 1, blockDataArray[j]);
                                     }
                                     sign.update();
                                 }

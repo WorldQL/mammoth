@@ -17,11 +17,12 @@ public class OutgoingPlayerHitListener implements Listener {
     @EventHandler
     public void onPlayerHit(OutgoingPlayerHitEvent e) {
         ExpiringEntityPlayer hitPlayer = PlayerGhostManager.integerNPCLookup.get(e.getPlayerId());
+
         if (hitPlayer == null) {
             return;
         }
+
         String uuidString = hitPlayer.grab().getUniqueIDString();
-        //WorldQLClient.logger.info(UUIDString);
 
         FlatBufferBuilder builder = new FlatBufferBuilder(1024);
 
@@ -49,6 +50,5 @@ public class OutgoingPlayerHitListener implements Listener {
 
         byte[] buf = builder.sizedByteArray();
         WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
-
     }
 }

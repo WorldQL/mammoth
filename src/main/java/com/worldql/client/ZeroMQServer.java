@@ -39,9 +39,11 @@ public class ZeroMQServer implements Runnable {
                 if (update.instruction().equals("MinecraftPlayerMove")) {
                     PlayerGhostManager.updateNPC(update);
                 }
+
                 if (update.instruction().equals("MinecraftPlayerQuit")) {
                     PlayerGhostManager.updateNPC(update);
                 }
+
                 if (update.instruction().equals("EntityHitEvent")) {
                     PlayerHit.process(update, this.plugin);
                 }
@@ -56,6 +58,7 @@ public class ZeroMQServer implements Runnable {
                 }
             }
         }
+
         socket.setLinger(0);
         socket.close();
     }

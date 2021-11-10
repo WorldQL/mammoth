@@ -28,9 +28,7 @@ public class PlayerLogOutListener implements Listener {
 
         byte[] buf = builder.sizedByteArray();
 
-
         WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
-        //WorldQLClient.logger.info("Sent successfully");
     }
 }
 

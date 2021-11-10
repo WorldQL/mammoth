@@ -14,20 +14,20 @@ public class TestRefreshWorldCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (sender instanceof Player player) {
-            FlatBufferBuilder b = new FlatBufferBuilder(256);
-            int instruction = b.createString("Record.Get.Blocks.all");
-            int world = b.createString(player.getWorld().getName());
+            FlatBufferBuilder bufferBuilder = new FlatBufferBuilder(256);
+            int instruction = bufferBuilder.createString("Record.Get.Blocks.all");
+            int world = bufferBuilder.createString(player.getWorld().getName());
 
-            Update.startUpdate(b);
-            Update.addSenderid(b, Bukkit.getServer().getPort());
-            Update.addWorldName(b, world);
-            Update.addInstruction(b, instruction);
-            Update.addSenderid(b, WorldQLClient.getPluginInstance().getZmqPortClientId());
+            Update.startUpdate(bufferBuilder);
+            Update.addSenderid(bufferBuilder, Bukkit.getServer().getPort());
+            Update.addWorldName(bufferBuilder, world);
+            Update.addInstruction(bufferBuilder, instruction);
+            Update.addSenderid(bufferBuilder, WorldQLClient.getPluginInstance().getZmqPortClientId());
 
-            int update = Update.endUpdate(b);
-            b.finish(update);
+            int update = Update.endUpdate(bufferBuilder);
+            bufferBuilder.finish(update);
 
-            byte[] buf = b.sizedByteArray();
+            byte[] buf = bufferBuilder.sizedByteArray();
             WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
         }
         return false;

@@ -9,14 +9,15 @@ import org.bukkit.block.data.type.Bed;
 public class DirectionalUtilities {
 
     private DirectionalUtilities() {
-
     }
+
     public static void setBed(Block start, BlockFace facing, Material material) {
         for (final Bed.Part part : Bed.Part.values()) {
             final Bed bedData = (Bed) Bukkit.createBlockData(material, (data) -> {
                 ((Bed) data).setPart(part);
                 ((Bed) data).setFacing(facing);
             });
+
             start.setBlockData(bedData);
             start = start.getRelative(facing.getOppositeFace());
         }

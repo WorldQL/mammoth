@@ -6,8 +6,6 @@ import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
-import java.util.Hashtable;
-
 
 public class WorldQLClient extends JavaPlugin {
     public static WorldQLClient pluginInstance;
@@ -34,15 +32,6 @@ public class WorldQLClient extends JavaPlugin {
         handshakeSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlHandshakePort));
 
         String selfHostname = getConfig().getString("host", "127.0.0.1");
-        /*
-        try (final DatagramSocket datagramSocket = new DatagramSocket()) {
-            datagramSocket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-            selfHostname = datagramSocket.getLocalAddress().getHostAddress();
-        } catch (Exception e) {
-            throw new RuntimeException("Couldn't determine our IP address.");
-        }
-         */
-
 
         handshakeSocket.send(selfHostname.getBytes(ZMQ.CHARSET), 0);
         byte[] reply = handshakeSocket.recv(0);
@@ -56,7 +45,7 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerCrouchListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerLogOutListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerBlockPlaceListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerBlockListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerEditSignListener(), this);
         getServer().getPluginManager().registerEvents(new PortalCreateEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerLoadChunkListener(), this);

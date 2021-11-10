@@ -50,13 +50,16 @@ public class PlayerGhostManager {
         UUID playerUUID = UUID.fromString(state.uuid());
         // Do we have this NPC in our expiring entity player?
         ExpiringEntityPlayer expiringEntityPlayer;
+
         if (hashtableNPCs.containsKey(playerUUID)) {
             expiringEntityPlayer = hashtableNPCs.get(playerUUID);
         } else {
             expiringEntityPlayer = PlayerGhostManager.createNPC(state.name(), playerUUID,
                     new Location(Bukkit.getServer().getWorld(Objects.requireNonNull(state.worldName())),
                             state.position().x(), state.position().y(), state.position().z()));
+
             sendNPCJoinPacket(expiringEntityPlayer.grab());
+
             hashtableNPCs.put(playerUUID, expiringEntityPlayer);
             integerNPCLookup.put(expiringEntityPlayer.grab().getId(), expiringEntityPlayer);
         }
@@ -88,7 +91,6 @@ public class PlayerGhostManager {
         profile.getProperties().put("textures",
                 new Property("textures", skinData[0], skinData[1])
         );
-
 
         return new ExpiringEntityPlayer(npc);
     }
@@ -196,31 +198,8 @@ public class PlayerGhostManager {
                 if (action.equals("punch")) {
                     PacketPlayOutAnimation punch = new PacketPlayOutAnimation(e, (byte) 0);
                     connection.sendPacket(punch);
-                    //PacketPlayOutAnimation damage = new PacketPlayOutAnimation(e, (byte) 1);
-                    //connection.sendPacket(damage);
                 }
             }
-            /*
-            DataWatcher dw = new DataWatcher(null);
-            WorldQLClient.logger.info(state.getAction());
-            if (state.getAction().equals("crouch")) {
-                dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.CROUCHING);
-                PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(e.getId(), dw, true);
-                connection.sendPacket(packet);
-            } else if (state.getAction().equals("uncrouch")) {
-                dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.STANDING);
-                PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(e.getId(), dw, true);
-                connection.sendPacket(packet);
-            }
-
-            if (state.getAction().equals("punch")) {
-                PacketPlayOutAnimation punch = new PacketPlayOutAnimation(e, (byte) 0);
-                connection.sendPacket(punch);
-                //PacketPlayOutAnimation damage = new PacketPlayOutAnimation(e, (byte) 1);
-                //connection.sendPacket(damage);
-            }
-
-             */
         }
 
 

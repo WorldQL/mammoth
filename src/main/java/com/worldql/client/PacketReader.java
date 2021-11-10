@@ -65,13 +65,6 @@ public class PacketReader {
                 PacketPlayOutAnimation damage = new PacketPlayOutAnimation(p.grab(), (byte) 1);
                 connection.sendPacket(damage);
             }
-            /*
-            if (getValue(packet, "b").getClass().getName() == "net.minecraft.network.protocol.game.PacketPlayInUseEntity$d") {
-                WorldQLClient.logger.info("RIGHT CLICK");
-            }
-
-             */
-
         }
     }
 
@@ -83,12 +76,9 @@ public class PacketReader {
             field.setAccessible(true);
             result = field.get(instance);
             field.setAccessible(false);
-        } catch (Exception ignored) {
-
-        }
+        } catch (Exception ignored) { }
 
         return result;
-
     }
 
 }

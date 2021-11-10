@@ -15,16 +15,15 @@ import java.util.Objects;
 public class PlayerHit {
     public static void process(Update update, Plugin plugin) {
         String playerId = update.params(0);
-        //WorldQLClient.logger.info(playerId);
         // TODO: Make this faster
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             if (Objects.equals(player.getUniqueId().toString(), playerId)) {
-                //WorldQLClient.logger.info(player.getDisplayName());
                 new BukkitRunnable() {
                     @Override
                     public void run() {
                         WorldQLClient.getPluginInstance().getLogger().info("Incoming combat event.");
-                        player.setVelocity(player.getVelocity().add(new Vector(
+                        player.setVelocity(player.getVelocity().add(
+                                new Vector(
                                         update.numericalParams(0),
                                         update.numericalParams(1),
                                         update.numericalParams(2)
