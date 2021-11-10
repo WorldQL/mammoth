@@ -1,10 +1,12 @@
 package com.worldql.client.ghost;
 
 import WorldQLFB_OLD.StandardEvents.Update;
+import com.google.flatbuffers.FlexBuffers;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.worldql.client.Messages.Message;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.DataWatcher;
 import net.minecraft.network.syncher.DataWatcherObject;
@@ -32,25 +34,27 @@ public class PlayerGhostManager {
     public static final Hashtable<UUID, Boolean> playerNeedsGhosts = new Hashtable<>();
     public static final Hashtable<Integer, ExpiringEntityPlayer> integerNPCLookup = new Hashtable<>();
 
-    public static void updateNPC(Update state) {
+    public static void updateNPC(Message state) {
+        FlexBuffers.Map playerMessageMap = FlexBuffers.getRoot(state.flexAsByteBuffer()).asMap();
+
 
         // TODO: Make this faster.
         // Don't do packet tricks for local players
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-            if (state.uuid().equals(player.getUniqueId().toString())) {
+            if (playerMessageMap.get("uuid").asString().equals(player.getUniqueId().toString())) {
                 // player is local
                 return;
             }
         }
 
 
-        UUID playerUUID = UUID.fromString(state.uuid());
+        UUID playerUUID = UUID.fromString(playerMessageMap.get("uuid").asString());
         // Do we have this NPC in our expiring entity player?
         ExpiringEntityPlayer expiringEntityPlayer;
         if (hashtableNPCs.containsKey(playerUUID)) {
             expiringEntityPlayer = hashtableNPCs.get(playerUUID);
         } else {
-            expiringEntityPlayer = PlayerGhostManager.createNPC(state.name(), playerUUID,
+            expiringEntityPlayer = PlayerGhostManager.createNPC(playerMessageMap.get("username").asString(), playerUUID,
                     new Location(Bukkit.getServer().getWorld(Objects.requireNonNull(state.worldName())),
                             state.position().x(), state.position().y(), state.position().z()));
             sendNPCJoinPacket(expiringEntityPlayer.grab());
@@ -60,7 +64,7 @@ public class PlayerGhostManager {
 
         EntityPlayer e = expiringEntityPlayer.grab();
 
-        if (state.instruction().equals("MinecraftPlayerQuit")) {
+        if (state.parameter().equals("MinecraftPlayerQuit")) {
             sendNPCLeavePacket(e);
             int npcId = hashtableNPCs.get(playerUUID).grab().getId();
             hashtableNPCs.remove(playerUUID);
@@ -159,65 +163,27 @@ public class PlayerGhostManager {
         }
     }
 
-    public static void moveEntity(Update state, EntityPlayer e) {
+    public static void moveEntity(Message state, EntityPlayer e) {
+        FlexBuffers.Map playerMessageMap = FlexBuffers.getRoot(state.flexAsByteBuffer()).asMap();
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             ensurePlayerHasJoinPackets(player);
+
+            float playerYaw = (float)playerMessageMap.get("yaw").asFloat();
 
             PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
             e.setLocation(
                     state.position().x(),
                     state.position().y(),
                     state.position().z(),
-                    state.yaw(),
-                    state.pitch()
+                    playerYaw,
+                    (float)playerMessageMap.get("pitch").asFloat()
             );
             connection.sendPacket(
                     new PacketPlayOutEntityTeleport(e)
             );
 
-            connection.sendPacket(new PacketPlayOutEntityHeadRotation(e, (byte) ((state.yaw() * 256) / 360)));
+            connection.sendPacket(new PacketPlayOutEntityHeadRotation(e, (byte) ((playerYaw * 256) / 360)));
 
-            for (int i = 0; i < state.entityactionsLength(); i++) {
-                String action = state.entityactions(i);
-                DataWatcher dw = new DataWatcher(null);
-                if (action.equals("crouch")) {
-                    dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.f);
-                    PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(e.getId(), dw, true);
-                    connection.sendPacket(packet);
-                } else if (action.equals("uncrouch")) {
-                    dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.a);
-                    PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(e.getId(), dw, true);
-                    connection.sendPacket(packet);
-                }
-
-                if (action.equals("punch")) {
-                    PacketPlayOutAnimation punch = new PacketPlayOutAnimation(e, (byte) 0);
-                    connection.sendPacket(punch);
-                    //PacketPlayOutAnimation damage = new PacketPlayOutAnimation(e, (byte) 1);
-                    //connection.sendPacket(damage);
-                }
-            }
-            /*
-            DataWatcher dw = new DataWatcher(null);
-            WorldQLClient.logger.info(state.getAction());
-            if (state.getAction().equals("crouch")) {
-                dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.CROUCHING);
-                PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(e.getId(), dw, true);
-                connection.sendPacket(packet);
-            } else if (state.getAction().equals("uncrouch")) {
-                dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.STANDING);
-                PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(e.getId(), dw, true);
-                connection.sendPacket(packet);
-            }
-
-            if (state.getAction().equals("punch")) {
-                PacketPlayOutAnimation punch = new PacketPlayOutAnimation(e, (byte) 0);
-                connection.sendPacket(punch);
-                //PacketPlayOutAnimation damage = new PacketPlayOutAnimation(e, (byte) 1);
-                //connection.sendPacket(damage);
-            }
-
-             */
         }
 
 

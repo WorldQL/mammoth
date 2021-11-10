@@ -51,6 +51,11 @@ public class ZeroMQServer implements Runnable {
 
                 if (incoming.instruction() == Instruction.Handshake) {
                     WorldQLClient.getPluginInstance().getLogger().info("Response from WorldQL handshake: " + incoming.parameter());
+                    continue;
+                }
+
+                if (incoming.instruction() == Instruction.LocalMessage) {
+                    PlayerGhostManager.updateNPC(incoming);
                 }
 
 

@@ -35,9 +35,10 @@ public class WorldQLClient extends JavaPlugin {
         pushSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlPushPort));
 
         String selfHostname = getConfig().getString("host", "127.0.0.1");
-        /*
+
 
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(), this);
+        /*
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerCrouchListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
