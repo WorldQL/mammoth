@@ -26,6 +26,8 @@ public class PlayerMoveAndLookHandler implements Listener {
         if (e.getTo() == null) return;
 
         // Encode the actual player information using a Flexbuffer.
+        // Represents the following JSON object (numerical values are just examples
+        // { pitch: 25.3, yaw: 34.2, username: "test", "uuid": "5e34a615-a7ac-4bd8-a039-9c0df1b1b5ec" }
         FlexBuffersBuilder b = new FlexBuffersBuilder();
         int pmap = b.startMap();
         b.putFloat("pitch", e.getTo().getPitch());
