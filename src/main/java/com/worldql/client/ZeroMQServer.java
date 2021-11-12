@@ -32,9 +32,11 @@ public class ZeroMQServer implements Runnable {
         int port = socket.bindToRandomPort("tcp://" + hostname, 29000, 30000);
 
         FlatBufferBuilder builder = new FlatBufferBuilder(1024);
+        int world_name = builder.createString("@global");
         int parameter = builder.createString(hostname + ":" + port);
         int client_uuid = builder.createString(WorldQLClient.worldQLClientId);
         Message.startMessage(builder);
+        Message.addWorldName(builder, world_name);
         Message.addInstruction(builder, Instruction.Handshake);
         Message.addParameter(builder, parameter);
         Message.addSenderUuid(builder, client_uuid);
