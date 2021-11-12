@@ -37,17 +37,6 @@ public class PlayerGhostManager {
     public static void updateNPC(Message state) {
         FlexBuffers.Map playerMessageMap = FlexBuffers.getRoot(state.flexAsByteBuffer()).asMap();
 
-
-        // TODO: Make this faster.
-        // Don't do packet tricks for local players
-        for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-            if (playerMessageMap.get("uuid").asString().equals(player.getUniqueId().toString())) {
-                // player is local
-                return;
-            }
-        }
-
-
         UUID playerUUID = UUID.fromString(playerMessageMap.get("uuid").asString());
         // Do we have this NPC in our expiring entity player?
         ExpiringEntityPlayer expiringEntityPlayer;
@@ -90,7 +79,6 @@ public class PlayerGhostManager {
                 new Property("textures", skinData[0], skinData[1])
         );
 
-
         return new ExpiringEntityPlayer(npc);
     }
 
@@ -123,6 +111,7 @@ public class PlayerGhostManager {
         return (short) ((short) (current * 32 - previous * 32) * 128);
     }
 
+    // TODO: This does not load the outer layer of the skin.
     private static String[] getSkin(UUID uuid) throws IllegalArgumentException {
         URL url = null;
         try {
@@ -152,10 +141,8 @@ public class PlayerGhostManager {
     private static void ensurePlayerHasJoinPackets(Player p) {
         if (playerNeedsGhosts.containsKey(p.getUniqueId()) && playerNeedsGhosts.get(p.getUniqueId())) {
             // Spawn ghosts for this player
-            Iterator ghostI = hashtableNPCs.entrySet().iterator();
-
-            while (ghostI.hasNext()) {
-                ExpiringEntityPlayer expiringEntityPlayer = (ExpiringEntityPlayer) ((Map.Entry) ghostI.next()).getValue();
+            for (Map.Entry<UUID, ExpiringEntityPlayer> uuidExpiringEntityPlayerEntry : hashtableNPCs.entrySet()) {
+                ExpiringEntityPlayer expiringEntityPlayer = (ExpiringEntityPlayer) ((Map.Entry) uuidExpiringEntityPlayerEntry).getValue();
                 sendNPCJoinPacket(expiringEntityPlayer.grab(), p);
             }
             playerNeedsGhosts.put(p.getUniqueId(), false);
@@ -167,23 +154,40 @@ public class PlayerGhostManager {
         FlexBuffers.Map playerMessageMap = FlexBuffers.getRoot(state.flexAsByteBuffer()).asMap();
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             ensurePlayerHasJoinPackets(player);
-
-            float playerYaw = (float)playerMessageMap.get("yaw").asFloat();
-
             PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
-            e.setLocation(
-                    state.position().x(),
-                    state.position().y(),
-                    state.position().z(),
-                    playerYaw,
-                    (float)playerMessageMap.get("pitch").asFloat()
-            );
-            connection.sendPacket(
-                    new PacketPlayOutEntityTeleport(e)
-            );
-
-            connection.sendPacket(new PacketPlayOutEntityHeadRotation(e, (byte) ((playerYaw * 256) / 360)));
-
+            if (Objects.equals(state.parameter(), "MinecraftPlayerMove")) {
+                float playerYaw = (float) playerMessageMap.get("yaw").asFloat();
+                e.setLocation(
+                        state.position().x(),
+                        state.position().y(),
+                        state.position().z(),
+                        playerYaw,
+                        (float) playerMessageMap.get("pitch").asFloat()
+                );
+                connection.sendPacket(
+                        new PacketPlayOutEntityTeleport(e)
+                );
+                connection.sendPacket(new PacketPlayOutEntityHeadRotation(e, (byte) ((playerYaw * 256) / 360)));
+            }
+            // We use MinecraftPlayerSingleAction for punch, crouch, and uncrouch
+            if (Objects.equals(state.parameter(), "MinecraftPlayerSingleAction")) {
+                String action = playerMessageMap.get("action").asString();
+                DataWatcher dw = new DataWatcher(null);
+                if (action.equals("crouch")) {
+                    dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.f);
+                    PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(e.getId(), dw, true);
+                    connection.sendPacket(packet);
+                }
+                if (action.equals("uncrouch")) {
+                    dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.a);
+                    PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(e.getId(), dw, true);
+                    connection.sendPacket(packet);
+                }
+                if (action.equals("punch")) {
+                    PacketPlayOutAnimation punch = new PacketPlayOutAnimation(e, (byte) 0);
+                    connection.sendPacket(punch);
+                }
+            }
         }
 
 

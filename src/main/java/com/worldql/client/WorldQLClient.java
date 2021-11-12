@@ -38,10 +38,10 @@ public class WorldQLClient extends JavaPlugin {
 
 
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(), this);
-        /*
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerCrouchListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
+        /*
         getServer().getPluginManager().registerEvents(new PlayerLogOutListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerBlockPlaceListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerEditSignListener(), this);

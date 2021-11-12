@@ -39,8 +39,6 @@ public class PlayerMoveAndLookHandler implements Listener {
 
         FlatBufferBuilder builder = new FlatBufferBuilder(1024);
 
-        int uuid = builder.createString(e.getPlayer().getUniqueId().toString());
-        int name = builder.createString(e.getPlayer().getName());
         int sender_uuid = builder.createString(WorldQLClient.worldQLClientId);
         int worldName = builder.createString(e.getPlayer().getWorld().getName());
         int command = builder.createString("MinecraftPlayerMove");
