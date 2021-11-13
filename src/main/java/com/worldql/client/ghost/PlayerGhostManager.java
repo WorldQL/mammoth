@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.mojang.datafixers.util.Pair;
 import com.worldql.client.Messages.Message;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.DataWatcher;
@@ -16,11 +17,16 @@ import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.entity.EntityPose;
+import net.minecraft.world.entity.EnumItemSlot;
+import net.minecraft.world.item.ItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
@@ -73,12 +79,6 @@ public class PlayerGhostManager {
         EntityPlayer npc = new EntityPlayer(server, world, profile);
         npc.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
 
-        //String[] skinData = getSkin(uuid);
-        String[] skinData = {"", ""};
-        profile.getProperties().put("textures",
-                new Property("textures", skinData[0], skinData[1])
-        );
-
         return new ExpiringEntityPlayer(npc);
     }
 
@@ -91,19 +91,28 @@ public class PlayerGhostManager {
     }
 
     private static void sendNPCJoinPacket(EntityPlayer npc) {
+        // this is for the overlay skin data
+        DataWatcher watcher = npc.getDataWatcher();
+        byte b = 0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20 | 0x40;
+        watcher.set(DataWatcherRegistry.a.a(17), b);
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
             connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, npc));
             connection.sendPacket(new PacketPlayOutNamedEntitySpawn(npc));
             connection.sendPacket(new PacketPlayOutEntityHeadRotation(npc, (byte) ((npc.getYRot() * 256) / 360)));
+            connection.sendPacket(new PacketPlayOutEntityMetadata(npc.getId(), watcher, true));
         }
     }
 
     private static void sendNPCJoinPacket(EntityPlayer npc, Player player) {
+        DataWatcher watcher = npc.getDataWatcher();
+        byte b = 0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20 | 0x40;
+        watcher.set(DataWatcherRegistry.a.a(17), b);
         PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
         connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, npc));
         connection.sendPacket(new PacketPlayOutNamedEntitySpawn(npc));
         connection.sendPacket(new PacketPlayOutEntityHeadRotation(npc, (byte) ((npc.getYRot() * 256) / 360)));
+        connection.sendPacket(new PacketPlayOutEntityMetadata(npc.getId(), watcher, true));
     }
 
     // useless, teleport packet can be used for everything.
@@ -111,32 +120,6 @@ public class PlayerGhostManager {
         return (short) ((short) (current * 32 - previous * 32) * 128);
     }
 
-    // TODO: This does not load the outer layer of the skin.
-    private static String[] getSkin(UUID uuid) throws IllegalArgumentException {
-        URL url = null;
-        try {
-            url = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid + "?unsigned=false");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        InputStreamReader reader = null;
-        try {
-            reader = new InputStreamReader(url.openStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // get player skin blob and signature in hex.
-        try {
-            JsonObject prop = new JsonParser().parse(reader).getAsJsonObject().get("properties").getAsJsonArray().get(
-                    0).getAsJsonObject();
-            String texture = prop.get("value").getAsString();
-            String signature = prop.get("signature").getAsString();
-            return new String[]{texture, signature};
-        } catch (IllegalStateException e) {
-            throw new IllegalArgumentException();
-        }
-
-    }
 
     private static void ensurePlayerHasJoinPackets(Player p) {
         if (playerNeedsGhosts.containsKey(p.getUniqueId()) && playerNeedsGhosts.get(p.getUniqueId())) {
@@ -187,6 +170,40 @@ public class PlayerGhostManager {
                     PacketPlayOutAnimation punch = new PacketPlayOutAnimation(e, (byte) 0);
                     connection.sendPacket(punch);
                 }
+            }
+            if (Objects.equals(state.parameter(), "MinecraftPlayerEquipmentEdit")) {
+                List<Pair<EnumItemSlot, ItemStack>> equipment = new ArrayList<>();
+                EnumItemSlot slot = EnumItemSlot.fromName(playerMessageMap.get("type").asString());
+
+                org.bukkit.inventory.ItemStack item = new org.bukkit.inventory.ItemStack(
+                        Material.valueOf(playerMessageMap.get("material").asString()));
+
+                if (playerMessageMap.get("enchanted").asBoolean())
+                    item.addEnchantment(Enchantment.DURABILITY,1);
+
+                equipment.add(new Pair<>(slot, CraftItemStack.asNMSCopy(item)));
+
+                PacketPlayOutEntityEquipment heldItem = new PacketPlayOutEntityEquipment(e.getId(), equipment);
+                connection.sendPacket(heldItem);
+            }
+            if (Objects.equals(state.parameter(), "MinecraftPlayerShieldUse")) {
+                DataWatcher holdingShieldData = new DataWatcher(e);
+                DataWatcherObject dataWatcherObject = new DataWatcherObject<>(8, DataWatcherRegistry.a);
+                holdingShieldData.register(dataWatcherObject, 0);
+
+                byte handStateBitmask = 0;
+                if (playerMessageMap.get("blocking").asBoolean()) {
+                    if (playerMessageMap.get("offhand").asBoolean())
+                        handStateBitmask = 0b00000011;
+                    else
+                        handStateBitmask = 0x00000001;
+                }
+
+                holdingShieldData.set(dataWatcherObject, handStateBitmask);
+
+                PacketPlayOutEntityMetadata metadataPacket = new PacketPlayOutEntityMetadata(e.getId(),
+                        holdingShieldData, false);
+                connection.sendPacket(metadataPacket);
             }
         }
 

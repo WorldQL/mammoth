@@ -43,6 +43,9 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
         getServer().getPluginManager().registerEvents(new ChunkLoadEventListener(), this);
         getServer().getPluginManager().registerEvents(new ChunkUnloadEventListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerHeldItemListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerArmorEditListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerShieldInteractListener(), this);
         /*
         getServer().getPluginManager().registerEvents(new PlayerLogOutListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerBlockPlaceListener(), this);
