@@ -1,6 +1,8 @@
 package com.worldql.client.ghost;
 
 import WorldQLFB.StandardEvents.Update;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
@@ -11,9 +13,6 @@ import net.minecraft.network.syncher.DataWatcherObject;
 import net.minecraft.network.syncher.DataWatcherRegistry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.server.*;
-import net.minecraft.server.level.PlayerInteractManager;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.entity.EntityPose;
@@ -26,7 +25,11 @@ import org.bukkit.entity.Player;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.*;
 
 public class PlayerGhostManager {
@@ -46,7 +49,6 @@ public class PlayerGhostManager {
             }
         }
 
-
         UUID playerUUID = UUID.fromString(state.uuid());
         // Do we have this NPC in our expiring entity player?
         ExpiringEntityPlayer expiringEntityPlayer;
@@ -64,10 +66,10 @@ public class PlayerGhostManager {
             integerNPCLookup.put(expiringEntityPlayer.grab().getId(), expiringEntityPlayer);
         }
 
-        EntityPlayer e = expiringEntityPlayer.grab();
+        EntityPlayer entityPlayer = expiringEntityPlayer.grab();
 
         if (state.instruction().equals("MinecraftPlayerQuit")) {
-            sendNPCLeavePacket(e);
+            sendNPCLeavePacket(entityPlayer);
             int npcId = hashtableNPCs.get(playerUUID).grab().getId();
             hashtableNPCs.remove(playerUUID);
             integerNPCLookup.remove(npcId);
@@ -75,7 +77,7 @@ public class PlayerGhostManager {
             return;
         }
 
-        moveEntity(state, e);
+        moveEntity(state, entityPlayer);
     }
 
     private static ExpiringEntityPlayer createNPC(String name, UUID uuid, Location location) {
@@ -125,84 +127,80 @@ public class PlayerGhostManager {
     }
 
     private static String[] getSkin(UUID uuid) throws IllegalArgumentException {
-        URL url = null;
         try {
-            url = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid + "?unsigned=false");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        InputStreamReader reader = null;
-        try {
-            reader = new InputStreamReader(url.openStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // get player skin blob and signature in hex.
-        try {
-            JsonObject prop = new JsonParser().parse(reader).getAsJsonObject().get("properties").getAsJsonArray().get(
-                    0).getAsJsonObject();
-            String texture = prop.get("value").getAsString();
-            String signature = prop.get("signature").getAsString();
+            var client = HttpClient.newHttpClient();
+            var request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid + "?unsigned=false"))
+                    .GET()
+                    .build();
+
+            var response = client.send(
+                    request,
+                    HttpResponse.BodyHandlers.ofString()
+            );
+
+            JsonObject json = new JsonParser().parse(response.body()).getAsJsonObject().get("properties").getAsJsonArray().get(0).getAsJsonObject();
+            String texture = json.get("value").getAsString();
+            String signature = json.get("signature").getAsString();
+
             return new String[]{texture, signature};
-        } catch (IllegalStateException e) {
+        } catch (Exception exception) {
             throw new IllegalArgumentException();
         }
-
     }
 
     private static void ensurePlayerHasJoinPackets(Player p) {
         if (playerNeedsGhosts.containsKey(p.getUniqueId()) && playerNeedsGhosts.get(p.getUniqueId())) {
             // Spawn ghosts for this player
-            Iterator ghostI = hashtableNPCs.entrySet().iterator();
-
-            while (ghostI.hasNext()) {
-                ExpiringEntityPlayer expiringEntityPlayer = (ExpiringEntityPlayer) ((Map.Entry) ghostI.next()).getValue();
+            for (Map.Entry<UUID, ExpiringEntityPlayer> uuidExpiringEntityPlayerEntry : hashtableNPCs.entrySet()) {
+                ExpiringEntityPlayer expiringEntityPlayer = (ExpiringEntityPlayer) ((Map.Entry) uuidExpiringEntityPlayerEntry).getValue();
                 sendNPCJoinPacket(expiringEntityPlayer.grab(), p);
             }
-            playerNeedsGhosts.put(p.getUniqueId(), false);
 
+            playerNeedsGhosts.put(p.getUniqueId(), false);
         }
     }
 
-    public static void moveEntity(Update state, EntityPlayer e) {
+    public static void moveEntity(Update state, EntityPlayer entityPlayer) {
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             ensurePlayerHasJoinPackets(player);
 
             PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
-            e.setLocation(
+
+            entityPlayer.setLocation(
                     state.position().x(),
                     state.position().y(),
                     state.position().z(),
                     state.yaw(),
                     state.pitch()
             );
+
             connection.sendPacket(
-                    new PacketPlayOutEntityTeleport(e)
+                    new PacketPlayOutEntityTeleport(entityPlayer)
             );
 
-            connection.sendPacket(new PacketPlayOutEntityHeadRotation(e, (byte) ((state.yaw() * 256) / 360)));
+            connection.sendPacket(new PacketPlayOutEntityHeadRotation(entityPlayer, (byte) ((state.yaw() * 256) / 360)));
 
             for (int i = 0; i < state.entityactionsLength(); i++) {
                 String action = state.entityactions(i);
                 DataWatcher dw = new DataWatcher(null);
+
                 if (action.equals("crouch")) {
                     dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.f);
-                    PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(e.getId(), dw, true);
+                    PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(entityPlayer.getId(), dw, true);
                     connection.sendPacket(packet);
                 } else if (action.equals("uncrouch")) {
                     dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.a);
-                    PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(e.getId(), dw, true);
+                    PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(entityPlayer.getId(), dw, true);
                     connection.sendPacket(packet);
                 }
 
                 if (action.equals("punch")) {
-                    PacketPlayOutAnimation punch = new PacketPlayOutAnimation(e, (byte) 0);
+                    PacketPlayOutAnimation punch = new PacketPlayOutAnimation(entityPlayer, (byte) 0);
                     connection.sendPacket(punch);
                 }
             }
         }
-
-
     }
 
 }

@@ -31,11 +31,8 @@
 package com.google.flatbuffers;
 
 import java.nio.ByteBuffer;
-import static java.lang.Character.MAX_SURROGATE;
-import static java.lang.Character.MIN_SUPPLEMENTARY_CODE_POINT;
-import static java.lang.Character.MIN_SURROGATE;
-import static java.lang.Character.isSurrogatePair;
-import static java.lang.Character.toCodePoint;
+
+import static java.lang.Character.*;
 
 /**
  * A set of low-level, high-performance static utility methods related

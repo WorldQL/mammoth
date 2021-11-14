@@ -66,6 +66,7 @@ public class NoRepeatBlockBreak {
 
                 try {
                     ItemStack[] drop = MinecraftUtil.itemStackArrayFromBase64(update.params(1));
+
                     if (!update.params(1).equals("")) {
                         ItemStack[] containerDrops = MinecraftUtil.itemStackArrayFromBase64(update.params(1));
 

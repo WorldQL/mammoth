@@ -17,13 +17,9 @@
 package com.google.flatbuffers;
 
 
-import static com.google.flatbuffers.FlexBuffers.Unsigned.byteToUnsignedInt;
-import static com.google.flatbuffers.FlexBuffers.Unsigned.intToUnsignedLong;
-import static com.google.flatbuffers.FlexBuffers.Unsigned.shortToUnsignedInt;
-
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
+
+import static com.google.flatbuffers.FlexBuffers.Unsigned.*;
 
 /// @file
 /// @addtogroup flatbuffers_java_api
@@ -158,13 +154,13 @@ public class FlexBuffers {
 
     // read unsigned int with size byteWidth and return as a 64-bit integer
     private static long readUInt(ReadBuf buff, int end, int byteWidth) {
-        switch (byteWidth) {
-            case 1: return byteToUnsignedInt(buff.get(end));
-            case 2: return shortToUnsignedInt(buff.getShort(end));
-            case 4: return intToUnsignedLong(buff.getInt(end));
-            case 8: return buff.getLong(end); // We are passing signed long here. Losing information (user should know)
-            default: return -1; // we should never reach here
-        }
+        return switch (byteWidth) {
+            case 1 -> byteToUnsignedInt(buff.get(end));
+            case 2 -> shortToUnsignedInt(buff.getShort(end));
+            case 4 -> intToUnsignedLong(buff.getInt(end));
+            case 8 -> buff.getLong(end); // We are passing signed long here. Losing information (user should know)
+            default -> -1; // we should never reach here
+        };
     }
 
     // read signed int of size byteWidth and return as 32-bit int
@@ -174,21 +170,21 @@ public class FlexBuffers {
 
     // read signed int of size byteWidth and return as 64-bit int
     private static long readLong(ReadBuf buff, int end, int byteWidth) {
-        switch (byteWidth) {
-            case 1: return buff.get(end);
-            case 2: return buff.getShort(end);
-            case 4: return buff.getInt(end);
-            case 8: return buff.getLong(end);
-            default: return -1; // we should never reach here
-        }
+        return switch (byteWidth) {
+            case 1 -> buff.get(end);
+            case 2 -> buff.getShort(end);
+            case 4 -> buff.getInt(end);
+            case 8 -> buff.getLong(end);
+            default -> -1; // we should never reach here
+        };
     }
 
     private static double readDouble(ReadBuf buff, int end, int byteWidth) {
-        switch (byteWidth) {
-            case 4: return buff.getFloat(end);
-            case 8: return buff.getDouble(end);
-            default: return -1; // we should never reach here
-        }
+        return switch (byteWidth) {
+            case 4 -> buff.getFloat(end);
+            case 8 -> buff.getDouble(end);
+            default -> -1; // we should never reach here
+        };
     }
 
     /**
@@ -367,20 +363,20 @@ public class FlexBuffers {
                 // A fast path for the common case.
                 return readInt(bb, end, parentWidth);
             } else
-                switch (type) {
-                    case FBT_INDIRECT_INT: return readInt(bb, indirect(bb, end, parentWidth), byteWidth);
-                    case FBT_UINT: return (int) readUInt(bb, end, parentWidth);
-                    case FBT_INDIRECT_UINT: return (int) readUInt(bb, indirect(bb, end, parentWidth), parentWidth);
-                    case FBT_FLOAT: return (int) readDouble(bb, end, parentWidth);
-                    case FBT_INDIRECT_FLOAT: return (int) readDouble(bb, indirect(bb, end, parentWidth), byteWidth);
-                    case FBT_NULL: return 0;
-                    case FBT_STRING: return Integer.parseInt(asString());
-                    case FBT_VECTOR: return asVector().size();
-                    case FBT_BOOL: return readInt(bb, end, parentWidth);
-                    default:
-                        // Convert other things to int.
-                        return 0;
-                }
+                return switch (type) {
+                    case FBT_INDIRECT_INT -> readInt(bb, indirect(bb, end, parentWidth), byteWidth);
+                    case FBT_UINT -> (int) readUInt(bb, end, parentWidth);
+                    case FBT_INDIRECT_UINT -> (int) readUInt(bb, indirect(bb, end, parentWidth), parentWidth);
+                    case FBT_FLOAT -> (int) readDouble(bb, end, parentWidth);
+                    case FBT_INDIRECT_FLOAT -> (int) readDouble(bb, indirect(bb, end, parentWidth), byteWidth);
+                    case FBT_NULL -> 0;
+                    case FBT_STRING -> Integer.parseInt(asString());
+                    case FBT_VECTOR -> asVector().size();
+                    case FBT_BOOL -> readInt(bb, end, parentWidth);
+                    default ->
+                            // Convert other things to int.
+                            0;
+                };
         }
 
         /**
@@ -396,20 +392,20 @@ public class FlexBuffers {
                 // A fast path for the common case.
                 return readUInt(bb, end, parentWidth);
             } else
-                switch (type) {
-                    case FBT_INDIRECT_UINT: return readUInt(bb, indirect(bb, end, parentWidth), byteWidth);
-                    case FBT_INT: return readLong(bb, end, parentWidth);
-                    case FBT_INDIRECT_INT: return readLong(bb, indirect(bb, end, parentWidth), byteWidth);
-                    case FBT_FLOAT: return (long) readDouble(bb, end, parentWidth);
-                    case FBT_INDIRECT_FLOAT: return (long) readDouble(bb,  indirect(bb, end, parentWidth), parentWidth);
-                    case FBT_NULL: return 0;
-                    case FBT_STRING: return Long.parseLong(asString());
-                    case FBT_VECTOR: return asVector().size();
-                    case FBT_BOOL: return readInt(bb, end, parentWidth);
-                    default:
-                        // Convert other things to uint.
-                        return 0;
-                }
+                return switch (type) {
+                    case FBT_INDIRECT_UINT -> readUInt(bb, indirect(bb, end, parentWidth), byteWidth);
+                    case FBT_INT -> readLong(bb, end, parentWidth);
+                    case FBT_INDIRECT_INT -> readLong(bb, indirect(bb, end, parentWidth), byteWidth);
+                    case FBT_FLOAT -> (long) readDouble(bb, end, parentWidth);
+                    case FBT_INDIRECT_FLOAT -> (long) readDouble(bb, indirect(bb, end, parentWidth), parentWidth);
+                    case FBT_NULL -> 0;
+                    case FBT_STRING -> Long.parseLong(asString());
+                    case FBT_VECTOR -> asVector().size();
+                    case FBT_BOOL -> readInt(bb, end, parentWidth);
+                    default ->
+                            // Convert other things to uint.
+                            0;
+                };
         }
 
         /**
@@ -458,21 +454,19 @@ public class FlexBuffers {
                 // A fast path for the common case.
                 return readDouble(bb, end, parentWidth);
             } else
-                switch (type) {
-                    case FBT_INDIRECT_FLOAT: return readDouble(bb, indirect(bb, end, parentWidth), byteWidth);
-                    case FBT_INT: return readInt(bb, end, parentWidth);
-                    case FBT_UINT:
-                    case FBT_BOOL:
-                        return readUInt(bb, end, parentWidth);
-                    case FBT_INDIRECT_INT: return readInt(bb, indirect(bb, end, parentWidth), byteWidth);
-                    case FBT_INDIRECT_UINT: return readUInt(bb, indirect(bb, end, parentWidth), byteWidth);
-                    case FBT_NULL: return 0.0;
-                    case FBT_STRING: return Double.parseDouble(asString());
-                    case FBT_VECTOR: return asVector().size();
-                    default:
-                        // Convert strings and other things to float.
-                        return 0;
-                }
+                return switch (type) {
+                    case FBT_INDIRECT_FLOAT -> readDouble(bb, indirect(bb, end, parentWidth), byteWidth);
+                    case FBT_INT -> readInt(bb, end, parentWidth);
+                    case FBT_UINT, FBT_BOOL -> readUInt(bb, end, parentWidth);
+                    case FBT_INDIRECT_INT -> readInt(bb, indirect(bb, end, parentWidth), byteWidth);
+                    case FBT_INDIRECT_UINT -> readUInt(bb, indirect(bb, end, parentWidth), byteWidth);
+                    case FBT_NULL -> 0.0;
+                    case FBT_STRING -> Double.parseDouble(asString());
+                    case FBT_VECTOR -> asVector().size();
+                    default ->
+                            // Convert strings and other things to float.
+                            0;
+                };
         }
 
         /**
@@ -577,51 +571,21 @@ public class FlexBuffers {
         StringBuilder toString(StringBuilder sb) {
             //T/ODO: Original C++ implementation escape strings.
             // probably we should do it as well.
-            switch (type) {
-                case FBT_NULL:
-                    return sb.append("null");
-                case FBT_INT:
-                case FBT_INDIRECT_INT:
-                    return sb.append(asLong());
-                case FBT_UINT:
-                case FBT_INDIRECT_UINT:
-                    return sb.append(asUInt());
-                case FBT_INDIRECT_FLOAT:
-                case FBT_FLOAT:
-                    return sb.append(asFloat());
-                case FBT_KEY:
-                    return asKey().toString(sb.append('"')).append('"');
-                case FBT_STRING:
-                    return sb.append('"').append(asString()).append('"');
-                case FBT_MAP:
-                    return asMap().toString(sb);
-                case FBT_VECTOR:
-                    return asVector().toString(sb);
-                case FBT_BLOB:
-                    return asBlob().toString(sb);
-                case FBT_BOOL:
-                    return sb.append(asBoolean());
-                case FBT_VECTOR_INT:
-                case FBT_VECTOR_UINT:
-                case FBT_VECTOR_FLOAT:
-                case FBT_VECTOR_KEY:
-                case FBT_VECTOR_STRING_DEPRECATED:
-                case FBT_VECTOR_BOOL:
-                    return sb.append(asVector());
-                case FBT_VECTOR_INT2:
-                case FBT_VECTOR_UINT2:
-                case FBT_VECTOR_FLOAT2:
-                case FBT_VECTOR_INT3:
-                case FBT_VECTOR_UINT3:
-                case FBT_VECTOR_FLOAT3:
-                case FBT_VECTOR_INT4:
-                case FBT_VECTOR_UINT4:
-                case FBT_VECTOR_FLOAT4:
-
-                    throw new FlexBufferException("not_implemented:" + type);
-                default:
-                    return sb;
-            }
+            return switch (type) {
+                case FBT_NULL -> sb.append("null");
+                case FBT_INT, FBT_INDIRECT_INT -> sb.append(asLong());
+                case FBT_UINT, FBT_INDIRECT_UINT -> sb.append(asUInt());
+                case FBT_INDIRECT_FLOAT, FBT_FLOAT -> sb.append(asFloat());
+                case FBT_KEY -> asKey().toString(sb.append('"')).append('"');
+                case FBT_STRING -> sb.append('"').append(asString()).append('"');
+                case FBT_MAP -> asMap().toString(sb);
+                case FBT_VECTOR -> asVector().toString(sb);
+                case FBT_BLOB -> asBlob().toString(sb);
+                case FBT_BOOL -> sb.append(asBoolean());
+                case FBT_VECTOR_INT, FBT_VECTOR_UINT, FBT_VECTOR_FLOAT, FBT_VECTOR_KEY, FBT_VECTOR_STRING_DEPRECATED, FBT_VECTOR_BOOL -> sb.append(asVector());
+                case FBT_VECTOR_INT2, FBT_VECTOR_UINT2, FBT_VECTOR_FLOAT2, FBT_VECTOR_INT3, FBT_VECTOR_UINT3, FBT_VECTOR_FLOAT3, FBT_VECTOR_INT4, FBT_VECTOR_UINT4, FBT_VECTOR_FLOAT4 -> throw new FlexBufferException("not_implemented:" + type);
+                default -> sb;
+            };
         }
     }
 
@@ -664,11 +628,11 @@ public class FlexBuffers {
     }
 
     /**
-     * Represents a array of bytes element in the buffer
+     * Represents an array of bytes element in the buffer
      *
-     * <p>It can be converted to `ReadBuf` using {@link data()},
-     * copied into a byte[] using {@link getBytes()} or
-     * have individual bytes accessed individually using {@link get(int)}</p>
+     * <p>It can be converted to `ReadBuf` using {@link Blob#data()},
+     * copied into a byte[] using {@link Blob#getBytes()} or
+     * have individual bytes accessed individually using {@link Blob#get(int)}</p>
      */
     public static class Blob extends Sized {
         static final Blob EMPTY = new Blob(EMPTY_BB, 1, 1);
@@ -759,7 +723,7 @@ public class FlexBuffers {
          */
         @Override
         public StringBuilder toString(StringBuilder sb) {
-            return sb.append(toString());
+            return sb.append(this);
         }
 
         @Override

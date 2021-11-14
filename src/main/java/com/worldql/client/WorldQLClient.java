@@ -9,6 +9,7 @@ import org.zeromq.ZMQ;
 
 
 public class WorldQLClient extends JavaPlugin {
+
     public static WorldQLClient pluginInstance;
     private Thread zeroMQThread;
     private ZContext context;
@@ -100,4 +101,5 @@ public class WorldQLClient extends JavaPlugin {
     public int getZmqPortClientId() {
         return zmqPortClientId;
     }
+
 }

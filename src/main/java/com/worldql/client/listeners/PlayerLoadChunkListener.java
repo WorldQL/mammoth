@@ -16,14 +16,14 @@ public class PlayerLoadChunkListener implements Listener {
 
 
     @EventHandler
-    public void onPlayerLoadChunk(ChunkLoadEvent e) {
+    public void onPlayerLoadChunk(ChunkLoadEvent event) {
         FlatBufferBuilder builder = new FlatBufferBuilder(1024);
         int instruction = builder.createString("Mammoth.ChunkLookup");
         float[] numericalParamsArray = {
                 0, 256
         };
 
-        String chunkKey = e.getChunk().getX() + "," + e.getChunk().getZ();
+        String chunkKey = event.getChunk().getX() + "," + event.getChunk().getZ();
 
         if (chunkLastRefreshed.containsKey(chunkKey)) {
             if (System.currentTimeMillis() - chunkLastRefreshed.get(chunkKey) < 30000) {
@@ -34,7 +34,7 @@ public class PlayerLoadChunkListener implements Listener {
         int numericalParams = Update.createNumericalParamsVector(builder, numericalParamsArray);
 
         Update.startUpdate(builder);
-        Update.addPosition(builder, Vec3.createVec3(builder, e.getChunk().getX(), 0, e.getChunk().getZ()));
+        Update.addPosition(builder, Vec3.createVec3(builder, event.getChunk().getX(), 0, event.getChunk().getZ()));
         Update.addInstruction(builder, instruction);
         Update.addSenderid(builder, WorldQLClient.getPluginInstance().getZmqPortClientId());
         Update.addNumericalParams(builder, numericalParams);

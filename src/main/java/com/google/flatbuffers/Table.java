@@ -16,9 +16,11 @@
 
 package com.google.flatbuffers;
 
-import static com.google.flatbuffers.Constants.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+
+import static com.google.flatbuffers.Constants.FILE_IDENTIFIER_LENGTH;
+import static com.google.flatbuffers.Constants.SIZEOF_INT;
 
 /// @cond FLATBUFFERS_INTERNAL
 
@@ -229,11 +231,7 @@ public class Table {
   protected void sortTables(int[] offsets, final ByteBuffer bb) {
     Integer[] off = new Integer[offsets.length];
     for (int i = 0; i < offsets.length; i++) off[i] = offsets[i];
-    java.util.Arrays.sort(off, new java.util.Comparator<Integer>() {
-      public int compare(Integer o1, Integer o2) {
-        return keysCompare(o1, o2, bb);
-      }
-    });
+    java.util.Arrays.sort(off, (o1, o2) -> keysCompare(o1, o2, bb));
     for (int i = 0; i < offsets.length; i++) offsets[i] = off[i];
   }
 

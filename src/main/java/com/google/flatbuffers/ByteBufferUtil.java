@@ -16,9 +16,9 @@
 
 package com.google.flatbuffers;
 
-import static com.google.flatbuffers.Constants.*;
-
 import java.nio.ByteBuffer;
+
+import static com.google.flatbuffers.Constants.SIZE_PREFIX_LENGTH;
 
 /// @file
 /// @addtogroup flatbuffers_java_api

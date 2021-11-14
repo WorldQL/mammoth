@@ -8,7 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import zmq.ZMQ;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class BlockPlaceUtils {
@@ -50,9 +50,9 @@ public class BlockPlaceUtils {
 
     public static class SignEditData {
 
-        ArrayList<String> signContent;
+        List<String> signContent;
 
-        public SignEditData(ArrayList<String> signContent) {
+        public SignEditData(List<String> signContent) {
             this.signContent = signContent;
         }
 

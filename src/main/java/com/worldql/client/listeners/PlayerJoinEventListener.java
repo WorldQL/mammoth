@@ -9,14 +9,14 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class PlayerJoinEventListener implements Listener {
     @EventHandler
-    public void onPlayerJoinEvent(PlayerJoinEvent e) {
-        PlayerGhostManager.playerNeedsGhosts.put(e.getPlayer().getUniqueId(), true);
-        WorldQLClient.getPluginInstance().getPacketReader().inject(e.getPlayer());
+    public void onPlayerJoinEvent(PlayerJoinEvent event) {
+        PlayerGhostManager.playerNeedsGhosts.put(event.getPlayer().getUniqueId(), true);
+        WorldQLClient.getPluginInstance().getPacketReader().inject(event.getPlayer());
 
         // Sending move packet to show players on join
         PlayerMoveUtils.sendPacket(
-                e.getPlayer().getLocation(),
-                e.getPlayer(),
+                event.getPlayer().getLocation(),
+                event.getPlayer(),
                 new String[]{}
         );
     }

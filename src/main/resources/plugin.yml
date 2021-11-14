@@ -1,14 +1,15 @@
-name: WorldQLClient
-version: 1.0
-api-version: 1.16
-main: com.worldql.client.WorldQLClient
+name: 'WorldQLClient'
+version: '0.03-alpha'
+api-version: '1.17'
+main: 'com.worldql.client.WorldQLClient'
+
 commands:
   refreshworld:
-    description: Pull and apply all block actions from database;
-    usage: /refreshworld
-    permission: worldqlclient.refreshworld
+    description: 'Pull and apply all block actions from database'
+    usage: '/refreshworld'
+    permission: 'worldqlclient.refreshworld'
     
 permissions:
   worldqlclient.refreshworld:
-    default: op
-    description: allow the usage of /refreshworld
+    default: 'op'
+    description: 'Allow the usage of /refreshworld'

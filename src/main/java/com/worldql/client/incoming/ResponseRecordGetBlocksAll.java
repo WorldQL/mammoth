@@ -13,9 +13,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class ResponseRecordGetBlocksAll {
-    private ResponseRecordGetBlocksAll() {
 
-    }
+    private ResponseRecordGetBlocksAll() { }
 
     public static void process(Update update, Plugin plugin) {
         new BukkitRunnable() {
@@ -42,7 +41,7 @@ public class ResponseRecordGetBlocksAll {
                     Location l = new Location(world, blockX, blockY, blockZ);
                     world.getBlockAt(l).setBlockData(blockData);
 
-                    // we only get bed feet so we need to create the rest of the bed.
+                    // we only get bed feet, so we need to create the rest of the bed.
                     if (Tag.BEDS.isTagged(blockData.getMaterial())) {
                         Bed bed = (Bed) blockData;
                         l = l.add(bed.getFacing().getDirection());
@@ -72,4 +71,5 @@ public class ResponseRecordGetBlocksAll {
 
         }.runTask(plugin);
     }
+
 }

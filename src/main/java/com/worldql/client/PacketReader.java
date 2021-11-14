@@ -14,10 +14,7 @@ import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class PacketReader {
     //public final Map<UUID, Channel> channels;
@@ -50,19 +47,19 @@ public class PacketReader {
             if (getValue(packet,
                     "b").getClass().getName().equals("net.minecraft.network.protocol.game.PacketPlayInUseEntity$1")) {
                 int playerId = (int) getValue(packet, "a");
-                ExpiringEntityPlayer p = PlayerGhostManager.integerNPCLookup.get(playerId);
+                ExpiringEntityPlayer entityPlayer = PlayerGhostManager.integerNPCLookup.get(playerId);
 
                 PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
 
 
-                if (p == null) {
+                if (entityPlayer == null) {
                     return;
                 }
 
                 Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(),
                         () -> Bukkit.getPluginManager().callEvent(new OutgoingPlayerHitEvent(playerId, player.getLocation().getDirection())));
 
-                PacketPlayOutAnimation damage = new PacketPlayOutAnimation(p.grab(), (byte) 1);
+                PacketPlayOutAnimation damage = new PacketPlayOutAnimation(entityPlayer.grab(), (byte) 1);
                 connection.sendPacket(damage);
             }
         }

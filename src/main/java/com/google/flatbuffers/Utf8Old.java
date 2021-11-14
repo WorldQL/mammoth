@@ -18,11 +18,7 @@ package com.google.flatbuffers;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.CharacterCodingException;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CoderResult;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.*;
 
 /**
  * This class implements the Utf8 API using the Java Utf8 encoder. Use
@@ -43,7 +39,7 @@ public class Utf8Old extends Utf8 {
   }
 
   private static final ThreadLocal<Cache> CACHE =
-      ThreadLocal.withInitial(() -> new Cache());
+      ThreadLocal.withInitial(Cache::new);
 
   // Play some games so that the old encoder doesn't pay twice for computing
   // the length of the encoded string.

@@ -6,8 +6,6 @@ import com.worldql.client.WorldQLClient;
 import com.worldql.client.events.OutgoingPlayerHitEvent;
 import com.worldql.client.ghost.ExpiringEntityPlayer;
 import com.worldql.client.ghost.PlayerGhostManager;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import zmq.ZMQ;
@@ -15,8 +13,8 @@ import zmq.ZMQ;
 public class OutgoingPlayerHitListener implements Listener {
 
     @EventHandler
-    public void onPlayerHit(OutgoingPlayerHitEvent e) {
-        ExpiringEntityPlayer hitPlayer = PlayerGhostManager.integerNPCLookup.get(e.getPlayerId());
+    public void onPlayerHit(OutgoingPlayerHitEvent event) {
+        ExpiringEntityPlayer hitPlayer = PlayerGhostManager.integerNPCLookup.get(event.getPlayerId());
 
         if (hitPlayer == null) {
             return;
@@ -31,9 +29,9 @@ public class OutgoingPlayerHitListener implements Listener {
 
         int[] paramsArray = {playerUUID};
         float[] numericalParamsArray = {
-                (float) e.getDirection().getX(),
-                (float) e.getDirection().getY(),
-                (float) e.getDirection().getZ()
+                (float) event.getDirection().getX(),
+                (float) event.getDirection().getY(),
+                (float) event.getDirection().getZ()
         };
 
         int params = Update.createParamsVector(builder, paramsArray);

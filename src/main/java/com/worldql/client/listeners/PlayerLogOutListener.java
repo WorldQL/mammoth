@@ -1,10 +1,8 @@
 package com.worldql.client.listeners;
 
 import WorldQLFB.StandardEvents.Update;
-import WorldQLFB.StandardEvents.Vec3;
 import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.WorldQLClient;
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -13,9 +11,9 @@ import zmq.ZMQ;
 public class PlayerLogOutListener implements Listener {
 
     @EventHandler
-    public void onPlayerLogOut(PlayerQuitEvent e) {
+    public void onPlayerLogOut(PlayerQuitEvent event) {
         FlatBufferBuilder builder = new FlatBufferBuilder(1024);
-        int uuid = builder.createString(e.getPlayer().getUniqueId().toString());
+        int uuid = builder.createString(event.getPlayer().getUniqueId().toString());
         int instruction = builder.createString("MinecraftPlayerQuit");
 
         Update.startUpdate(builder);

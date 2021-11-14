@@ -18,13 +18,7 @@ package com.google.flatbuffers;
 
 import java.nio.ByteBuffer;
 
-import static java.lang.Character.MAX_SURROGATE;
-import static java.lang.Character.MIN_SURROGATE;
-import static java.lang.Character.MIN_HIGH_SURROGATE;
-import static java.lang.Character.MIN_LOW_SURROGATE;
-import static java.lang.Character.MIN_SUPPLEMENTARY_CODE_POINT;
-import static java.lang.Character.isSurrogatePair;
-import static java.lang.Character.toCodePoint;
+import static java.lang.Character.*;
 
 public abstract class Utf8 {
 

@@ -70,7 +70,7 @@ public class PlayerGhost {
     private final NPCMetaData metadata = new NPCMetaData();
     private final Location location;
     private Ping ping = Ping.FIVE_BARS;
-    private Gamemode gamemode = Gamemode.CREATIVE;
+    private GameMode gamemode = GameMode.CREATIVE;
     private String displayName;
 
     static {
@@ -319,7 +319,7 @@ public class PlayerGhost {
     public PacketPlayOutPlayerInfo getPlayerInfoPacket(PlayerInfo playerInfo) {
         return this.createDataSerializer((data) -> {
             PacketPlayOutPlayerInfo.EnumPlayerInfoAction action = playerInfo.getPlayerInfo();
-            PacketPlayOutPlayerInfo.PlayerInfoData playerInfoData = new PacketPlayOutPlayerInfo.PlayerInfoData(this.profile, this.ping.getMilliseconds(), this.gamemode.getGamemode(), CraftChatMessage.fromString(this.displayName)[0]);
+            PacketPlayOutPlayerInfo.PlayerInfoData playerInfoData = new PacketPlayOutPlayerInfo.PlayerInfoData(this.profile, this.ping.getMilliseconds(), this.gamemode.getGameMode(), CraftChatMessage.fromString(this.displayName)[0]);
             List<PacketPlayOutPlayerInfo.PlayerInfoData> list = Collections.singletonList(playerInfoData);
             data.a(playerInfo.getPlayerInfo());
             Method method = playerInfo.getPlayerInfo().getDeclaringClass().getDeclaredMethod("a", PacketDataSerializer.class, PacketPlayOutPlayerInfo.PlayerInfoData.class);
@@ -349,7 +349,7 @@ public class PlayerGhost {
         return ping;
     }
 
-    public Gamemode getGameMode() {
+    public GameMode getGameMode() {
         return gamemode;
     }
 
@@ -409,7 +409,7 @@ public class PlayerGhost {
         this.ping = ping;
     }
 
-    public void setGameMode(Gamemode gamemode) {
+    public void setGameMode(GameMode gamemode) {
         this.gamemode = gamemode;
     }
 
@@ -691,13 +691,13 @@ public class PlayerGhost {
             } else if (value instanceof EntityPose) {
                 serializer = DataWatcherRegistry.s;
             }
+
             return a(index, value, (DataWatcherSerializer<T>) serializer);
         }
 
         private static <T> DataWatcher.Item<T> a(int index, T value, DataWatcherSerializer<T> serializer) {
             return new DataWatcher.Item<>(new DataWatcherObject<>(index, serializer), value);
         }
-
     }
 
     public enum ItemSlot {
@@ -718,6 +718,7 @@ public class PlayerGhost {
         public EnumItemSlot getSlot() {
             return slot;
         }
+
     }
 
     public enum Hand {
@@ -743,6 +744,7 @@ public class PlayerGhost {
             }
             return null;
         }
+
     }
 
     public enum Pose {
@@ -774,6 +776,7 @@ public class PlayerGhost {
             }
             return null;
         }
+
     }
 
     public enum SkinStatus {
@@ -815,6 +818,7 @@ public class PlayerGhost {
             }
             return list.toArray(new SkinStatus[0]);
         }
+
     }
 
     public enum HandStatus {
@@ -852,6 +856,7 @@ public class PlayerGhost {
             }
             return list.toArray(new HandStatus[0]);
         }
+
     }
 
     public enum Animation {
@@ -915,23 +920,24 @@ public class PlayerGhost {
             }
             return list.toArray(new EntityState[0]);
         }
+
     }
 
-    public enum Gamemode {
+    public enum GameMode {
 
         SURVIVAL(EnumGamemode.a),
         CREATIVE(EnumGamemode.b),
         ADVENTURE(EnumGamemode.c),
         SPECTATOR(EnumGamemode.d);
 
-        private final EnumGamemode gamemode;
+        private final EnumGamemode gameMode;
 
-        Gamemode(EnumGamemode gamemode) {
-            this.gamemode = gamemode;
+        GameMode(EnumGamemode gameMode) {
+            this.gameMode = gameMode;
         }
 
-        public EnumGamemode getGamemode() {
-            return gamemode;
+        public EnumGamemode getGameMode() {
+            return gameMode;
         }
     }
 
@@ -952,6 +958,7 @@ public class PlayerGhost {
         public PacketPlayOutPlayerInfo.EnumPlayerInfoAction getPlayerInfo() {
             return playerInfo;
         }
+
     }
 
     public enum Ping {
@@ -972,6 +979,7 @@ public class PlayerGhost {
         public int getMilliseconds() {
             return milliseconds;
         }
+
     }
 
     public static class SkinTextures {
@@ -1060,7 +1068,6 @@ public class PlayerGhost {
                                 }
                             }
                         }
-
                     } catch (URISyntaxException | InterruptedException | IOException | ParseException e) {
                         e.printStackTrace();
                     }

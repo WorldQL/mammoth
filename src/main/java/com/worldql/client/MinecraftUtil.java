@@ -18,7 +18,6 @@ public class MinecraftUtil {
                 dataOutput.writeObject(item);
             }
 
-            dataOutput.close();
             return Base64Coder.encodeLines(outputStream.toByteArray());
         } catch (Exception e) {
             throw new IllegalStateException("Unable to save item stacks.", e);
@@ -26,14 +25,13 @@ public class MinecraftUtil {
     }
 
     public static ItemStack[] itemStackArrayFromBase64(String data) throws IOException {
-        try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
-            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data)); BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream)) {
             ItemStack[] items = new ItemStack[dataInput.readInt()];
+
             for (int i = 0; i < items.length; i++) {
                 items[i] = (ItemStack) dataInput.readObject();
             }
-            dataInput.close();
+
             return items;
         } catch (ClassNotFoundException e) {
             throw new IOException("Unable to decode class type.", e);

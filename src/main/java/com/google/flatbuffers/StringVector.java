@@ -16,10 +16,7 @@
 
 package com.google.flatbuffers;
 
-import static com.google.flatbuffers.Constants.*;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 
 /**
  * Helper type for accessing vector of String.

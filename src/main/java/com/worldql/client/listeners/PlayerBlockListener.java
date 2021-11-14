@@ -19,13 +19,13 @@ import java.util.Optional;
 
 public class PlayerBlockListener implements Listener {
     @EventHandler
-    public void onPlayerBreakBlockEvent(BlockBreakEvent e) {
-        Location l = e.getBlock().getLocation();
+    public void onPlayerBreakBlockEvent(BlockBreakEvent event) {
+        Location l = event.getBlock().getLocation();
         FlatBufferBuilder builder = new FlatBufferBuilder(1024);
 
         int instruction = builder.createString("MinecraftBlockBreak");
-        int worldName = builder.createString(e.getBlock().getWorld().getName());
-        int blockData = builder.createString(e.getBlock().getBlockData().getAsString());
+        int worldName = builder.createString(event.getBlock().getWorld().getName());
+        int blockData = builder.createString(event.getBlock().getBlockData().getAsString());
 
         int[] paramsArray = {blockData};
         int params = Update.createParamsVector(builder, paramsArray);
@@ -43,27 +43,27 @@ public class PlayerBlockListener implements Listener {
         byte[] buf = builder.sizedByteArray();
         WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
 
-        NoRepeatBlockBreak.sendInitBlockBreakMessage(e);
+        NoRepeatBlockBreak.sendInitBlockBreakMessage(event);
     }
 
     @EventHandler
-    public void onPlayerPlaceBlockEvent(BlockPlaceEvent e) {
+    public void onPlayerPlaceBlockEvent(BlockPlaceEvent event) {
         final Block[] relatives = {
-                e.getBlock().getRelative(1, 0, 0),
-                e.getBlock().getRelative(-1, 0, 0),
-                e.getBlock().getRelative(0, 1, 0),
-                e.getBlock().getRelative(0, -1, 0),
-                e.getBlock().getRelative(0, 0, 1),
-                e.getBlock().getRelative(0, 0, -1)
+                event.getBlock().getRelative(1, 0, 0),
+                event.getBlock().getRelative(-1, 0, 0),
+                event.getBlock().getRelative(0, 1, 0),
+                event.getBlock().getRelative(0, -1, 0),
+                event.getBlock().getRelative(0, 0, 1),
+                event.getBlock().getRelative(0, 0, -1)
         };
 
         final Location[] relativeLocations = {
-                e.getBlock().getRelative(1, 0, 0).getLocation(),
-                e.getBlock().getRelative(-1, 0, 0).getLocation(),
-                e.getBlock().getRelative(0, 1, 0).getLocation(),
-                e.getBlock().getRelative(0, -1, 0).getLocation(),
-                e.getBlock().getRelative(0, 0, 1).getLocation(),
-                e.getBlock().getRelative(0, 0, -1).getLocation(),
+                event.getBlock().getRelative(1, 0, 0).getLocation(),
+                event.getBlock().getRelative(-1, 0, 0).getLocation(),
+                event.getBlock().getRelative(0, 1, 0).getLocation(),
+                event.getBlock().getRelative(0, -1, 0).getLocation(),
+                event.getBlock().getRelative(0, 0, 1).getLocation(),
+                event.getBlock().getRelative(0, 0, -1).getLocation(),
         };
 
         // Handle server-joined blocks (fences, beds, glass panes, etc...)
@@ -72,12 +72,12 @@ public class PlayerBlockListener implements Listener {
             @Override
             public void run() {
                 Block[] newRelatives = {
-                        e.getBlock().getRelative(1, 0, 0),
-                        e.getBlock().getRelative(-1, 0, 0),
-                        e.getBlock().getRelative(0, 1, 0),
-                        e.getBlock().getRelative(0, -1, 0),
-                        e.getBlock().getRelative(0, 0, 1),
-                        e.getBlock().getRelative(0, 0, -1)
+                        event.getBlock().getRelative(1, 0, 0),
+                        event.getBlock().getRelative(-1, 0, 0),
+                        event.getBlock().getRelative(0, 1, 0),
+                        event.getBlock().getRelative(0, -1, 0),
+                        event.getBlock().getRelative(0, 0, 1),
+                        event.getBlock().getRelative(0, 0, -1)
                 };
 
                 for (int i = 0; i < 6; i++) {
@@ -92,7 +92,7 @@ public class PlayerBlockListener implements Listener {
             }
         }.runTaskLater(WorldQLClient.getPluginInstance(), 3);
 
-        BlockPlaceUtils.sendPacket(e.getBlock(), Optional.empty());
+        BlockPlaceUtils.sendPacket(event.getBlock(), Optional.empty());
     }
 
     public static int createRoundedVec3(FlatBufferBuilder builder, double x, double y, double z) {

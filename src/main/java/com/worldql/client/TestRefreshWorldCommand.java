@@ -30,6 +30,7 @@ public class TestRefreshWorldCommand implements CommandExecutor {
             byte[] buf = bufferBuilder.sizedByteArray();
             WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
         }
+
         return false;
     }
 }

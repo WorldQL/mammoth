@@ -18,7 +18,6 @@ package com.google.flatbuffers;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,9 +25,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import static com.google.flatbuffers.FlexBuffers.*;
-import static com.google.flatbuffers.FlexBuffers.Unsigned.byteToUnsignedInt;
-import static com.google.flatbuffers.FlexBuffers.Unsigned.intToUnsignedLong;
-import static com.google.flatbuffers.FlexBuffers.Unsigned.shortToUnsignedInt;
+import static com.google.flatbuffers.FlexBuffers.Unsigned.*;
 
 /// @file
 /// @addtogroup flatbuffers_java_api
@@ -91,11 +88,11 @@ public class FlexBuffersBuilder {
     private boolean finished = false;
 
     // A lambda to sort map keys
-    private Comparator<Value> keyComparator = new Comparator<Value>() {
+    private final Comparator<Value> keyComparator = new Comparator<>() {
         @Override
         public int compare(Value o1, Value o2) {
             int ia = o1.key;
-            int io =  o2.key;
+            int io = o2.key;
             byte c1, c2;
             do {
                 c1 = bb.get(ia);
@@ -129,7 +126,7 @@ public class FlexBuffersBuilder {
     /**
      * Constructs a newly allocated {@code FlexBuffersBuilder}.
      *
-     * @param bb    `ByteBuffer` that will hold the message
+     * @param bb `ByteBuffer` that will hold the message
      * @param flags Share flags
      */
     @Deprecated
@@ -262,7 +259,7 @@ public class FlexBuffersBuilder {
      * @param value integer representing unsigned value
      */
     public void putUInt(int value) {
-        putUInt(null, (long) value);
+        putUInt(null, value);
     }
 
     /**
@@ -315,7 +312,7 @@ public class FlexBuffersBuilder {
     /**
      * Adds a 32-bit float into the buff.
      * @param key key used to store element in map
-     * @param value float representing value
+     * @param val float representing value
      */
     public void putFloat(String key, float val) {
         stack.add(Value.float32(putKey(key), val));
@@ -332,7 +329,7 @@ public class FlexBuffersBuilder {
     /**
      * Adds a 64-bit float into the buff.
      * @param key key used to store element in map
-     * @param value float representing value
+     * @param val float representing value
      */
     public void putFloat(String key, double val) {
         stack.add(Value.float64(putKey(key), val));
@@ -350,7 +347,7 @@ public class FlexBuffersBuilder {
     /**
      * Adds a String into the buffer
      * @param key key used to store element in map
-     * @param value string
+     * @param val string
      * @return start position of string in the buffer
      */
     public int putString(String key, String val) {
@@ -378,7 +375,7 @@ public class FlexBuffersBuilder {
         return writeBlob(key, s.getBytes(StandardCharsets.UTF_8), FBT_STRING, true);
     }
 
-    // in bits to fit a unsigned int
+    // in bits to fit an unsigned int
     static int widthUInBits(long len) {
         if (len <= byteToUnsignedInt((byte)0xff)) return WIDTH_8;
         if (len <= shortToUnsignedInt((short)0xffff)) return WIDTH_16;
@@ -410,10 +407,10 @@ public class FlexBuffersBuilder {
 
     private void writeInt(long value, int byteWidth) {
         switch (byteWidth) {
-            case 1: bb.put((byte) value); break;
-            case 2: bb.putShort((short) value); break;
-            case 4: bb.putInt((int) value); break;
-            case 8: bb.putLong(value); break;
+            case 1 -> bb.put((byte) value);
+            case 2 -> bb.putShort((short) value);
+            case 4 -> bb.putInt((int) value);
+            case 8 -> bb.putLong(value);
         }
     }
 
@@ -429,7 +426,7 @@ public class FlexBuffersBuilder {
     /**
      * Adds a byte array into the message
      * @param key key used to store element in map
-     * @param value byte array
+     * @param val byte array
      * @return position in buffer as the start of byte array
      */
     public int putBlob(String key, byte[] val) {
@@ -442,7 +439,7 @@ public class FlexBuffersBuilder {
     /**
      * Start a new vector in the buffer.
      * @return a reference indicating position of the vector in buffer. This
-     * reference must be passed along when the vector is finished using endVector()
+     * reference must be passed along when the vector is finished using {@link FlexBuffersBuilder#endVector(String, int, boolean, boolean)} ()}
      */
     public int startVector() {
         return stack.size();
@@ -451,10 +448,10 @@ public class FlexBuffersBuilder {
     /**
      * Finishes a vector, but writing the information in the buffer
      * @param key   key used to store element in map
-     * @param start reference for begining of the vector. Returned by {@link startVector()}
-     * @param typed boolean indicating wether vector is typed
-     * @param fixed boolean indicating wether vector is fixed
-     * @return      Reference to the vector
+     * @param start reference for beginning of the vector. Returned by {@link FlexBuffersBuilder#startVector()}
+     * @param typed boolean indicating whether vector is typed
+     * @param fixed boolean indicating whether vector is fixed
+     * @return Reference to the vector
      */
     public int endVector(String key, int start, boolean typed, boolean fixed) {
         int iKey = putKey(key);
@@ -567,18 +564,9 @@ public class FlexBuffersBuilder {
 
     private void writeAny(final Value val, int byteWidth) {
         switch (val.type) {
-            case FBT_NULL:
-            case FBT_BOOL:
-            case FBT_INT:
-            case FBT_UINT:
-                writeInt(val.iValue, byteWidth);
-                break;
-            case FBT_FLOAT:
-                writeDouble(val.dValue, byteWidth);
-                break;
-            default:
-                writeOffset(val.iValue, byteWidth);
-                break;
+            case FBT_NULL, FBT_BOOL, FBT_INT, FBT_UINT -> writeInt(val.iValue, byteWidth);
+            case FBT_FLOAT -> writeDouble(val.dValue, byteWidth);
+            default -> writeOffset(val.iValue, byteWidth);
         }
     }
 
@@ -602,13 +590,13 @@ public class FlexBuffersBuilder {
     /**
      * Finishes a map, but writing the information in the buffer
      * @param key   key used to store element in map
-     * @param start reference for begining of the map. Returned by {@link startMap()}
+     * @param start reference for beginning of the map. Returned by {@link FlexBuffersBuilder#startMap()}
      * @return      Reference to the map
      */
     public int endMap(String key, int start) {
         int iKey = putKey(key);
 
-        Collections.sort(stack.subList(start, stack.size()), keyComparator);
+        stack.subList(start, stack.size()).sort(keyComparator);
 
         Value keys = createKeyVector(start, stack.size() - start);
         Value vec = createVector(iKey, start, stack.size() - start, false, false, keys);
