@@ -1,6 +1,11 @@
 package com.worldql.client;
 
+import org.bukkit.Bukkit;
+
+import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.listeners.*;
+import com.worldql.client.Messages.Instruction;
+import com.worldql.client.Messages.Message;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
@@ -35,6 +40,27 @@ public class WorldQLClient extends JavaPlugin {
         pushSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlPushPort));
 
         String selfHostname = getConfig().getString("host", "127.0.0.1");
+
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+            @Override
+            public void run() {
+                FlatBufferBuilder builder = new FlatBufferBuilder(1024);
+
+                int sender_uuid = builder.createString(worldQLClientId);
+                int worldName = builder.createString("@global");
+
+                Message.startMessage(builder);
+                Message.addInstruction(builder, Instruction.Heartbeat);
+                Message.addSenderUuid(builder, sender_uuid);
+                Message.addWorldName(builder, worldName);
+
+                int message = Message.endMessage(builder);
+                builder.finish(message);
+
+                byte[] buf = builder.sizedByteArray();
+                pushSocket.send(buf, zmq.ZMQ.ZMQ_DONTWAIT);
+            }
+        }, 0L, 20L * 5L);
 
 
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(), this);
