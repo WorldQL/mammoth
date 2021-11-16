@@ -67,7 +67,7 @@ public final class Codec {
 
         Instruction instruction = Instruction.fromValue(raw.instruction());
         UUID senderUuid = UUID.fromString(raw.senderUuid());
-        Vec3D position = new Vec3D(raw.position());
+        Vec3D position = raw.position() == null ? null : new Vec3D(raw.position());
 
         // TODO: Records and Entities
 
