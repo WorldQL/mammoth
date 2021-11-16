@@ -31,18 +31,16 @@ public class ZeroMQServer implements Runnable {
         ZMQ.Socket socket = context.createSocket(SocketType.PULL);
         int port = socket.bindToRandomPort("tcp://" + hostname, 29000, 30000);
 
-        FlatBufferBuilder builder = new FlatBufferBuilder(1024);
-        int world_name = builder.createString("@global");
-        int parameter = builder.createString(hostname + ":" + port);
-        int client_uuid = builder.createString(WorldQLClient.worldQLClientId);
-        Message.startMessage(builder);
-        Message.addWorldName(builder, world_name);
-        Message.addInstruction(builder, Instruction.Handshake);
-        Message.addParameter(builder, parameter);
-        Message.addSenderUuid(builder, client_uuid);
-        int message = Message.endMessage(builder);
-        builder.finish(message);
-        byte[] handshakeBuf = builder.sizedByteArray();
+        String parameter = hostname + ":" + port;
+        byte[] handshakeBuf = MessageCodec.encodeMessage(
+                WorldQLClient.worldQLClientId,
+                Instruction.Handshake,
+                "@global",
+                null,
+                parameter,
+                null
+        );
+
         WorldQLClient.getPluginInstance().getPushSocket().send(handshakeBuf, ZMQ.DONTWAIT);
 
         while (!Thread.currentThread().isInterrupted()) {

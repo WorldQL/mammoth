@@ -1,10 +1,8 @@
 package com.worldql.client.listeners;
 
-import com.google.flatbuffers.FlatBufferBuilder;
 import com.google.flatbuffers.FlexBuffersBuilder;
+import com.worldql.client.MessageCodec;
 import com.worldql.client.Messages.Instruction;
-import com.worldql.client.Messages.Message;
-import com.worldql.client.Messages.Vec3d;
 import com.worldql.client.WorldQLClient;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,7 +18,7 @@ import java.nio.ByteBuffer;
 public class PlayerShieldInteractListener implements Listener {
 
     private void sendPacket(Player player, boolean blocking, boolean offhand) {
-        FlexBuffersBuilder b = new FlexBuffersBuilder();
+        FlexBuffersBuilder b = MessageCodec.getFlexBuilder();
         int pmap = b.startMap();
 
         b.putBoolean("blocking", blocking);
@@ -30,26 +28,17 @@ public class PlayerShieldInteractListener implements Listener {
         b.endMap(null, pmap);
         ByteBuffer bb = b.finish();
 
-        FlatBufferBuilder builder = new FlatBufferBuilder(1024);
-
-        int sender_uuid = builder.createString(WorldQLClient.worldQLClientId);
-        int worldName = builder.createString(player.getWorld().getName());
-        int command = builder.createString("MinecraftPlayerShieldUse");
-        int flex = builder.createByteVector(bb);
-
-        Message.startMessage(builder);
-        Message.addInstruction(builder, Instruction.LocalMessage);
-        Message.addWorldName(builder, worldName);
-        Message.addParameter(builder, command);
-        Message.addSenderUuid(builder, sender_uuid);
         Location loc = player.getLocation();
-        Message.addPosition(builder, Vec3d.createVec3d(builder, (float) loc.getX(), (float) loc.getY(), (float) loc.getZ()));
-        Message.addFlex(builder, flex);
+        MessageCodec.Vec3D position = new MessageCodec.Vec3D((float) loc.getX(), (float) loc.getY(), (float) loc.getZ());
+        byte[] buf = MessageCodec.encodeMessage(
+                WorldQLClient.worldQLClientId,
+                Instruction.LocalMessage,
+                player.getWorld().getName(),
+                position,
+                "MinecraftPlayerShieldUse",
+                bb
+        );
 
-        int message = Message.endMessage(builder);
-        builder.finish(message);
-
-        byte[] buf = builder.sizedByteArray();
         WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
     }
 
