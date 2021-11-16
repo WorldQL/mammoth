@@ -1,22 +1,22 @@
 package com.worldql.client;
 
+import com.worldql.client.serialization.Codec;
+import com.worldql.client.serialization.Instruction;
+import com.worldql.client.serialization.Message;
 import org.bukkit.Bukkit;
 
-import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.listeners.*;
-import com.worldql.client.Messages.Instruction;
-import com.worldql.client.Messages.Message;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
-import java.util.Hashtable;
+import java.util.UUID;
 
 
 public class WorldQLClient extends JavaPlugin {
     public static WorldQLClient pluginInstance;
-    public static String worldQLClientId;
+    public static UUID worldQLClientId;
     private Thread zeroMQThread;
     private ZContext context;
     private ZMQ.Socket pushSocket;
@@ -31,7 +31,7 @@ public class WorldQLClient extends JavaPlugin {
 
         String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
         int worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);
-        worldQLClientId = java.util.UUID.randomUUID().toString();
+        worldQLClientId = java.util.UUID.randomUUID();
 
         context = new ZContext();
         pushSocket = context.createSocket(SocketType.PUSH);
@@ -44,21 +44,13 @@ public class WorldQLClient extends JavaPlugin {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
             @Override
             public void run() {
-                FlatBufferBuilder builder = new FlatBufferBuilder(1024);
+                Message message = new Message(
+                        Instruction.Heartbeat,
+                        WorldQLClient.worldQLClientId,
+                        "@global"
+                );
 
-                int sender_uuid = builder.createString(worldQLClientId);
-                int worldName = builder.createString("@global");
-
-                Message.startMessage(builder);
-                Message.addInstruction(builder, Instruction.Heartbeat);
-                Message.addSenderUuid(builder, sender_uuid);
-                Message.addWorldName(builder, worldName);
-
-                int message = Message.endMessage(builder);
-                builder.finish(message);
-
-                byte[] buf = builder.sizedByteArray();
-                pushSocket.send(buf, zmq.ZMQ.ZMQ_DONTWAIT);
+                pushSocket.send(message.encode(), zmq.ZMQ.ZMQ_DONTWAIT);
             }
         }, 0L, 20L * 5L);
 

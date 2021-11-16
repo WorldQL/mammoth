@@ -1,14 +1,8 @@
 package com.worldql.client;
 
-import WorldQLFB_OLD.StandardEvents.Update;
-import com.worldql.client.Messages.Message;
-import com.worldql.client.Messages.Instruction;
-
-import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.ghost.PlayerGhostManager;
-import com.worldql.client.incoming.PlayerHit;
-import com.worldql.client.incoming.ResponseRecordGetBlocksAll;
-import org.bukkit.World;
+import com.worldql.client.serialization.Instruction;
+import com.worldql.client.serialization.Message;
 import org.bukkit.plugin.Plugin;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
@@ -31,23 +25,24 @@ public class ZeroMQServer implements Runnable {
         ZMQ.Socket socket = context.createSocket(SocketType.PULL);
         int port = socket.bindToRandomPort("tcp://" + hostname, 29000, 30000);
 
-        String parameter = hostname + ":" + port;
-        byte[] handshakeBuf = MessageCodec.encodeMessage(
-                WorldQLClient.worldQLClientId,
+        Message message = new Message(
                 Instruction.Handshake,
+                WorldQLClient.worldQLClientId,
                 "@global",
                 null,
-                parameter,
+                null,
+                null,
+                hostname + ":" + port,
                 null
         );
 
-        WorldQLClient.getPluginInstance().getPushSocket().send(handshakeBuf, ZMQ.DONTWAIT);
+        WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.DONTWAIT);
 
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 byte[] reply = socket.recv(0);
                 java.nio.ByteBuffer buf = java.nio.ByteBuffer.wrap(reply);
-                var incoming = Message.getRootAsMessage(buf);
+                var incoming = Message.decode(buf);
 
                 if (incoming.instruction() == Instruction.Handshake) {
                     WorldQLClient.getPluginInstance().getLogger().info("Response from WorldQL handshake: " + incoming.parameter());

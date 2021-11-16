@@ -1,9 +1,11 @@
 package com.worldql.client.listeners.utils;
 
 import com.google.flatbuffers.FlexBuffersBuilder;
-import com.worldql.client.MessageCodec;
-import com.worldql.client.Messages.Instruction;
 import com.worldql.client.WorldQLClient;
+import com.worldql.client.serialization.Codec;
+import com.worldql.client.serialization.Instruction;
+import com.worldql.client.serialization.Message;
+import com.worldql.client.serialization.Vec3D;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import zmq.ZMQ;
@@ -12,7 +14,7 @@ import java.nio.ByteBuffer;
 
 public class OutgoingMinecraftPlayerSingleAction {
     public static void sendPacket(Location playerLocation, Player player, String action) {
-        FlexBuffersBuilder b = MessageCodec.getFlexBuilder();
+        FlexBuffersBuilder b = Codec.getFlexBuilder();
         int pmap = b.startMap();
         b.putString("action", action);
         b.putString("username", player.getName());
@@ -20,16 +22,17 @@ public class OutgoingMinecraftPlayerSingleAction {
         b.endMap(null, pmap);
         ByteBuffer bb = b.finish();
 
-        MessageCodec.Vec3D position = new MessageCodec.Vec3D((float) playerLocation.getX(), (float) playerLocation.getY(), (float) playerLocation.getZ());
-        byte[] buf = MessageCodec.encodeMessage(
-                WorldQLClient.worldQLClientId,
+        Message message = new Message(
                 Instruction.LocalMessage,
+                WorldQLClient.worldQLClientId,
                 player.getWorld().getName(),
-                position,
+                new Vec3D(playerLocation),
+                null,
+                null,
                 "MinecraftPlayerSingleAction",
                 bb
         );
 
-        WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
+        WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
     }
 }

@@ -1,12 +1,13 @@
 package com.worldql.client.listeners;
 
 import com.google.flatbuffers.FlexBuffersBuilder;
-import com.worldql.client.MessageCodec;
-import com.worldql.client.Messages.Instruction;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.events.PlayerHoldEvent;
+import com.worldql.client.serialization.Codec;
+import com.worldql.client.serialization.Instruction;
+import com.worldql.client.serialization.Message;
+import com.worldql.client.serialization.Vec3D;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -27,7 +28,7 @@ public class PlayerHeldItemListener implements Listener {
 
     @EventHandler
     public void onItemHeld(PlayerHoldEvent event) {
-        FlexBuffersBuilder b = new FlexBuffersBuilder();
+        FlexBuffersBuilder b = Codec.getFlexBuilder();
         int pmap = b.startMap();
         // Not to sure how we should send the ItemStack over using flat buffers?
 
@@ -39,18 +40,18 @@ public class PlayerHeldItemListener implements Listener {
         b.endMap(null, pmap);
         ByteBuffer bb = b.finish();
 
-        Location loc = event.getPlayer().getLocation();
-        MessageCodec.Vec3D position = new MessageCodec.Vec3D((float) loc.getX(), (float) loc.getY(), (float) loc.getZ());
-        byte[] buf = MessageCodec.encodeMessage(
-                WorldQLClient.worldQLClientId,
+        Message message = new Message(
                 Instruction.LocalMessage,
+                WorldQLClient.worldQLClientId,
                 event.getPlayer().getWorld().getName(),
-                position,
+                new Vec3D(event.getPlayer().getLocation()),
+                null,
+                null,
                 "MinecraftPlayerEquipmentEdit",
                 bb
         );
 
-        WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
+        WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
     }
 
     @EventHandler

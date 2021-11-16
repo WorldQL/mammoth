@@ -1,12 +1,9 @@
 package com.worldql.client.listeners;
 
-import WorldQLFB_OLD.StandardEvents.Update;
-import com.google.flatbuffers.FlatBufferBuilder;
-import com.worldql.client.MessageCodec;
 import com.worldql.client.WorldQLClient;
-import com.worldql.client.Messages.Instruction;
-import com.worldql.client.Messages.Message;
-import com.worldql.client.Messages.Vec3d;
+import com.worldql.client.serialization.Instruction;
+import com.worldql.client.serialization.Message;
+import com.worldql.client.serialization.Vec3D;
 import org.bukkit.Chunk;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,17 +24,15 @@ public class ChunkUnloadEventListener implements Listener {
         int max_height = chunk.getWorld().getMaxHeight();
 
         for (int i = min_height; i <= max_height; i += 16) {
-            MessageCodec.Vec3D position = new MessageCodec.Vec3D((float) x, (float) i, (float) z);
-            byte[] buf = MessageCodec.encodeMessage(
-                    WorldQLClient.worldQLClientId,
+            Vec3D position = new Vec3D(x, i, z);
+            Message message = new Message(
                     Instruction.AreaUnsubscribe,
+                    WorldQLClient.worldQLClientId,
                     chunk.getWorld().getName(),
-                    position,
-                    null,
-                    null
+                    position
             );
 
-            WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
+            WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
         }
     }
 }

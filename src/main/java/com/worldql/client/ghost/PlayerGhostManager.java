@@ -1,13 +1,9 @@
 package com.worldql.client.ghost;
 
-import WorldQLFB_OLD.StandardEvents.Update;
 import com.google.flatbuffers.FlexBuffers;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
 import com.mojang.datafixers.util.Pair;
-import com.worldql.client.Messages.Message;
+import com.worldql.client.serialization.Message;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.DataWatcher;
 import net.minecraft.network.syncher.DataWatcherObject;
@@ -41,7 +37,7 @@ public class PlayerGhostManager {
     public static final Hashtable<Integer, ExpiringEntityPlayer> integerNPCLookup = new Hashtable<>();
 
     public static void updateNPC(Message state) {
-        FlexBuffers.Map playerMessageMap = FlexBuffers.getRoot(state.flexAsByteBuffer()).asMap();
+        FlexBuffers.Map playerMessageMap = FlexBuffers.getRoot(state.flex()).asMap();
 
         UUID playerUUID = UUID.fromString(playerMessageMap.get("uuid").asString());
         // Do we have this NPC in our expiring entity player?
@@ -134,7 +130,7 @@ public class PlayerGhostManager {
     }
 
     public static void moveEntity(Message state, EntityPlayer e) {
-        FlexBuffers.Map playerMessageMap = FlexBuffers.getRoot(state.flexAsByteBuffer()).asMap();
+        FlexBuffers.Map playerMessageMap = FlexBuffers.getRoot(state.flex()).asMap();
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             ensurePlayerHasJoinPackets(player);
             PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
