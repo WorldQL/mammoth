@@ -1,34 +1,41 @@
 package com.worldql.client.listeners;
 
-import WorldQLFB_OLD.StandardEvents.Update;
-import com.google.flatbuffers.FlatBufferBuilder;
+import com.google.flatbuffers.FlexBuffersBuilder;
 import com.worldql.client.WorldQLClient;
+import com.worldql.client.listeners.utils.OutgoingMinecraftPlayerSingleAction;
+import com.worldql.client.serialization.Codec;
+import com.worldql.client.serialization.Instruction;
+import com.worldql.client.serialization.Message;
+import com.worldql.client.serialization.Vec3D;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import zmq.ZMQ;
 
+import java.nio.ByteBuffer;
+
 public class PlayerLogOutListener implements Listener {
 
     @EventHandler
     public void onPlayerLogOut(PlayerQuitEvent e) {
-        FlatBufferBuilder builder = new FlatBufferBuilder(1024);
-        int uuid = builder.createString(e.getPlayer().getUniqueId().toString());
-        int instruction = builder.createString("MinecraftPlayerQuit");
+        FlexBuffersBuilder b = Codec.getFlexBuilder();
+        int pmap = b.startMap();
+        b.putString("username", e.getPlayer().getName());
+        b.putString("uuid", e.getPlayer().getUniqueId().toString());
+        b.endMap(null, pmap);
+        ByteBuffer bb = b.finish();
 
-        Update.startUpdate(builder);
-        Update.addUuid(builder, uuid);
-        Update.addInstruction(builder, instruction);
-        Update.addSenderid(builder, WorldQLClient.getPluginInstance().getZmqPortClientId());
-
-        int player = Update.endUpdate(builder);
-        builder.finish(player);
-
-        byte[] buf = builder.sizedByteArray();
-
-
-        WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
-        //WorldQLClient.logger.info("Sent successfully");
+        Message message = new Message(
+                Instruction.LocalMessage,
+                WorldQLClient.worldQLClientId,
+                e.getPlayer().getWorld().getName(),
+                new Vec3D(e.getPlayer().getLocation()),
+                null,
+                null,
+                "MinecraftPlayerQuit",
+                bb
+        );
+        WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
     }
 }
 
