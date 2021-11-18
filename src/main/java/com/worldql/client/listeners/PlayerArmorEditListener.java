@@ -3,10 +3,7 @@ package com.worldql.client.listeners;
 import com.google.flatbuffers.FlexBuffersBuilder;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.events.PlayerArmorEditEvent;
-import com.worldql.client.serialization.Codec;
-import com.worldql.client.serialization.Instruction;
-import com.worldql.client.serialization.Message;
-import com.worldql.client.serialization.Vec3D;
+import com.worldql.client.serialization.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Dispenser;
@@ -44,6 +41,7 @@ public class PlayerArmorEditListener implements Listener {
                 Instruction.LocalMessage,
                 WorldQLClient.worldQLClientId,
                 event.getPlayer().getWorld().getName(),
+                Replication.ExceptSelf,
                 new Vec3D(event.getPlayer().getLocation()),
                 null,
                 null,

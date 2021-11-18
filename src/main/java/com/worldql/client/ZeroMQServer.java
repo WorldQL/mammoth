@@ -4,6 +4,7 @@ import com.worldql.client.ghost.PlayerGhostManager;
 import com.worldql.client.listeners.utils.BlockTools;
 import com.worldql.client.serialization.Instruction;
 import com.worldql.client.serialization.Message;
+import com.worldql.client.serialization.Replication;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
@@ -32,6 +33,7 @@ public class ZeroMQServer implements Runnable {
                 Instruction.Handshake,
                 WorldQLClient.worldQLClientId,
                 "@global",
+                Replication.ExceptSelf,
                 null,
                 null,
                 null,

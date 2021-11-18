@@ -5,6 +5,7 @@ import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.serialization.Instruction;
 import com.worldql.client.serialization.Message;
+import com.worldql.client.serialization.Replication;
 import com.worldql.client.serialization.Vec3D;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
@@ -19,6 +20,7 @@ public class PlayerBlockPlaceListener implements Listener {
                 Instruction.LocalMessage,
                 WorldQLClient.worldQLClientId,
                 e.getPlayer().getWorld().getName(),
+                Replication.ExceptSelf,
                 new Vec3D(roundLocation(e.getBlock().getLocation())),
                 null,
                 null,
