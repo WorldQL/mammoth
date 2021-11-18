@@ -11,6 +11,7 @@ public record Message(
         Instruction instruction,
         @NotNull UUID senderUuid,
         @NotNull String worldName,
+        Replication replication,
         @Nullable Vec3D position,
         @Nullable List<Record> records,
         @Nullable List<Entity> entities,
@@ -18,11 +19,19 @@ public record Message(
         @Nullable ByteBuffer flex
 ) {
     public Message(Instruction instruction, @NotNull UUID senderUuid, @NotNull String worldName) {
-        this(instruction, senderUuid, worldName, null, null, null, null, null);
+        this(instruction, senderUuid, worldName, Replication.ExceptSelf, null, null, null, null, null);
     }
 
     public Message(Instruction instruction, @NotNull UUID senderUuid, @NotNull String worldName, @Nullable Vec3D position) {
-        this(instruction, senderUuid, worldName, position, null, null, null, null);
+        this(instruction, senderUuid, worldName, Replication.ExceptSelf, position, null, null, null, null);
+    }
+
+    public Message(Instruction instruction, @NotNull UUID senderUuid, @NotNull String worldName, Replication replication) {
+        this(instruction, senderUuid, worldName, replication, null, null, null, null, null);
+    }
+
+    public Message(Instruction instruction, @NotNull UUID senderUuid, @NotNull String worldName, Replication replication, @Nullable Vec3D position) {
+        this(instruction, senderUuid, worldName, replication, position, null, null, null, null);
     }
 
     public byte[] encode() {
