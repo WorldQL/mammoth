@@ -23,6 +23,7 @@ public final class Codec {
     public static byte[] encodeMessage(@NotNull Message message) {
         flatBuilder.clear();
 
+        // region: Records
         int records = -1;
         if (message.records() != null) {
             int[] v = new int[message.records().size()];
@@ -37,6 +38,7 @@ public final class Codec {
                 if (record.flex() != null) {
                     flex = flatBuilder.createByteVector(record.flex());
                 }
+
                 com.worldql.client.Messages.Record.startRecord(flatBuilder);
                 com.worldql.client.Messages.Record.addUuid(flatBuilder, uuid);
                 com.worldql.client.Messages.Record.addWorldName(flatBuilder, worldName);
@@ -52,10 +54,52 @@ public final class Codec {
                 if (flex != -1) {
                     com.worldql.client.Messages.Record.addFlex(flatBuilder, flex);
                 }
+
                 v[i] = com.worldql.client.Messages.Record.endRecord(flatBuilder);
             }
+
             records = com.worldql.client.Messages.Message.createRecordsVector(flatBuilder, v);
         }
+        // endregion
+
+        // region: Entities
+        int entities = -1;
+        if (message.entities() != null) {
+            int[] v = new int[message.entities().size()];
+            for (int i = 0; i < message.entities().size(); i++) {
+                Entity entity = message.entities().get(i);
+
+                int uuid = flatBuilder.createString(entity.uuid().toString());
+                int worldName = flatBuilder.createString(entity.worldName());
+                int data = flatBuilder.createString(entity.data());
+
+                int flex = -1;
+                if (entity.flex() != null) {
+                    flex = flatBuilder.createByteVector(entity.flex());
+                }
+
+                com.worldql.client.Messages.Entity.startEntity(flatBuilder);
+                com.worldql.client.Messages.Entity.addUuid(flatBuilder, uuid);
+                com.worldql.client.Messages.Entity.addWorldName(flatBuilder, worldName);
+                com.worldql.client.Messages.Entity.addData(flatBuilder, data);
+
+                if (entity.position() != null) {
+                    Vec3D position = entity.position();
+                    int pos = Vec3d.createVec3d(flatBuilder, position.x(), position.y(), position.z());
+
+                    com.worldql.client.Messages.Entity.addPosition(flatBuilder, pos);
+                }
+
+                if (flex != -1) {
+                    com.worldql.client.Messages.Entity.addFlex(flatBuilder, flex);
+                }
+
+                v[i] = com.worldql.client.Messages.Entity.endEntity(flatBuilder);
+            }
+
+            entities = com.worldql.client.Messages.Message.createEntitiesVector(flatBuilder, v);
+        }
+        // endregion
 
         int uuid = flatBuilder.createString(message.senderUuid().toString());
         int worldName = flatBuilder.createString(message.worldName());
@@ -91,10 +135,12 @@ public final class Codec {
             com.worldql.client.Messages.Message.addFlex(flatBuilder, flex);
         }
 
-        // TODO: Entities
-
         if (records != -1) {
             com.worldql.client.Messages.Message.addRecords(flatBuilder, records);
+        }
+
+        if (entities != -1) {
+            com.worldql.client.Messages.Message.addEntities(flatBuilder, entities);
         }
 
         int offset = com.worldql.client.Messages.Message.endMessage(flatBuilder);
@@ -111,18 +157,44 @@ public final class Codec {
         Replication replication = Replication.fromValue(raw.replication());
         Vec3D position = raw.position() == null ? null : new Vec3D(raw.position());
 
-        // TODO: Entities
-
         List<Record> recordList = new ArrayList<>();
         for (int i = 0; i < raw.recordsLength(); i++) {
             com.worldql.client.Messages.Record r = raw.records(i);
-            Record decodedRecord = new Record(UUID.fromString(r.uuid()),
-                    new Vec3D(raw.position()), r.worldName(), r.data(), r.flexAsByteBuffer());
+            Record decodedRecord = new Record(
+                    UUID.fromString(r.uuid()),
+                    new Vec3D(raw.position()),
+                    r.worldName(),
+                    r.data(),
+                    r.flexAsByteBuffer()
+            );
+
             recordList.add(decodedRecord);
         }
 
+        List<Entity> entityList = new ArrayList<>();
+        for (int i = 0; i < raw.entitiesLength(); i++) {
+            com.worldql.client.Messages.Entity e = raw.entities(i);
+            Entity decodedEntity = new Entity(
+                    UUID.fromString(e.uuid()),
+                    new Vec3D(raw.position()),
+                    e.worldName(),
+                    e.data(),
+                    e.flexAsByteBuffer()
+            );
 
-        return new Message(instruction, senderUuid, raw.worldName(), replication, position, recordList, null,
-                raw.parameter(), raw.flexAsByteBuffer());
+            entityList.add(decodedEntity);
+        }
+
+        return new Message(
+                instruction,
+                senderUuid,
+                raw.worldName(),
+                replication,
+                position,
+                recordList,
+                entityList,
+                raw.parameter(),
+                raw.flexAsByteBuffer()
+        );
     }
 }
