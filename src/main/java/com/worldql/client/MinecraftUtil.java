@@ -44,14 +44,4 @@ public class MinecraftUtil {
             throw new IOException("Unable to decode class type.", e);
         }
     }
-
-    private static ByteBuffer createFlexbufferForBlock(BlockData blockData) {
-        FlexBuffersBuilder b = Codec.getFlexBuilder();
-        int pmap = b.startMap();
-        b.putString("blockdata", blockData.getAsString());
-        b.endMap(null, pmap);
-        ByteBuffer changedBlockBb = b.finish();
-
-        return changedBlockBb;
-    }
 }
