@@ -1,5 +1,6 @@
 package com.worldql.client;
 
+import com.worldql.client.protocols.ProtocolManager;
 import com.worldql.client.serialization.Codec;
 import com.worldql.client.serialization.Instruction;
 import com.worldql.client.serialization.Message;
@@ -55,6 +56,9 @@ public class WorldQLClient extends JavaPlugin {
         }, 0L, 20L * 5L);
 
 
+        // Initialize Protocol
+        ProtocolManager.read();
+
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerCrouchListener(), this);
@@ -69,6 +73,7 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerLogOutListener(), this);
 
         getServer().getPluginManager().registerEvents(new PlayerBlockPlaceListener(), this);
+        getServer().getPluginManager().registerEvents(new OutgoingPlayerHitListener(), this);
         /*
         getServer().getPluginManager().registerEvents(new PlayerEditSignListener(), this);
         getServer().getPluginManager().registerEvents(new PortalCreateEventListener(), this);
@@ -78,7 +83,7 @@ public class WorldQLClient extends JavaPlugin {
 
          */
 
-        this.getCommand("refreshworld").setExecutor(new TestRefreshWorldCommand());
+        getCommand("refreshworld").setExecutor(new TestRefreshWorldCommand());
 
         zeroMQThread = new Thread(new ZeroMQServer(this, context, selfHostname));
         zeroMQThread.start();

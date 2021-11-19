@@ -26,7 +26,7 @@ public class PacketReader {
         //this.channels = new HashMap<>();
     }
 
-    public void inject(Player player) {
+    private void inject(Player player) {
         CraftPlayer craftPlayer = (CraftPlayer) player;
         Channel channel = craftPlayer.getHandle().b.a.k;
         //channels.put(player.getUniqueId(), channel);
@@ -59,8 +59,8 @@ public class PacketReader {
                     return;
                 }
 
-                Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(),
-                        () -> Bukkit.getPluginManager().callEvent(new OutgoingPlayerHitEvent(playerId, player.getLocation().getDirection())));
+            //    Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(),
+             //           () -> Bukkit.getPluginManager().callEvent(new OutgoingPlayerHitEvent(playerId, player.getLocation().getDirection())));
 
                 PacketPlayOutAnimation damage = new PacketPlayOutAnimation(p.grab(), (byte) 1);
                 connection.sendPacket(damage);

@@ -3,6 +3,7 @@ package com.worldql.client.listeners;
 import com.google.flatbuffers.FlexBuffersBuilder;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.ghost.PlayerGhostManager;
+import com.worldql.client.protocols.ProtocolManager;
 import com.worldql.client.serialization.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,7 +18,7 @@ public class PlayerJoinEventListener implements Listener {
     public void onPlayerJoinEvent(PlayerJoinEvent e) {
         //WorldQLClient.logger.info("Setting player " + e.getPlayer().getDisplayName() + " to get ghost join packets sent.");
         PlayerGhostManager.playerNeedsGhosts.put(e.getPlayer().getUniqueId(), true);
-        WorldQLClient.getPluginInstance().getPacketReader().inject(e.getPlayer());
+        ProtocolManager.injectPlayer(e.getPlayer());
         Player player = e.getPlayer();
 
         FlexBuffersBuilder b = Codec.getFlexBuilder();
