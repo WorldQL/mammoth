@@ -3,6 +3,8 @@ package com.worldql.client.listeners;
 import com.google.flatbuffers.FlexBuffersBuilder;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.listeners.utils.OutgoingMinecraftPlayerSingleAction;
+import com.worldql.client.protocols.Protocol;
+import com.worldql.client.protocols.ProtocolManager;
 import com.worldql.client.serialization.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,6 +17,10 @@ public class PlayerLogOutListener implements Listener {
 
     @EventHandler
     public void onPlayerLogOut(PlayerQuitEvent e) {
+
+        if (ProtocolManager.isinjected(e.getPlayer()))
+            ProtocolManager.uninjectPlayer(e.getPlayer());
+
         FlexBuffersBuilder b = Codec.getFlexBuilder();
         int pmap = b.startMap();
         b.putString("username", e.getPlayer().getName());

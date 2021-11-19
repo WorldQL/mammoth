@@ -1,5 +1,7 @@
 package com.worldql.client;
 
+import com.worldql.client.protocols.ProtocolManager;
+import com.worldql.client.serialization.Codec;
 import com.worldql.client.serialization.Instruction;
 import com.worldql.client.serialization.Message;
 import org.bukkit.Bukkit;
@@ -53,28 +55,27 @@ public class WorldQLClient extends JavaPlugin {
             }
         }, 0L, 20L * 5L);
 
+
+        // Initialize Protocol
+        ProtocolManager.read();
+
         // For syncing player movements
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(), this);
-        // For setting up players to get player packets when they join.
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), this);
-        // For syncing player movement.
         getServer().getPluginManager().registerEvents(new PlayerCrouchListener(), this);
-        // For syncing player punch / hit animation.
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
-        // To subscribe/unsubscribe to loaded/unloaded areas.
         getServer().getPluginManager().registerEvents(new ChunkLoadEventListener(), this);
         getServer().getPluginManager().registerEvents(new ChunkUnloadEventListener(), this);
-        // To sync held item and armor.
         getServer().getPluginManager().registerEvents(new PlayerHeldItemListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerArmorEditListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerShieldInteractListener(), this);
-        // Handle teleporting players.
         getServer().getPluginManager().registerEvents(new PlayerTeleportEventListener(), this);
-        // Destroy cross-server player ghosts when a player logs out.
         getServer().getPluginManager().registerEvents(new PlayerLogOutListener(), this);
         // Sync broken and placed blocks.
         getServer().getPluginManager().registerEvents(new PlayerBreakBlockListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerPlaceBlockListener(), this);
+
+        getServer().getPluginManager().registerEvents(new OutgoingPlayerHitListener(), this);
         /*
         getServer().getPluginManager().registerEvents(new PlayerEditSignListener(), this);
         getServer().getPluginManager().registerEvents(new PortalCreateEventListener(), this);
@@ -84,7 +85,7 @@ public class WorldQLClient extends JavaPlugin {
 
          */
 
-        this.getCommand("refreshworld").setExecutor(new TestRefreshWorldCommand());
+        getCommand("refreshworld").setExecutor(new TestRefreshWorldCommand());
 
         zeroMQThread = new Thread(new ZeroMQServer(this, context, selfHostname));
         zeroMQThread.start();
