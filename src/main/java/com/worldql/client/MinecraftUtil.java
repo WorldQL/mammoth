@@ -45,10 +45,6 @@ public class MinecraftUtil {
         }
     }
 
-    public static Location roundLocation(Location l) {
-        return new Location(l.getWorld(), Math.round(l.getX()), Math.round(l.getY()), Math.round(l.getZ()));
-    }
-
     private static ByteBuffer createFlexbufferForBlock(BlockData blockData) {
         FlexBuffersBuilder b = Codec.getFlexBuilder();
         int pmap = b.startMap();

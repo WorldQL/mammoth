@@ -14,7 +14,7 @@ public class PlayerHit {
     public static void process(Update update, Plugin plugin) {
         String playerId = update.params(0);
         //WorldQLClient.logger.info(playerId);
-        // TODO: Make this faster
+        // TODO: Can we make this faster?
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             if (Objects.equals(player.getUniqueId().toString(), playerId)) {
                 //WorldQLClient.logger.info(player.getDisplayName());

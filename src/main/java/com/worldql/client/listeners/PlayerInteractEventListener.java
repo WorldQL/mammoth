@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 public class PlayerInteractEventListener implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
+        /* Some code for getting the NBT data of an object.
         if (e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
             Location l = e.getClickedBlock().getLocation();
             CraftWorld cw = (CraftWorld) e.getClickedBlock().getLocation().getWorld();
@@ -40,6 +41,8 @@ public class PlayerInteractEventListener implements Listener {
             }
             return;
         }
+
+         */
 
 
         if (e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.RIGHT_CLICK_BLOCK))

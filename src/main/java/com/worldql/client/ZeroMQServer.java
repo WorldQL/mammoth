@@ -4,9 +4,11 @@ import com.worldql.client.ghost.PlayerGhostManager;
 import com.worldql.client.listeners.utils.BlockTools;
 import com.worldql.client.serialization.Instruction;
 import com.worldql.client.serialization.Message;
+import com.worldql.client.serialization.Record;
 import com.worldql.client.serialization.Replication;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.plugin.Plugin;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
@@ -56,10 +58,12 @@ public class ZeroMQServer implements Runnable {
 
                 if (incoming.instruction() == Instruction.LocalMessage) {
                     if (incoming.parameter().equals("MinecraftBlockUpdate")) {
-                        BlockTools.scheduleSetBlockToAir(incoming.worldName(), incoming.position());
+                        BlockTools.setRecords(incoming.records());
                         continue;
                     }
-                    PlayerGhostManager.updateNPC(incoming);
+                    if (incoming.parameter().startsWith("MinecraftPlayer")) {
+                        PlayerGhostManager.updateNPC(incoming);
+                    }
                 }
 
 
