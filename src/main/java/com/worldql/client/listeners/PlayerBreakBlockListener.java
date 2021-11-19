@@ -5,33 +5,52 @@ import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.serialization.*;
 import com.worldql.client.serialization.Record;
+import org.bukkit.craftbukkit.libs.org.apache.commons.io.output.ByteArrayOutputStream;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 import zmq.ZMQ;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerBreakBlockListener implements Listener {
+    public static final ItemStack[] NO_DROPS = new ItemStack[0];
+    public static final Set<UUID> pendingDrops = Collections.synchronizedSet(new HashSet<>());
+
     @EventHandler
     public void onPlayerBreakBlockEvent(BlockBreakEvent e) {
+        ItemStack[] drops;
+        if (e.isDropItems()) {
+            drops = e.getBlock().getDrops().toArray(new ItemStack[0]);
+
+            e.setDropItems(false);
+        } else {
+            drops = NO_DROPS;
+        }
+
+        UUID blockUuid = UUID.nameUUIDFromBytes(e.getBlock().getLocation().toString().getBytes(StandardCharsets.UTF_8));
+        pendingDrops.add(blockUuid);
 
         Record airBlock = new Record(
-                UUID.nameUUIDFromBytes(e.getBlock().getLocation().toString().getBytes(StandardCharsets.UTF_8)),
+                blockUuid,
                 new Vec3D(e.getBlock().getLocation()),
                 e.getBlock().getWorld().getName(),
                 "minecraft:air",
-                null
+                serializeItemStack(drops)
         );
 
         Message message = new Message(
                 Instruction.LocalMessage,
                 WorldQLClient.worldQLClientId,
                 e.getPlayer().getWorld().getName(),
-                // TODO: Change to including self for the dedupe
-                Replication.ExceptSelf,
+                Replication.IncludingSelf,
                 // This field isn't really used since the Record also contains the position
                 // of the changed block(s).
                 new Vec3D(e.getBlock().getLocation()),
@@ -40,9 +59,47 @@ public class PlayerBreakBlockListener implements Listener {
                 "MinecraftBlockUpdate",
                 null
         );
+
         WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
     }
 
+    private static ByteBuffer serializeItemStack(ItemStack[] items) throws IllegalStateException {
+        // TODO: Make this serialization more efficient
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+            dataOutput.writeInt(items.length);
+
+            for (ItemStack item : items) {
+                dataOutput.writeObject(item);
+            }
+
+            dataOutput.close();
+            return ByteBuffer.wrap(outputStream.toByteArray());
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to save item stacks.", e);
+        }
+    }
+
+    public static ItemStack[] deserializeItemStack(ByteBuffer buf) throws IOException {
+        byte[] bytes = new byte[buf.remaining()];
+        buf.get(bytes);
+
+        try {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+
+            ItemStack[] items = new ItemStack[dataInput.readInt()];
+            for (int i = 0; i < items.length; i++) {
+                items[i] = (ItemStack) dataInput.readObject();
+            }
+
+            dataInput.close();
+            return items;
+        } catch (ClassNotFoundException e) {
+            throw new IOException("Unable to decode class type.", e);
+        }
+    }
 
     @Deprecated
     public static int createRoundedVec3(FlatBufferBuilder builder, double x, double y, double z) {

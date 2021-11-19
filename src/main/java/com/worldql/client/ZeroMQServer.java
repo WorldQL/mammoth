@@ -46,6 +46,7 @@ public class ZeroMQServer implements Runnable {
                 byte[] reply = socket.recv(0);
                 java.nio.ByteBuffer buf = java.nio.ByteBuffer.wrap(reply);
                 var incoming = Message.decode(buf);
+                boolean isSelf = incoming.senderUuid().equals(WorldQLClient.worldQLClientId);
 
                 if (incoming.instruction() == Instruction.Handshake) {
                     WorldQLClient.getPluginInstance().getLogger().info("Response from WorldQL handshake: " + incoming.parameter());
@@ -54,7 +55,7 @@ public class ZeroMQServer implements Runnable {
 
                 if (incoming.instruction() == Instruction.LocalMessage) {
                     if (incoming.parameter().equals("MinecraftBlockUpdate")) {
-                        BlockTools.setRecords(incoming.records());
+                        BlockTools.setRecords(incoming.records(), isSelf);
                         continue;
                     }
                     if (incoming.parameter().startsWith("MinecraftPlayer")) {
