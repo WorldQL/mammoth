@@ -35,7 +35,7 @@ public final class Codec {
 
                 int flex = -1;
                 if (record.flex() != null) {
-                    flex = flatBuilder.createByteVector(message.flex());
+                    flex = flatBuilder.createByteVector(record.flex());
                 }
                 com.worldql.client.Messages.Record.startRecord(flatBuilder);
                 com.worldql.client.Messages.Record.addUuid(flatBuilder, uuid);
