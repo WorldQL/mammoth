@@ -2,10 +2,7 @@ package com.worldql.client.listeners.utils;
 
 import com.google.flatbuffers.FlexBuffersBuilder;
 import com.worldql.client.WorldQLClient;
-import com.worldql.client.serialization.Codec;
-import com.worldql.client.serialization.Instruction;
-import com.worldql.client.serialization.Message;
-import com.worldql.client.serialization.Vec3D;
+import com.worldql.client.serialization.*;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import zmq.ZMQ;
@@ -26,6 +23,7 @@ public class OutgoingMinecraftPlayerSingleAction {
                 Instruction.LocalMessage,
                 WorldQLClient.worldQLClientId,
                 player.getWorld().getName(),
+                Replication.ExceptSelf,
                 new Vec3D(playerLocation),
                 null,
                 null,

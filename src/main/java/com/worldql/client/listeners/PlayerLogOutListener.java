@@ -3,10 +3,7 @@ package com.worldql.client.listeners;
 import com.google.flatbuffers.FlexBuffersBuilder;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.listeners.utils.OutgoingMinecraftPlayerSingleAction;
-import com.worldql.client.serialization.Codec;
-import com.worldql.client.serialization.Instruction;
-import com.worldql.client.serialization.Message;
-import com.worldql.client.serialization.Vec3D;
+import com.worldql.client.serialization.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -29,6 +26,7 @@ public class PlayerLogOutListener implements Listener {
                 Instruction.LocalMessage,
                 WorldQLClient.worldQLClientId,
                 e.getPlayer().getWorld().getName(),
+                Replication.ExceptSelf,
                 new Vec3D(e.getPlayer().getLocation()),
                 null,
                 null,

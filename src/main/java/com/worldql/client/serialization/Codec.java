@@ -38,6 +38,7 @@ public final class Codec {
         com.worldql.client.Messages.Message.addInstruction(flatBuilder, message.instruction().getValue());
         com.worldql.client.Messages.Message.addSenderUuid(flatBuilder, uuid);
         com.worldql.client.Messages.Message.addWorldName(flatBuilder, worldName);
+        com.worldql.client.Messages.Message.addReplication(flatBuilder, message.replication().getValue());
 
         if (message.position() != null) {
             Vec3D position = message.position();
@@ -67,10 +68,11 @@ public final class Codec {
 
         Instruction instruction = Instruction.fromValue(raw.instruction());
         UUID senderUuid = UUID.fromString(raw.senderUuid());
+        Replication replication = Replication.fromValue(raw.replication());
         Vec3D position = raw.position() == null ? null : new Vec3D(raw.position());
 
         // TODO: Records and Entities
 
-        return new Message(instruction, senderUuid, raw.worldName(), position, null, null, raw.parameter(), raw.flexAsByteBuffer());
+        return new Message(instruction, senderUuid, raw.worldName(), replication, position, null, null, raw.parameter(), raw.flexAsByteBuffer());
     }
 }
