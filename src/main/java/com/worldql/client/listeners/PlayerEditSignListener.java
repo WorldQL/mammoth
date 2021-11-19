@@ -27,7 +27,7 @@ public class PlayerEditSignListener implements Listener {
 
         Update.startUpdate(builder);
         Update.addInstruction(builder, instruction);
-        Update.addPosition(builder, PlayerBlockPlaceListener.createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
+        Update.addPosition(builder, PlayerBreakBlockListener.createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
         Update.addParams(builder, params);
         Update.addCommands(builder, commands);
         Update.addSenderid(builder, WorldQLClient.getPluginInstance().getZmqPortClientId());

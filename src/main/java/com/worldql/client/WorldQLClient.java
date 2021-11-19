@@ -1,6 +1,5 @@
 package com.worldql.client;
 
-import com.worldql.client.serialization.Codec;
 import com.worldql.client.serialization.Instruction;
 import com.worldql.client.serialization.Message;
 import org.bukkit.Bukkit;
@@ -68,7 +67,7 @@ public class WorldQLClient extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new PlayerLogOutListener(), this);
 
-        getServer().getPluginManager().registerEvents(new PlayerBlockPlaceListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerBreakBlockListener(), this);
         /*
         getServer().getPluginManager().registerEvents(new PlayerEditSignListener(), this);
         getServer().getPluginManager().registerEvents(new PortalCreateEventListener(), this);

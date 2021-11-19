@@ -32,7 +32,7 @@ public class PortalCreateEventListener implements Listener {
                 Update.startUpdate(builder);
                 Update.addInstruction(builder, instruction);
                 Update.addWorldName(builder, worldName);
-                Update.addPosition(builder, PlayerBlockPlaceListener.createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
+                Update.addPosition(builder, PlayerBreakBlockListener.createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
                 Update.addParams(builder, params);
                 Update.addSenderid(builder, WorldQLClient.getPluginInstance().getZmqPortClientId());
 

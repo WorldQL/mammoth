@@ -53,7 +53,7 @@ public class ZeroMQServer implements Runnable {
                 }
 
                 if (incoming.instruction() == Instruction.LocalMessage) {
-                    if (incoming.parameter().equals("MinecraftBlockBreak")) {
+                    if (incoming.parameter().equals("MinecraftBlockUpdate")) {
                         BlockTools.scheduleSetBlockToAir(incoming.worldName(), incoming.position());
                         continue;
                     }
