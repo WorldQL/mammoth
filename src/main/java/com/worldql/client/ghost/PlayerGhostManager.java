@@ -29,11 +29,11 @@ public class PlayerGhostManager {
             MinecraftPlayerDamage.process(state, Bukkit.getPlayer(playerUUID), hashtableNPCs.get(UUID.fromString(playerMessageMap.get("uuidofattacker").asString())));
             return;
         }
-        // TODO maybe a better solution to this?
+        // TODO maybe a better design for this?
         ExpiringEntityPlayer expiringEntityPlayer;
-        if (hashtableNPCs.containsKey(playerUUID)) {
+        if (hashtableNPCs.containsKey(playerUUID))
             expiringEntityPlayer = hashtableNPCs.get(playerUUID);
-        } else {
+        else {
             expiringEntityPlayer = PlayerGhostManager.createNPC(playerMessageMap.get("username").asString(), playerUUID,
                     new Location(Bukkit.getServer().getWorld(Objects.requireNonNull(state.worldName())),
                             state.position().x(), state.position().y(), state.position().z()));
@@ -100,7 +100,7 @@ public class PlayerGhostManager {
             case "MinecraftPlayerSingleAction" -> MinecraftPlayerSingleAction.process(state, entity);
             case "MinecraftPlayerEquipmentEdit" -> MinecraftPlayerEquipmentEdit.process(state, entity);
             case "MinecraftPlayerShieldUse" -> MinecraftPlayerShieldUse.process(state, entity);
-          //  case "MinecraftPlayerDamage" -> MinecraftPlayerDamage.process(state, entity);
+            case "MinecraftPlayerShootBow" -> MinecraftPlayerShootBow.process(state, entity);
         }
     }
 

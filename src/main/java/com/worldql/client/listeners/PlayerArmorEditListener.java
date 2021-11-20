@@ -14,6 +14,7 @@ import org.bukkit.event.block.BlockDispenseArmorEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -205,36 +206,37 @@ public class PlayerArmorEditListener implements Listener {
 
     }
 
-    //TODO this crashes server for some reason...
-//    @EventHandler
-//    public void onPlayerInteractEvent(PlayerInteractEvent event) {
-//        if(!event.getAction().name().contains("RIGHT") || !event.hasItem())
-//            return;
-//        PlayerArmorEditEvent.ArmorType aType = PlayerArmorEditEvent.ArmorType.fromItem(event.getItem());
-//        if(aType == null)
-//            return;
-//
-//        if (event.getClickedBlock() != null)
-//            if (event.getClickedBlock().getType().isInteractable())
-//                return;
-//
-//        Player player = event.getPlayer();
-//        ItemStack[] armor = player.getInventory().getArmorContents();
-//        if(!isAir(armor[aType.getId()]))return;
-//        ItemStack newItem = event.getItem();
-//        PlayerArmorEditEvent editEvent = new PlayerArmorEditEvent(player, player.getInventory().getHeldItemSlot(), (null), newItem, aType, PlayerArmorEditEvent.Cause.RIGHT_CLICK);
-//        Bukkit.getServer().getPluginManager().callEvent(event);
-//        if(editEvent.isCancelled()) {
-//            event.setCancelled(true);
-//            return;
-//        }
-//        if(!isAir(editEvent.getOldPiece()))
-//            player.getInventory().setItem(player.getInventory().getHeldItemSlot(), editEvent.getOldPiece());
-//        if(!editEvent.getNewPiece().equals(event.getItem())) {
-//            armor[aType.getId()] = editEvent.getNewPiece();
-//            player.getInventory().setArmorContents(armor);
-//        }
-//    }
+    @EventHandler
+    public void onPlayerInteractEvent(PlayerInteractEvent event) {
+        if(!event.hasItem())
+            return;
+        if (!event.getAction().name().contains("RIGHT"))
+            return;
+
+        PlayerArmorEditEvent.ArmorType aType = PlayerArmorEditEvent.ArmorType.fromItem(event.getItem());
+
+        if(aType == null)
+            return;
+        if (event.getClickedBlock() != null)
+            if (event.getClickedBlock().getType().isInteractable())
+                return;
+
+        Player player = event.getPlayer();
+        ItemStack[] armor = player.getInventory().getArmorContents();
+
+        if(!isAir(armor[aType.getId()]))return;
+        ItemStack newItem = event.getItem();
+        PlayerArmorEditEvent editEvent = new PlayerArmorEditEvent(player, player.getInventory().getHeldItemSlot(), (null), newItem, aType, PlayerArmorEditEvent.Cause.RIGHT_CLICK);
+        Bukkit.getPluginManager().callEvent(editEvent);
+        if(editEvent.isCancelled())
+            event.setCancelled(true);
+        if(!isAir(editEvent.getOldPiece()))
+            player.getInventory().setItem(player.getInventory().getHeldItemSlot(), editEvent.getOldPiece());
+        if(!editEvent.getNewPiece().equals(event.getItem())) {
+            armor[aType.getId()] = editEvent.getNewPiece();
+            player.getInventory().setArmorContents(armor);
+        }
+    }
 
     @EventHandler
     public void onDispense(BlockDispenseArmorEvent e) {

@@ -1,11 +1,16 @@
 package com.worldql.client.listeners;
 
 import com.worldql.client.WorldQLClient;
+import com.worldql.client.events.PlayerHoldEvent;
 import com.worldql.client.serialization.*;
 import com.worldql.client.serialization.Record;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.inventory.ItemStack;
 import zmq.ZMQ;
 
 import java.nio.charset.StandardCharsets;
@@ -40,5 +45,9 @@ public class PlayerPlaceBlockListener implements Listener {
                 null
         );
         WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
+
+        // Update hand visual if they ran out of blocks in their hand.
+        if (e.getPlayer().getInventory().getItemInMainHand().getAmount() -1 <= 0)
+            Bukkit.getPluginManager().callEvent(new PlayerHoldEvent(e.getPlayer(), new ItemStack(Material.AIR), PlayerHoldEvent.HandType.MAINHAND));
     }
 }
