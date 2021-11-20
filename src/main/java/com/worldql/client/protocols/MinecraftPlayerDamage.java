@@ -5,7 +5,9 @@ import com.worldql.client.WorldQLClient;
 import com.worldql.client.ghost.ExpiringEntityPlayer;
 import com.worldql.client.serialization.Message;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
@@ -39,7 +41,10 @@ public class MinecraftPlayerDamage {
             Location location = e.grab().getBukkitEntity().getLocation();
 
             // TODO Fix this, has an infinite fly glitch.
-            location.setPitch((knockbacklvl < 1)? -40: -26);
+            if(player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR)
+                location.setPitch(80);
+            else
+                location.setPitch((knockbacklvl < 1)? -40: -26);
 
             Vector velocity = setMag((location.getDirection()), mag);
             player.setVelocity(velocity);
