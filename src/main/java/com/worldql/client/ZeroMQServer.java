@@ -1,9 +1,10 @@
 package com.worldql.client;
 
-import WorldQLFB.StandardEvents.Update;
 import com.worldql.client.ghost.PlayerGhostManager;
-import com.worldql.client.incoming.PlayerHit;
-import com.worldql.client.incoming.ResponseRecordGetBlocksAll;
+import com.worldql.client.listeners.utils.BlockTools;
+import com.worldql.client.serialization.Instruction;
+import com.worldql.client.serialization.Message;
+import com.worldql.client.serialization.Replication;
 import org.bukkit.plugin.Plugin;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
@@ -12,43 +13,56 @@ import org.zeromq.ZMQException;
 
 public class ZeroMQServer implements Runnable {
     private final Plugin plugin;
-    private final String port;
     private final ZContext context;
+    private final String hostname;
 
-    public ZeroMQServer(Plugin plugin, String port, ZContext context) {
+    public ZeroMQServer(Plugin plugin, ZContext context, String hostname) {
         this.plugin = plugin;
-        this.port = port;
         this.context = context;
+        this.hostname = hostname;
     }
 
     @Override
     public void run() {
         ZMQ.Socket socket = context.createSocket(SocketType.PULL);
-        socket.bind("tcp://*:" + port);
+        int port = socket.bindToRandomPort("tcp://" + hostname, 29000, 30000);
+
+        Message message = new Message(
+                Instruction.Handshake,
+                WorldQLClient.worldQLClientId,
+                "@global",
+                Replication.ExceptSelf,
+                null,
+                null,
+                null,
+                hostname + ":" + port,
+                null
+        );
+
+        WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.DONTWAIT);
 
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 byte[] reply = socket.recv(0);
                 java.nio.ByteBuffer buf = java.nio.ByteBuffer.wrap(reply);
-                Update update = Update.getRootAsUpdate(buf);
+                var incoming = Message.decode(buf);
+                boolean isSelf = incoming.senderUuid().equals(WorldQLClient.worldQLClientId);
 
-                if (update.instruction().equals("Response.Record.Get.Blocks.all")) {
-                    ResponseRecordGetBlocksAll.process(update, this.plugin);
-                }
-
-                if (update.instruction().equals("MinecraftPlayerMove")) {
-                    PlayerGhostManager.updateNPC(update);
-                }
-                if (update.instruction().equals("MinecraftPlayerQuit")) {
-                    PlayerGhostManager.updateNPC(update);
-                }
-                if (update.instruction().equals("EntityHitEvent")) {
-                    PlayerHit.process(update, this.plugin);
+                if (incoming.instruction() == Instruction.Handshake) {
+                    WorldQLClient.getPluginInstance().getLogger().info("Response from WorldQL handshake: " + incoming.parameter());
+                    continue;
                 }
 
-                if (update.instruction().equals("NoRepeat.BlockBreak")) {
-                    NoRepeatBlockBreak.spawnDrops(update);
+                if (incoming.instruction() == Instruction.LocalMessage) {
+                    if (incoming.parameter().equals("MinecraftBlockUpdate")) {
+                        BlockTools.setRecords(incoming.records(), isSelf);
+                        continue;
+                    }
+                    if (incoming.parameter().startsWith("MinecraftPlayer")) {
+                        PlayerGhostManager.updateNPC(incoming);
+                    }
                 }
+
 
             } catch (ZMQException e) {
                 if (e.getErrorCode() == ZMQ.Error.ETERM.getCode()) {

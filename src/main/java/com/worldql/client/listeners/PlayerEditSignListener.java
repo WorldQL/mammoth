@@ -1,6 +1,6 @@
 package com.worldql.client.listeners;
 
-import WorldQLFB.StandardEvents.Update;
+import WorldQLFB_OLD.StandardEvents.Update;
 import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.WorldQLClient;
 import org.bukkit.Location;
@@ -27,7 +27,7 @@ public class PlayerEditSignListener implements Listener {
 
         Update.startUpdate(builder);
         Update.addInstruction(builder, instruction);
-        Update.addPosition(builder, PlayerBlockPlaceListener.createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
+        Update.addPosition(builder, PlayerBreakBlockListener.createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
         Update.addParams(builder, params);
         Update.addCommands(builder, commands);
         Update.addSenderid(builder, WorldQLClient.getPluginInstance().getZmqPortClientId());

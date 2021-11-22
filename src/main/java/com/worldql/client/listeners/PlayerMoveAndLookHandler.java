@@ -1,41 +1,45 @@
 package com.worldql.client.listeners;
 
-import com.google.flatbuffers.FlatBufferBuilder;
+import com.google.flatbuffers.FlexBuffersBuilder;
+
 import com.worldql.client.WorldQLClient;
+import com.worldql.client.serialization.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
-import WorldQLFB.StandardEvents.*;
 import zmq.ZMQ;
 
+import java.nio.ByteBuffer;
+
 public class PlayerMoveAndLookHandler implements Listener {
-
-
     @EventHandler
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
         if (e.getTo() == null) return;
 
-        FlatBufferBuilder builder = new FlatBufferBuilder(1024);
+        // Encode the actual player information using a Flexbuffer.
+        // Represents the following JSON object (numerical values are just examples
+        // { pitch: 25.3, yaw: 34.2, username: "test", "uuid": "5e34a615-a7ac-4bd8-a039-9c0df1b1b5ec" }
+        FlexBuffersBuilder b = Codec.getFlexBuilder();
+        int pmap = b.startMap();
+        b.putFloat("pitch", e.getTo().getPitch());
+        b.putFloat("yaw", e.getTo().getYaw());
+        b.putString("username", e.getPlayer().getName());
+        b.putString("uuid", e.getPlayer().getUniqueId().toString());
+        b.endMap(null, pmap);
+        ByteBuffer bb = b.finish();
 
-        int uuid = builder.createString(e.getPlayer().getUniqueId().toString());
-        int name = builder.createString(e.getPlayer().getName());
-        int worldName = builder.createString(e.getPlayer().getWorld().getName());
-        int instruction = builder.createString("MinecraftPlayerMove");
+        Message message = new Message(
+                Instruction.LocalMessage,
+                WorldQLClient.worldQLClientId,
+                e.getPlayer().getWorld().getName(),
+                Replication.ExceptSelf,
+                new Vec3D(e.getTo()),
+                null,
+                null,
+                "MinecraftPlayerMove",
+                bb
+        );
 
-        Update.startUpdate(builder);
-        Update.addUuid(builder, uuid);
-        Update.addPosition(builder, Vec3.createVec3(builder, (float) e.getTo().getX(), (float) e.getTo().getY(), (float) e.getTo().getZ()));
-        Update.addPitch(builder, e.getTo().getPitch());
-        Update.addYaw(builder, e.getTo().getYaw());
-        Update.addName(builder, name);
-        Update.addWorldName(builder, worldName);
-        Update.addInstruction(builder, instruction);
-        Update.addSenderid(builder, WorldQLClient.getPluginInstance().getZmqPortClientId());
-
-        int player = Update.endUpdate(builder);
-        builder.finish(player);
-
-        byte[] buf = builder.sizedByteArray();
-        WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
+        WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
     }
 }

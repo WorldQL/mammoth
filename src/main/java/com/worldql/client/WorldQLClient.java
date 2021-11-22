@@ -1,16 +1,23 @@
 package com.worldql.client;
 
+import com.worldql.client.protocols.ProtocolManager;
+import com.worldql.client.serialization.Codec;
+import com.worldql.client.serialization.Instruction;
+import com.worldql.client.serialization.Message;
+import org.bukkit.Bukkit;
+
 import com.worldql.client.listeners.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
-import java.util.Hashtable;
+import java.util.UUID;
 
 
 public class WorldQLClient extends JavaPlugin {
     public static WorldQLClient pluginInstance;
+    public static UUID worldQLClientId;
     private Thread zeroMQThread;
     private ZContext context;
     private ZMQ.Socket pushSocket;
@@ -25,48 +32,64 @@ public class WorldQLClient extends JavaPlugin {
 
         String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
         int worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);
-        int worldqlHandshakePort = getConfig().getInt("worldql.handshake-port", 5556);
+        worldQLClientId = java.util.UUID.randomUUID();
 
         context = new ZContext();
         pushSocket = context.createSocket(SocketType.PUSH);
         packetReader = new PacketReader();
-        ZMQ.Socket handshakeSocket = context.createSocket(SocketType.REQ);
-        handshakeSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlHandshakePort));
-
-        String selfHostname = getConfig().getString("host", "127.0.0.1");
-        /*
-        try (final DatagramSocket datagramSocket = new DatagramSocket()) {
-            datagramSocket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-            selfHostname = datagramSocket.getLocalAddress().getHostAddress();
-        } catch (Exception e) {
-            throw new RuntimeException("Couldn't determine our IP address.");
-        }
-         */
-
-
-        handshakeSocket.send(selfHostname.getBytes(ZMQ.CHARSET), 0);
-        byte[] reply = handshakeSocket.recv(0);
-        String assignedZeroMQPort = new String(reply, ZMQ.CHARSET);
-        zmqPortClientId = Integer.parseInt(assignedZeroMQPort);
-
+        getLogger().info("Attempting to connect to WorldQL server.");
         pushSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlPushPort));
 
+        String selfHostname = getConfig().getString("host", "127.0.0.1");
+
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+            @Override
+            public void run() {
+                Message message = new Message(
+                        Instruction.Heartbeat,
+                        WorldQLClient.worldQLClientId,
+                        "@global"
+                );
+
+                pushSocket.send(message.encode(), zmq.ZMQ.ZMQ_DONTWAIT);
+            }
+        }, 0L, 20L * 5L);
+
+
+        // Initialize Protocol
+        ProtocolManager.read();
+
+        // For syncing player movements
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerCrouchListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
+        getServer().getPluginManager().registerEvents(new ChunkLoadEventListener(), this);
+        getServer().getPluginManager().registerEvents(new ChunkUnloadEventListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerHeldItemListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerArmorEditListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerShieldInteractListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerTeleportEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerLogOutListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerBlockPlaceListener(), this);
+        // Sync broken and placed blocks.
+        getServer().getPluginManager().registerEvents(new PlayerBreakBlockListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerPlaceBlockListener(), this);
+
+        getServer().getPluginManager().registerEvents(new OutgoingPlayerHitListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerShootBowListener(), this);
+
+        /*
         getServer().getPluginManager().registerEvents(new PlayerEditSignListener(), this);
         getServer().getPluginManager().registerEvents(new PortalCreateEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerLoadChunkListener(), this);
         getServer().getPluginManager().registerEvents(new OutgoingPlayerHitListener(), this);
         getServer().getPluginManager().registerEvents(new BlockDropItemEventListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerTeleportEventListener(), this);
 
-        this.getCommand("refreshworld").setExecutor(new TestRefreshWorldCommand());
+         */
 
-        zeroMQThread = new Thread(new ZeroMQServer(this, assignedZeroMQPort, context));
+        getCommand("refreshworld").setExecutor(new TestRefreshWorldCommand());
+
+        zeroMQThread = new Thread(new ZeroMQServer(this, context, selfHostname));
         zeroMQThread.start();
     }
 
