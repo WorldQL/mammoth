@@ -22,29 +22,34 @@ public class PlayerPlaceBlockListener implements Listener {
     @EventHandler
     public void onPlayerPlaceBlockEvent(BlockPlaceEvent e) {
         Record placedBlock = new Record(
-                UUID.nameUUIDFromBytes(e.getBlock().getLocation().toString().getBytes(StandardCharsets.UTF_8)),
-                new Vec3D(e.getBlock().getLocation()),
-                e.getBlock().getWorld().getName(),
+                UUID.nameUUIDFromBytes(e.getBlockPlaced().getLocation().toString().getBytes(StandardCharsets.UTF_8)),
+                new Vec3D(e.getBlockPlaced().getLocation()),
+                e.getBlockPlaced().getWorld().getName(),
                 e.getBlockPlaced().getBlockData().getAsString(),
                 null
         );
         // TODO: Handle compound blocks (beds, doors) and joined blocks (fences, glass panes)
 
         Message message = new Message(
-                Instruction.LocalMessage,
+                Instruction.RecordCreate,
                 WorldQLClient.worldQLClientId,
                 e.getPlayer().getWorld().getName(),
-                // TODO: Change to including self for the dedupe
                 Replication.ExceptSelf,
                 // This field isn't really used since the Record also contains the position
                 // of the changed block(s).
-                new Vec3D(e.getBlock().getLocation()),
+                new Vec3D(e.getBlockPlaced().getLocation()),
                 List.of(placedBlock),
                 null,
                 "MinecraftBlockUpdate",
                 null
         );
         WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
+
+        // send a LocalMessage instruction with the same information so that clients can get an update on the chunk.
+        Message localMessage = message.withInstruction(Instruction.LocalMessage);
+        WorldQLClient.getPluginInstance().getPushSocket().send(localMessage.encode(), ZMQ.ZMQ_DONTWAIT);
+
+
 
         // Update hand visual if they ran out of blocks in their hand.
         if (e.getPlayer().getInventory().getItemInMainHand().getAmount() -1 <= 0)

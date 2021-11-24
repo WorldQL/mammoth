@@ -34,6 +34,12 @@ public record Message(
         this(instruction, senderUuid, worldName, replication, position, null, null, null, null);
     }
 
+    // wither to a different Instruction.
+    public Message withInstruction(Instruction instruction) {
+        return new Message(instruction, senderUuid(), worldName(),
+                replication(), position(), records(), entities(), parameter(), flex());
+    }
+
     public byte[] encode() {
         return Codec.encodeMessage(this);
     }
