@@ -61,6 +61,9 @@ public class PlayerBreakBlockListener implements Listener {
         );
 
         WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
+
+        Message recordMessage = message.withInstruction(Instruction.RecordCreate);
+        WorldQLClient.getPluginInstance().getPushSocket().send(recordMessage.encode(), ZMQ.ZMQ_DONTWAIT);
     }
 
     private static ByteBuffer serializeItemStack(ItemStack[] items) throws IllegalStateException {
