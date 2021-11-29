@@ -162,7 +162,7 @@ public final class Codec {
             com.worldql.client.Messages.Record r = raw.records(i);
             Record decodedRecord = new Record(
                     UUID.fromString(r.uuid()),
-                    new Vec3D(raw.position()),
+                    new Vec3D(r.position()),
                     r.worldName(),
                     r.data(),
                     r.flexAsByteBuffer()
@@ -176,7 +176,7 @@ public final class Codec {
             com.worldql.client.Messages.Entity e = raw.entities(i);
             Entity decodedEntity = new Entity(
                     UUID.fromString(e.uuid()),
-                    new Vec3D(raw.position()),
+                    new Vec3D(e.position()),
                     e.worldName(),
                     e.data(),
                     e.flexAsByteBuffer()
