@@ -63,6 +63,12 @@ public class ZeroMQServer implements Runnable {
                     }
                 }
 
+                if (incoming.instruction() == Instruction.RecordReply) {
+                    WorldQLClient.getPluginInstance().getLogger().info("recordReply, records = " + incoming.records().size());
+                    if (!incoming.records().isEmpty()) {
+                        BlockTools.setRecords(incoming.records(), false);
+                    }
+                }
 
             } catch (ZMQException e) {
                 if (e.getErrorCode() == ZMQ.Error.ETERM.getCode()) {

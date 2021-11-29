@@ -22,17 +22,27 @@ public class ChunkLoadEventListener implements Listener {
 
         int min_height = chunk.getWorld().getMinHeight();
         int max_height = chunk.getWorld().getMaxHeight();
+        int middle = (min_height + max_height) / 2;
+
+        Message recordMessage = new Message(
+                Instruction.RecordRead,
+                WorldQLClient.worldQLClientId,
+                chunk.getWorld().getName(),
+                new Vec3D(x, middle, z)
+        );
+
+        WorldQLClient.getPluginInstance().getPushSocket().send(recordMessage.encode(), ZMQ.ZMQ_DONTWAIT);
 
         for (int i = min_height; i <= max_height; i += 16) {
             Vec3D position = new Vec3D(x, i, z);
-            Message message = new Message(
+            Message subMessage = new Message(
                     Instruction.AreaSubscribe,
                     WorldQLClient.worldQLClientId,
                     chunk.getWorld().getName(),
                     position
             );
 
-            WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
+            WorldQLClient.getPluginInstance().getPushSocket().send(subMessage.encode(), ZMQ.ZMQ_DONTWAIT);
         }
     }
 }
