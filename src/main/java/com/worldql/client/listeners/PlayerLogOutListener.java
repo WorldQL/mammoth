@@ -87,6 +87,7 @@ public class PlayerLogOutListener implements Listener {
         int imap = b.startMap();
 
         b.putBlob("inventory", PlayerBreakBlockListener.serializeItemStack(player.getInventory().getContents()));
+        b.putBlob("echest", PlayerBreakBlockListener.serializeItemStack(player.getEnderChest().getContents()));
         b.putInt("heldslot", player.getInventory().getHeldItemSlot());
         b.putString("world", player.getWorld().getName());
         b.putFloat("x", player.getLocation().getX());
@@ -150,11 +151,16 @@ public class PlayerLogOutListener implements Listener {
             float yaw = (float) map.get("yaw").asFloat();
 
             Location location = new Location(world, x, y, z, yaw, pitch);
+
             try {
-                ItemStack[] contents = PlayerBreakBlockListener.deserializeItemStack(map.get("inventory").asBlob().data());
+                ItemStack[] inventory = PlayerBreakBlockListener.deserializeItemStack(map.get("inventory").asBlob().data());
                 player.getInventory().clear();
-                player.getInventory().setContents(contents);
+                player.getInventory().setContents(inventory);
                 player.updateInventory();
+
+                ItemStack[] echest = PlayerBreakBlockListener.deserializeItemStack(map.get("echest").asBlob().data());
+                player.getEnderChest().clear();
+                player.getEnderChest().setContents(echest);
 
                 player.getInventory().setHeldItemSlot(map.get("heldslot").asInt());
             } catch (IOException e) {
