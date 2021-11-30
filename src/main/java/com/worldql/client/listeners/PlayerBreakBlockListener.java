@@ -5,6 +5,7 @@ import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.serialization.*;
 import com.worldql.client.serialization.Record;
+import org.bukkit.GameMode;
 import org.bukkit.craftbukkit.libs.org.apache.commons.io.output.ByteArrayOutputStream;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,7 +28,7 @@ public class PlayerBreakBlockListener implements Listener {
     @EventHandler
     public void onPlayerBreakBlockEvent(BlockBreakEvent e) {
         ItemStack[] drops;
-        if (e.isDropItems()) {
+        if (e.isDropItems() && !e.getPlayer().getGameMode().equals(GameMode.CREATIVE)) {
             drops = e.getBlock().getDrops().toArray(new ItemStack[0]);
 
             e.setDropItems(false);
