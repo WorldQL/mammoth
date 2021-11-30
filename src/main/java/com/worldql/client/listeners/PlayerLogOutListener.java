@@ -61,14 +61,32 @@ public class PlayerLogOutListener implements Listener {
                 "MinecraftPlayerQuit",
                 bb
         );
+
         WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
 
         // Save player position and inventory
         Player player = e.getPlayer();
-        b.clear();
+        saveInventory(player);
+    }
 
+    @EventHandler
+    public void onPlayerLogIn(PlayerJoinEvent e) {
+        pendingInventories.add(e.getPlayer().getUniqueId());
+        Message recordMessage = new Message(
+                Instruction.RecordRead,
+                WorldQLClient.worldQLClientId,
+                "inventory",
+                new Vec3D(0, 0, 0)
+        );
+
+        WorldQLClient.getPluginInstance().getPushSocket().send(recordMessage.encode(), ZMQ.ZMQ_DONTWAIT);
+    }
+
+    public static void saveInventory(Player player) {
+        FlexBuffersBuilder b = Codec.getFlexBuilder();
         int imap = b.startMap();
-        b.putBlob("inventory", PlayerBreakBlockListener.serializeItemStack(e.getPlayer().getInventory().getContents()));
+
+        b.putBlob("inventory", PlayerBreakBlockListener.serializeItemStack(player.getInventory().getContents()));
         b.putInt("heldslot", player.getInventory().getHeldItemSlot());
         b.putString("world", player.getWorld().getName());
         b.putFloat("x", player.getLocation().getX());
@@ -84,7 +102,7 @@ public class PlayerLogOutListener implements Listener {
         ByteBuffer bb2 = b.finish();
 
         Vec3D zero = new Vec3D(0, 0, 0);
-        Record playerRecord = new Record(e.getPlayer().getUniqueId(), zero, "inventory", null, bb2);
+        Record playerRecord = new Record(player.getUniqueId(), zero, "inventory", null, bb2);
         Message recordsMessage = new Message(
                 Instruction.RecordCreate,
                 WorldQLClient.worldQLClientId,
@@ -98,19 +116,6 @@ public class PlayerLogOutListener implements Listener {
         );
 
         WorldQLClient.getPluginInstance().getPushSocket().send(recordsMessage.encode(), ZMQ.ZMQ_DONTWAIT);
-    }
-
-    @EventHandler
-    public void onPlayerLogIn(PlayerJoinEvent e) {
-        pendingInventories.add(e.getPlayer().getUniqueId());
-        Message recordMessage = new Message(
-                Instruction.RecordRead,
-                WorldQLClient.worldQLClientId,
-                "inventory",
-                new Vec3D(0, 0, 0)
-        );
-
-        WorldQLClient.getPluginInstance().getPushSocket().send(recordMessage.encode(), ZMQ.ZMQ_DONTWAIT);
     }
 
     public static void setInventories(List<Record> records) {

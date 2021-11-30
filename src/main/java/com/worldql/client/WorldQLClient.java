@@ -7,6 +7,7 @@ import com.worldql.client.serialization.Message;
 import org.bukkit.Bukkit;
 
 import com.worldql.client.listeners.*;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
@@ -97,6 +98,10 @@ public class WorldQLClient extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        for (Player player : getServer().getOnlinePlayers()) {
+            PlayerLogOutListener.saveInventory(player);
+        }
+
         getLogger().info("Shutting down ZeroMQ thread.");
         context.close();
         try {
