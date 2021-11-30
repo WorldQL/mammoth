@@ -115,8 +115,8 @@ public class PlayerLogOutListener implements Listener {
 
     public static void setInventories(List<Record> records) {
         Collections.reverse(records);
-        WorldQLClient.getPluginInstance().getLogger().info("pending = " + pendingInventories);
-        WorldQLClient.getPluginInstance().getLogger().info("record = " + records);
+
+        List<Record> toDelete = new ArrayList<>();
 
         for (Record record : records) {
             if (!pendingInventories.contains(record.uuid())) {
@@ -124,16 +124,14 @@ public class PlayerLogOutListener implements Listener {
             }
 
             // Has UUID, load inventory
-            WorldQLClient.getPluginInstance().getLogger().info("setting uuid = " + record.uuid());
             FlexBuffers.Map map = FlexBuffers.getRoot(record.flex()).asMap();
 
-            // Remove from pending
+            // Remove from pending and database
             pendingInventories.remove(record.uuid());
-            // TODO: Delete record from server
+            toDelete.add(record.withFlex(null));
 
             Player player = Bukkit.getPlayer(record.uuid());
             if (player == null) continue;
-            WorldQLClient.getPluginInstance().getLogger().info("uuid is " + player.getName());
 
             World world = Bukkit.getWorld(map.get("world").asString());
             if (world != null) {
@@ -170,5 +168,19 @@ public class PlayerLogOutListener implements Listener {
                 }
             }.runTask(WorldQLClient.pluginInstance);
         }
+
+        Message deleteRecordsMsg = new Message(
+                Instruction.RecordDelete,
+                WorldQLClient.worldQLClientId,
+                "inventory",
+                Replication.ExceptSelf,
+                new Vec3D(0, 0, 0),
+                toDelete,
+                null,
+                null,
+                null
+        );
+
+        WorldQLClient.getPluginInstance().getPushSocket().send(deleteRecordsMsg.encode(), ZMQ.ZMQ_DONTWAIT);
     }
 }
