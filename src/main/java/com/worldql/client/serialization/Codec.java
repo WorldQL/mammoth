@@ -32,7 +32,11 @@ public final class Codec {
 
                 int uuid = flatBuilder.createString(record.uuid().toString());
                 int worldName = flatBuilder.createString(record.worldName());
-                int data = flatBuilder.createString(record.data());
+
+                int data = -1;
+                if (record.data() != null) {
+                    data = flatBuilder.createString(record.data());
+                }
 
                 int flex = -1;
                 if (record.flex() != null) {
@@ -42,13 +46,16 @@ public final class Codec {
                 com.worldql.client.Messages.Record.startRecord(flatBuilder);
                 com.worldql.client.Messages.Record.addUuid(flatBuilder, uuid);
                 com.worldql.client.Messages.Record.addWorldName(flatBuilder, worldName);
-                com.worldql.client.Messages.Record.addData(flatBuilder, data);
 
                 if (record.position() != null) {
                     Vec3D position = record.position();
                     int pos = Vec3d.createVec3d(flatBuilder, position.x(), position.y(), position.z());
 
                     com.worldql.client.Messages.Record.addPosition(flatBuilder, pos);
+                }
+
+                if (data != -1) {
+                    com.worldql.client.Messages.Record.addData(flatBuilder, data);
                 }
 
                 if (flex != -1) {
@@ -71,7 +78,11 @@ public final class Codec {
 
                 int uuid = flatBuilder.createString(entity.uuid().toString());
                 int worldName = flatBuilder.createString(entity.worldName());
-                int data = flatBuilder.createString(entity.data());
+
+                int data = -1;
+                if (entity.data() != null) {
+                    data = flatBuilder.createString(entity.data());
+                }
 
                 int flex = -1;
                 if (entity.flex() != null) {
@@ -81,13 +92,16 @@ public final class Codec {
                 com.worldql.client.Messages.Entity.startEntity(flatBuilder);
                 com.worldql.client.Messages.Entity.addUuid(flatBuilder, uuid);
                 com.worldql.client.Messages.Entity.addWorldName(flatBuilder, worldName);
-                com.worldql.client.Messages.Entity.addData(flatBuilder, data);
 
                 if (entity.position() != null) {
                     Vec3D position = entity.position();
                     int pos = Vec3d.createVec3d(flatBuilder, position.x(), position.y(), position.z());
 
                     com.worldql.client.Messages.Entity.addPosition(flatBuilder, pos);
+                }
+
+                if (data != -1) {
+                    com.worldql.client.Messages.Entity.addData(flatBuilder, data);
                 }
 
                 if (flex != -1) {
