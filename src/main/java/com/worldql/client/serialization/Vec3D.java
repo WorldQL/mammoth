@@ -12,4 +12,16 @@ public record Vec3D(double x, double y, double z) {
     public Vec3D(@NotNull Location location) {
         this(location.getX(), location.getY(), location.getZ());
     }
+
+    public Vec3D withX(double x) {
+        return new Vec3D(x, y(), z());
+    }
+
+    public Vec3D withY(double y) {
+        return new Vec3D(x(), y, z());
+    }
+
+    public Vec3D withZ(double z) {
+        return new Vec3D(x(), y(), z);
+    }
 }
