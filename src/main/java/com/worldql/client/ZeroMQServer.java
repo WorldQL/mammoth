@@ -5,6 +5,7 @@ import com.worldql.client.listeners.utils.BlockTools;
 import com.worldql.client.serialization.Instruction;
 import com.worldql.client.serialization.Message;
 import com.worldql.client.serialization.Replication;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
@@ -60,6 +61,10 @@ public class ZeroMQServer implements Runnable {
                     }
                     if (incoming.parameter().startsWith("MinecraftPlayer")) {
                         PlayerGhostManager.updateNPC(incoming);
+                    }
+                    if (incoming.parameter().equals("MinecraftExplosion")) {
+                        WorldQLClient.getPluginInstance().getLogger().info("Got incoming explosion");
+                        BlockTools.createExplosion(incoming.position(), incoming.worldName());
                     }
                 }
 

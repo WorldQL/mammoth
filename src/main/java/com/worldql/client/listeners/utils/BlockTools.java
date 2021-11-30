@@ -6,8 +6,10 @@ import com.worldql.client.serialization.Record;
 import com.worldql.client.serialization.Vec3D;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -22,7 +24,7 @@ public class BlockTools {
                 for (Record record : records) {
                     Vec3D p = record.position();
                     Block b = Bukkit.getWorld(record.worldName())
-                            .getBlockAt((int)p.x(), (int)p.y(), (int)p.z());
+                            .getBlockAt((int) p.x(), (int) p.y(), (int) p.z());
                     BlockData bd = Bukkit.createBlockData(record.data());
                     b.setBlockData(bd);
 
@@ -44,6 +46,20 @@ public class BlockTools {
                 }
             }
 
+        }.runTask(WorldQLClient.pluginInstance);
+    }
+
+    public static void createExplosion(Vec3D position, String worldName) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                World w = Bukkit.getWorld(worldName);
+                w.createExplosion(
+                        position.x(), position.y(), position.z(),
+                        4.0F, false, false);
+                //TNTPrimed tnt = w.spawn(new Location(w,position.x(), position.y(), position.z()), TNTPrimed.class);
+
+            }
         }.runTask(WorldQLClient.pluginInstance);
     }
 }

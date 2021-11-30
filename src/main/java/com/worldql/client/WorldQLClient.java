@@ -27,7 +27,7 @@ public class WorldQLClient extends JavaPlugin {
     @Override
     public void onEnable() {
         pluginInstance = this;
-        getLogger().info("Initializing Mammoth WorldQL client.");
+        getLogger().info("Initializing Mammoth WorldQL client v0.3");
         saveDefaultConfig();
 
         String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
@@ -71,12 +71,14 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerShieldInteractListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerTeleportEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerLogOutListener(), this);
+        getServer().getPluginManager().registerEvents(new EntityExplodeEventListener(), this);
         // Sync broken and placed blocks.
         getServer().getPluginManager().registerEvents(new PlayerBreakBlockListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerPlaceBlockListener(), this);
 
         getServer().getPluginManager().registerEvents(new OutgoingPlayerHitListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerShootBowListener(), this);
+
 
         /*
         getServer().getPluginManager().registerEvents(new PlayerEditSignListener(), this);
@@ -86,8 +88,6 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BlockDropItemEventListener(), this);
 
          */
-
-        getCommand("refreshworld").setExecutor(new TestRefreshWorldCommand());
 
         zeroMQThread = new Thread(new ZeroMQServer(this, context, selfHostname));
         zeroMQThread.start();
