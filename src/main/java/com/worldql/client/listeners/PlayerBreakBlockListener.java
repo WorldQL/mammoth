@@ -3,8 +3,8 @@ package com.worldql.client.listeners;
 import WorldQLFB_OLD.StandardEvents.Vec3;
 import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.WorldQLClient;
-import com.worldql.client.serialization.*;
 import com.worldql.client.serialization.Record;
+import com.worldql.client.serialization.*;
 import org.bukkit.GameMode;
 import org.bukkit.craftbukkit.libs.org.apache.commons.io.output.ByteArrayOutputStream;
 import org.bukkit.event.EventHandler;
@@ -63,7 +63,11 @@ public class PlayerBreakBlockListener implements Listener {
 
         WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
 
-        Message recordMessage = message.withInstruction(Instruction.RecordCreate);
+        // Don't pass drops flex to DB
+        Message recordMessage = message.withInstruction(Instruction.RecordCreate)
+                .withParameter(null)
+                .withRecords(List.of(airBlock.withFlex(null)));
+
         WorldQLClient.getPluginInstance().getPushSocket().send(recordMessage.encode(), ZMQ.ZMQ_DONTWAIT);
     }
 
