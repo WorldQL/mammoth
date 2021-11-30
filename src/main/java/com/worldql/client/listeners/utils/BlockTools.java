@@ -6,6 +6,7 @@ import com.worldql.client.serialization.Record;
 import com.worldql.client.serialization.Vec3D;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -57,7 +58,19 @@ public class BlockTools {
                 w.createExplosion(
                         position.x(), position.y(), position.z(),
                         4.0F, false, false);
-                //TNTPrimed tnt = w.spawn(new Location(w,position.x(), position.y(), position.z()), TNTPrimed.class);
+
+            }
+        }.runTask(WorldQLClient.pluginInstance);
+    }
+
+    public static void createPrimedTNT(Vec3D position, String worldName) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                World w = Bukkit.getWorld(worldName);
+                Location tntLocation = new Location(w, position. x(), position.y(), position.z());
+                TNTPrimed tnt = w.spawn(tntLocation, TNTPrimed.class);
+                w.getBlockAt(tntLocation).setType(Material.AIR);
 
             }
         }.runTask(WorldQLClient.pluginInstance);

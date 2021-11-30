@@ -27,6 +27,7 @@ public class EntityExplodeEventListener implements Listener {
             if (causer == null) {
                 // This is a cosmetic primed TNT entity for cross-server visuals.
                 e.setCancelled(true);
+                e.blockList().clear();
                 return;
             }
         }
