@@ -44,7 +44,7 @@ public class PlayerBreakBlockListener implements Listener {
                 new Vec3D(e.getBlock().getLocation()),
                 e.getBlock().getWorld().getName(),
                 "minecraft:air",
-                serializeItemStack(drops)
+                ByteBuffer.wrap(serializeItemStack(drops))
         );
 
         Message message = new Message(
@@ -71,7 +71,7 @@ public class PlayerBreakBlockListener implements Listener {
         WorldQLClient.getPluginInstance().getPushSocket().send(recordMessage.encode(), ZMQ.ZMQ_DONTWAIT);
     }
 
-    private static ByteBuffer serializeItemStack(ItemStack[] items) throws IllegalStateException {
+    public static byte[] serializeItemStack(ItemStack[] items) throws IllegalStateException {
         // TODO: Make this serialization more efficient
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -83,7 +83,7 @@ public class PlayerBreakBlockListener implements Listener {
             }
 
             dataOutput.close();
-            return ByteBuffer.wrap(outputStream.toByteArray());
+            return outputStream.toByteArray();
         } catch (Exception e) {
             throw new IllegalStateException("Unable to save item stacks.", e);
         }

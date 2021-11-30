@@ -1,6 +1,7 @@
 package com.worldql.client;
 
 import com.worldql.client.ghost.PlayerGhostManager;
+import com.worldql.client.listeners.PlayerLogOutListener;
 import com.worldql.client.listeners.utils.BlockTools;
 import com.worldql.client.serialization.Instruction;
 import com.worldql.client.serialization.Message;
@@ -71,9 +72,12 @@ public class ZeroMQServer implements Runnable {
                 }
 
                 if (incoming.instruction() == Instruction.RecordReply) {
-                    WorldQLClient.getPluginInstance().getLogger().info("recordReply, records = " + incoming.records().size());
-                    if (!incoming.records().isEmpty()) {
-                        BlockTools.setRecords(incoming.records(), false);
+                    if (incoming.worldName().equals("inventory")) {
+                        PlayerLogOutListener.setInventories(incoming.records());
+                    } else {
+                        if (!incoming.records().isEmpty()) {
+                            BlockTools.setRecords(incoming.records(), false);
+                        }
                     }
                 }
 
