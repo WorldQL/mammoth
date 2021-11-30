@@ -1,6 +1,7 @@
 package com.worldql.client;
 
 import com.worldql.client.ghost.PlayerGhostManager;
+import com.worldql.client.listeners.PlayerChatListener;
 import com.worldql.client.listeners.PlayerLogOutListener;
 import com.worldql.client.listeners.utils.BlockTools;
 import com.worldql.client.serialization.Instruction;
@@ -52,6 +53,12 @@ public class ZeroMQServer implements Runnable {
                 if (incoming.instruction() == Instruction.Handshake) {
                     WorldQLClient.getPluginInstance().getLogger().info("Response from WorldQL handshake: " + incoming.parameter());
                     continue;
+                }
+
+                if (incoming.instruction() == Instruction.GlobalMessage) {
+                    if (incoming.parameter().equals("MinecraftPlayerChat")) {
+                        PlayerChatListener.relayChat(incoming);
+                    }
                 }
 
                 if (incoming.instruction() == Instruction.LocalMessage) {

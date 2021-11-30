@@ -80,6 +80,7 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new OutgoingPlayerHitListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerShootBowListener(), this);
 
+        getServer().getPluginManager().registerEvents(new PlayerChatListener(), this);
 
         /*
         getServer().getPluginManager().registerEvents(new PlayerEditSignListener(), this);
