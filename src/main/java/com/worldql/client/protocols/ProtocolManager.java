@@ -102,7 +102,8 @@ public class ProtocolManager {
         // this is for the overlay skin data
         DataWatcher watcher = npc.ai();
         byte b = 0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20 | 0x40;
-        watcher.a(DataWatcherRegistry.a.a(17), b);
+        // DataWatcher.set
+        watcher.b(DataWatcherRegistry.a.a(17), b);
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
             connection.a(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, npc));
@@ -115,7 +116,7 @@ public class ProtocolManager {
     public static void sendJoinPacket(EntityPlayer npc, Player player) {
         DataWatcher watcher = npc.ai();
         byte b = 0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20 | 0x40;
-        watcher.a(DataWatcherRegistry.a.a(17), b);
+        watcher.b(DataWatcherRegistry.a.a(17), b);
         PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
         connection.a(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, npc));
         connection.a(new PacketPlayOutNamedEntitySpawn(npc));
