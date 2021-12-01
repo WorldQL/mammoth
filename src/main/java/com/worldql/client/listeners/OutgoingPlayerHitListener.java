@@ -27,7 +27,7 @@ public class OutgoingPlayerHitListener implements Listener {
         b.putBoolean("sprinting", event.getAttacker().isSprinting());
         b.putInt("knockbacklvl", getKnockBackLevel(event.getAttacker()));
         b.putFloat("damage", getDamageAmount(event.getAttacker()));
-        b.putString("username", event.getReceiver().getName());
+        b.putString("username", event.getReceiver().co());
         b.putString("uuid", event.getUUID().toString());
         b.putString("uuidofattacker", event.getAttacker().getUniqueId().toString());
         b.endMap(null, pmap);
@@ -39,7 +39,8 @@ public class OutgoingPlayerHitListener implements Listener {
                 event.getAttacker().getWorld().getName(),
                 Replication.ExceptSelf,
                 new Vec3D(new Location(event.getAttacker().getWorld(),
-                        event.getReceiver().locX(), event.getReceiver().locY(), event.getReceiver().locZ())),
+                        // x, y, z
+                        event.getReceiver().dc(), event.getReceiver().de(), event.getReceiver().di())),
                 null,
                 null,
                 "MinecraftPlayerDamage",
