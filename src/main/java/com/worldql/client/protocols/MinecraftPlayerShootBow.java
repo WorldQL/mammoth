@@ -21,7 +21,7 @@ public class MinecraftPlayerShootBow {
         FlexBuffers.Map playerMessageMap = FlexBuffers.getRoot(state.flex()).asMap();
         DataWatcher drawingBowData = new DataWatcher(entity);
         DataWatcherObject dwObject = new DataWatcherObject<>(8, DataWatcherRegistry.a);
-        drawingBowData.register(dwObject, 0);
+        drawingBowData.a(dwObject, 0);
 
         byte handStateBitmask = 0;
         if (playerMessageMap.get("charging").asBoolean()) {
@@ -31,9 +31,9 @@ public class MinecraftPlayerShootBow {
                 handStateBitmask = 0x00000001;
         }
 
-        drawingBowData.set(dwObject, handStateBitmask);
+        drawingBowData.b(dwObject, handStateBitmask);
 
-        ProtocolManager.sendGenericPacket(new PacketPlayOutEntityMetadata(entity.getId(),
+        ProtocolManager.sendGenericPacket(new PacketPlayOutEntityMetadata(entity.ae(),
                 drawingBowData, false));
 
         // shoots the arrow from the npc.
