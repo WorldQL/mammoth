@@ -15,7 +15,7 @@ public class MinecraftPlayerShieldUse {
         FlexBuffers.Map playerMessageMap = FlexBuffers.getRoot(state.flex()).asMap();
         DataWatcher holdingShieldData = new DataWatcher(entity);
         DataWatcherObject dwObject = new DataWatcherObject<>(8, DataWatcherRegistry.a);
-        holdingShieldData.register(dwObject, 0);
+        holdingShieldData.a(dwObject, 0);
 
         byte handStateBitmask = 0;
         if (playerMessageMap.get("blocking").asBoolean()) {
@@ -25,9 +25,9 @@ public class MinecraftPlayerShieldUse {
                 handStateBitmask = 0x00000001;
         }
 
-        holdingShieldData.set(dwObject, handStateBitmask);
+        holdingShieldData.b(dwObject, handStateBitmask);
 
-        ProtocolManager.sendGenericPacket(new PacketPlayOutEntityMetadata(entity.getId(),
+        ProtocolManager.sendGenericPacket(new PacketPlayOutEntityMetadata(entity.ae(),
                 holdingShieldData, false));
     }
 
