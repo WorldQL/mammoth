@@ -22,7 +22,7 @@ public class OutgoingPlayerHitEvent extends Event {
         this.attacker = attacker;
 
         // this is used to send to the other servers.
-        uuid = PlayerGhostManager.getUUIDfromID(receiver.getId());
+        uuid = PlayerGhostManager.getUUIDfromID(receiver.ae());
     }
 
     public HandlerList getHandlers() {

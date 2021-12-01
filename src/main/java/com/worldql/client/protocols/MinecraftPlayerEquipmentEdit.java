@@ -30,6 +30,6 @@ public class MinecraftPlayerEquipmentEdit {
 
         equipment.add(new Pair<>(slot, CraftItemStack.asNMSCopy(item)));
 
-        ProtocolManager.sendGenericPacket(new PacketPlayOutEntityEquipment(entity.getId(), equipment));
+        ProtocolManager.sendGenericPacket(new PacketPlayOutEntityEquipment(entity.ae(), equipment));
     }
 }
