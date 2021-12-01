@@ -1,26 +1,16 @@
 package com.worldql.client.protocols;
 
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.ChannelPromise;
-
-import java.lang.reflect.Field;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.MapMaker;
+import com.mojang.authlib.GameProfile;
+import io.netty.channel.*;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.protocol.login.PacketLoginInStart;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.server.network.ServerConnection;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -31,9 +21,10 @@ import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.MapMaker;
-import com.mojang.authlib.GameProfile;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
 public abstract class Protocol {
     private static final AtomicInteger ID = new AtomicInteger(0);
@@ -69,7 +60,7 @@ public abstract class Protocol {
         handlerName = getHandlerName();
         registerBukkitEvents();
 
-        serverConnection = ((CraftServer) Bukkit.getServer()).getServer().getServerConnection();
+        serverConnection = ((CraftServer) Bukkit.getServer()).getServer().ad();
 
         try {
             registerChannelHandler();
