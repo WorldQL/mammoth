@@ -1,10 +1,6 @@
 package com.worldql.client;
 
-import com.google.flatbuffers.FlexBuffersBuilder;
-import com.worldql.client.serialization.Codec;
-import org.bukkit.Location;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.libs.org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
@@ -12,7 +8,6 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 public class MinecraftUtil {
     public static String itemStackArrayToBase64(ItemStack[] items) throws IllegalStateException {
