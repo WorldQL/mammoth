@@ -2,6 +2,7 @@ package com.worldql.client.listeners;
 
 import WorldQLFB_OLD.StandardEvents.Vec3;
 import com.google.flatbuffers.FlatBufferBuilder;
+import com.google.flatbuffers.FlexBuffersBuilder;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.serialization.Record;
 import com.worldql.client.serialization.*;
@@ -30,7 +31,6 @@ public class PlayerBreakBlockListener implements Listener {
         ItemStack[] drops;
         if (e.isDropItems() && !e.getPlayer().getGameMode().equals(GameMode.CREATIVE)) {
             drops = e.getBlock().getDrops().toArray(new ItemStack[0]);
-
             e.setDropItems(false);
         } else {
             drops = NO_DROPS;
@@ -39,12 +39,18 @@ public class PlayerBreakBlockListener implements Listener {
         UUID blockUuid = UUID.nameUUIDFromBytes(e.getBlock().getLocation().toString().getBytes(StandardCharsets.UTF_8));
         pendingDrops.add(blockUuid);
 
+        FlexBuffersBuilder b = Codec.getFlexBuilder();
+        int pmap = b.startMap();
+        b.putBlob("drops", serializeItemStack(drops));
+        b.endMap(null, pmap);
+        ByteBuffer bb = b.finish();
+
         Record airBlock = new Record(
                 blockUuid,
                 new Vec3D(e.getBlock().getLocation()),
                 e.getBlock().getWorld().getName(),
                 "minecraft:air",
-                ByteBuffer.wrap(serializeItemStack(drops))
+                bb
         );
 
         Message message = new Message(
