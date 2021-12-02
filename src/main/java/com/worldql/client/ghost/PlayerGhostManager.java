@@ -70,13 +70,11 @@ public class PlayerGhostManager {
 
 
     private static ExpiringEntityPlayer createNPC(String name, UUID uuid, Location location) {
-
         MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
         WorldServer world = ((CraftWorld) location.getWorld()).getHandle();
         GameProfile profile = new GameProfile(uuid, name);
         EntityPlayer npc = new EntityPlayer(server, world, profile);
         npc.a(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
-
         return new ExpiringEntityPlayer(npc);
     }
 
@@ -86,7 +84,6 @@ public class PlayerGhostManager {
             ExpiringEntityPlayer expiringEntityPlayer = uuidExpiringEntityPlayerEntry.getValue();
             ProtocolManager.sendJoinPacket(expiringEntityPlayer.grab(), Bukkit.getPlayer(p));
         }
-
     }
 
     public static void processPacket(Message state, EntityPlayer entity) {
