@@ -82,17 +82,17 @@ public class PlayerGhostManager {
         return new ExpiringEntityPlayer(npc);
     }
 
-//    private static void ensurePlayerHasJoinPackets(UUID p) {
-//        if (playerNeedsGhosts.containsKey(p) && playerNeedsGhosts.get(p)) {
-//            // Spawn ghosts for this player
-//            for (Map.Entry<UUID, ExpiringEntityPlayer> uuidExpiringEntityPlayerEntry : hashtableNPCs.entrySet()) {
-//                ExpiringEntityPlayer expiringEntityPlayer = uuidExpiringEntityPlayerEntry.getValue();
-//                ProtocolManager.sendJoinPacket(expiringEntityPlayer.grab(), Bukkit.getPlayer(p));
-//            }
-//            playerNeedsGhosts.put(p, false);
-//
-//        }
-//    }
+    public static void ensurePlayerHasJoinPackets(UUID p) {
+        if (playerNeedsGhosts.containsKey(p) && playerNeedsGhosts.get(p)) {
+            // Spawn ghosts for this player
+            for (Map.Entry<UUID, ExpiringEntityPlayer> uuidExpiringEntityPlayerEntry : hashtableNPCs.entrySet()) {
+                ExpiringEntityPlayer expiringEntityPlayer = uuidExpiringEntityPlayerEntry.getValue();
+                ProtocolManager.sendJoinPacket(expiringEntityPlayer.grab(), Bukkit.getPlayer(p));
+            }
+
+            playerNeedsGhosts.put(p, false);
+        }
+    }
 
     public static void processPacket(Message state, EntityPlayer entity) {
         switch (state.parameter()) {

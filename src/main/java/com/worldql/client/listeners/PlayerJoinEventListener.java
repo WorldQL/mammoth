@@ -21,6 +21,8 @@ public class PlayerJoinEventListener implements Listener {
         ProtocolManager.injectPlayer(e.getPlayer());
         Player player = e.getPlayer();
 
+        PlayerGhostManager.ensurePlayerHasJoinPackets(player.getUniqueId());
+
         FlexBuffersBuilder b = Codec.getFlexBuilder();
         int pmap = b.startMap();
         b.putFloat("pitch", player.getLocation().getPitch());
