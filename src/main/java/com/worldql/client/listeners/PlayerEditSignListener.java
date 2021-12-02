@@ -1,42 +1,47 @@
 package com.worldql.client.listeners;
 
-import WorldQLFB_OLD.StandardEvents.Update;
-import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.WorldQLClient;
-import org.bukkit.Location;
+import com.worldql.client.listeners.utils.BlockTools;
+import com.worldql.client.serialization.Record;
+import com.worldql.client.serialization.*;
+import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import zmq.ZMQ;
 
+import java.util.List;
+
 public class PlayerEditSignListener implements Listener {
     @EventHandler
     public void onSignEdit(SignChangeEvent e) {
-        Location l = e.getBlock().getLocation();
-        FlatBufferBuilder builder = new FlatBufferBuilder(1024);
+        if (e.getBlock().getState() instanceof Sign sign) {
+            for (int i = 0; i < e.getLines().length; i++) {
+                String line = e.getLines()[i];
+                sign.setLine(i, line);
+            }
 
-        int instruction = builder.createString("MinecraftBlockPlace");
-        int blockdata = builder.createString(e.getBlock().getBlockData().getAsString());
-        int command = builder.createString("update_sign");
-        int signData = builder.createString(String.join("\n", e.getLines()));
-        int[] commandsArray = {command, signData};
-        int commands = Update.createCommandsVector(builder, commandsArray);
-        int[] paramsArray = {blockdata};
-        int params = Update.createParamsVector(builder, paramsArray);
-        int worldName = builder.createString(e.getBlock().getWorld().getName());
+            sign.update();
+        }
 
-        Update.startUpdate(builder);
-        Update.addInstruction(builder, instruction);
-        Update.addPosition(builder, PlayerBreakBlockListener.createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
-        Update.addParams(builder, params);
-        Update.addCommands(builder, commands);
-        Update.addSenderid(builder, WorldQLClient.getPluginInstance().getZmqPortClientId());
-        Update.addWorldName(builder, worldName);
+        Record placedBlock = BlockTools.serializeBlock(e.getBlock());
+        Message message = new Message(
+                Instruction.RecordCreate,
+                WorldQLClient.worldQLClientId,
+                e.getPlayer().getWorld().getName(),
+                Replication.ExceptSelf,
+                // This field isn't really used since the Record also contains the position
+                // of the changed block(s).
+                new Vec3D(e.getBlock().getLocation()),
+                List.of(placedBlock),
+                null,
+                "MinecraftBlockUpdate",
+                null
+        );
+        WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
 
-        int blockUpdate = Update.endUpdate(builder);
-        builder.finish(blockUpdate);
-
-        byte[] buf = builder.sizedByteArray();
-        WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
+        // send a LocalMessage instruction with the same information so that clients can get an update on the chunk.
+        Message localMessage = message.withInstruction(Instruction.LocalMessage);
+        WorldQLClient.getPluginInstance().getPushSocket().send(localMessage.encode(), ZMQ.ZMQ_DONTWAIT);
     }
 }

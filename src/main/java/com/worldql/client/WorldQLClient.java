@@ -76,6 +76,7 @@ public class WorldQLClient extends JavaPlugin {
         // Sync broken and placed blocks.
         getServer().getPluginManager().registerEvents(new PlayerBreakBlockListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerPlaceBlockListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerEditSignListener(), this);
         getServer().getPluginManager().registerEvents(new TNTPrimeEventListener(), this);
 
         getServer().getPluginManager().registerEvents(new OutgoingPlayerHitListener(), this);
@@ -87,7 +88,7 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new NotImplementedCanceller(), this);
 
         /*
-        getServer().getPluginManager().registerEvents(new PlayerEditSignListener(), this);
+
         getServer().getPluginManager().registerEvents(new PortalCreateEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerLoadChunkListener(), this);
         getServer().getPluginManager().registerEvents(new OutgoingPlayerHitListener(), this);
