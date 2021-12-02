@@ -20,13 +20,7 @@ jobs:
       with:
         distribution: temurin
         java-version: ${{ env.JDK_VERSION }}
-    - name: Cache Maven Dependencies
-      uses: actions/cache@v2
-      with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
+        cache: maven
     - name: Compile Spigot with BuildTools
       uses: SpraxDev/Action-SpigotMC@v3
       with:
