@@ -5,6 +5,10 @@ on:
       - trunk
   pull_request:
 
+env:
+  JDK_VERSION: '17'
+  SPIGOT_VERSION: '1.18'
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,7 +19,7 @@ jobs:
       uses: actions/setup-java@v2
       with:
         distribution: temurin
-        java-version: '17'
+        java-version: ${{ env.JDK_VERSION }}
     - name: Cache Maven Dependencies
       uses: actions/cache@v2
       with:
@@ -26,7 +30,7 @@ jobs:
     - name: Compile Spigot with BuildTools
       uses: SpraxDev/Action-SpigotMC@v3
       with:
-        versions: '1.18'
+        versions: ${{ env.SPIGOT_VERSION }}
         buildToolProvider: SpigotMC
     - name: Build with Maven
       run: mvn -B package --file pom.xml
