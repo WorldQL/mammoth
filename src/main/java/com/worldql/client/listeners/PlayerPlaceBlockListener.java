@@ -3,6 +3,7 @@ package com.worldql.client.listeners;
 import com.google.flatbuffers.FlexBuffersBuilder;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.events.PlayerHoldEvent;
+import com.worldql.client.listeners.utils.BlockTools;
 import com.worldql.client.serialization.Record;
 import com.worldql.client.serialization.*;
 import net.minecraft.core.BlockPosition;
@@ -27,34 +28,8 @@ public class PlayerPlaceBlockListener implements Listener {
 
     @EventHandler
     public void onPlayerPlaceBlockEvent(BlockPlaceEvent e) {
-        FlexBuffersBuilder b = Codec.getFlexBuilder();
-        int pmap = b.startMap();
-
-
-        Location l = e.getBlockPlaced().getLocation();
-        CraftWorld cw = (CraftWorld) e.getBlockPlaced().getLocation().getWorld();
-        TileEntity t = cw.getHandle().getBlockEntity(new BlockPosition(l.getBlockX(), l.getBlockY(), l.getBlockZ()), true);
-
-        // Save NBT data to flexbuffer
-        if (t != null) {
-            NBTTagCompound nbt = t.n();
-            b.putBoolean("isTile", true);
-            b.putString("nbt", nbt.toString());
-        } else {
-            b.putBoolean("isTile", false);
-        }
-
-        b.endMap(null, pmap);
-        ByteBuffer bb = b.finish();
-
-        Record placedBlock = new Record(
-                UUID.nameUUIDFromBytes(e.getBlockPlaced().getLocation().toString().getBytes(StandardCharsets.UTF_8)),
-                new Vec3D(e.getBlockPlaced().getLocation()),
-                e.getBlockPlaced().getWorld().getName(),
-                e.getBlockPlaced().getBlockData().getAsString(),
-                bb
-        );
         // TODO: Handle compound blocks (beds, doors) and joined blocks (fences, glass panes)
+        Record placedBlock = BlockTools.serializeBlock(e.getBlockPlaced());
 
         Message message = new Message(
                 Instruction.RecordCreate,
