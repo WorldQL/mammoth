@@ -17,7 +17,6 @@ public class PlayerJoinEventListener implements Listener {
     @EventHandler
     public void onPlayerJoinEvent(PlayerJoinEvent e) {
         //WorldQLClient.logger.info("Setting player " + e.getPlayer().getDisplayName() + " to get ghost join packets sent.");
-        PlayerGhostManager.playerNeedsGhosts.put(e.getPlayer().getUniqueId(), true);
         ProtocolManager.injectPlayer(e.getPlayer());
         Player player = e.getPlayer();
 

@@ -17,7 +17,6 @@ import java.util.*;
 public class PlayerGhostManager {
 
     private static final Hashtable<UUID, ExpiringEntityPlayer> hashtableNPCs = new Hashtable<>();
-    public static final Hashtable<UUID, Boolean> playerNeedsGhosts = new Hashtable<>();
     public static final Hashtable<Integer, ExpiringEntityPlayer> integerNPCLookup = new Hashtable<>();
 
     public static void updateNPC(Message state) {
@@ -49,7 +48,6 @@ public class PlayerGhostManager {
             int npcId = hashtableNPCs.get(playerUUID).grab().ae();
             hashtableNPCs.remove(playerUUID);
             integerNPCLookup.remove(npcId);
-            playerNeedsGhosts.remove(playerUUID);
             return;
         }
         processPacket(state, entity);
@@ -83,15 +81,12 @@ public class PlayerGhostManager {
     }
 
     public static void ensurePlayerHasJoinPackets(UUID p) {
-        if (playerNeedsGhosts.containsKey(p) && playerNeedsGhosts.get(p)) {
-            // Spawn ghosts for this player
-            for (Map.Entry<UUID, ExpiringEntityPlayer> uuidExpiringEntityPlayerEntry : hashtableNPCs.entrySet()) {
-                ExpiringEntityPlayer expiringEntityPlayer = uuidExpiringEntityPlayerEntry.getValue();
-                ProtocolManager.sendJoinPacket(expiringEntityPlayer.grab(), Bukkit.getPlayer(p));
-            }
-
-            playerNeedsGhosts.put(p, false);
+        // Spawn ghosts for this player
+        for (Map.Entry<UUID, ExpiringEntityPlayer> uuidExpiringEntityPlayerEntry : hashtableNPCs.entrySet()) {
+            ExpiringEntityPlayer expiringEntityPlayer = uuidExpiringEntityPlayerEntry.getValue();
+            ProtocolManager.sendJoinPacket(expiringEntityPlayer.grab(), Bukkit.getPlayer(p));
         }
+
     }
 
     public static void processPacket(Message state, EntityPlayer entity) {
