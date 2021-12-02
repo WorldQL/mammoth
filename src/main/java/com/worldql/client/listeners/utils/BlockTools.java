@@ -39,9 +39,6 @@ public class BlockTools {
                     if (record.flex() != null) {
                         FlexBuffers.Map map = FlexBuffers.getRoot(record.flex()).asMap();
 
-                        // TODO: Remove debug logging
-                        WorldQLClient.getPluginInstance().getLogger().info("map = " + map.keys().toString());
-
                         // Handle drops
                         if (!map.get("drops").isNull() && isSelf && PlayerBreakBlockListener.pendingDrops.contains(record.uuid())) {
                             PlayerBreakBlockListener.pendingDrops.remove(record.uuid());
