@@ -3,6 +3,7 @@ package com.worldql.client.listeners;
 import com.google.flatbuffers.FlexBuffers;
 import com.google.flatbuffers.FlexBuffersBuilder;
 import com.worldql.client.WorldQLClient;
+import com.worldql.client.listeners.utils.ItemTools;
 import com.worldql.client.serialization.Codec;
 import com.worldql.client.serialization.Instruction;
 import com.worldql.client.serialization.Message;
@@ -45,7 +46,7 @@ public class PlayerDeathListener implements Listener {
         b.putString("uuid", e.getEntity().getUniqueId().toString());
         if (killerUuid != null) b.putString("killer", killerUuid);
         b.putString("message", e.getDeathMessage());
-        b.putBlob("drops", PlayerBreakBlockListener.serializeItemStack(drops));
+        b.putBlob("drops", ItemTools.serializeItemStack(drops));
         b.putInt("xp", e.getDroppedExp());
         b.putFloat("x", e.getEntity().getLocation().getX());
         b.putFloat("y", e.getEntity().getLocation().getY());
@@ -109,7 +110,7 @@ public class PlayerDeathListener implements Listener {
                     public void run() {
                         ItemStack[] drops = new ItemStack[0];
                         try {
-                            drops = PlayerBreakBlockListener.deserializeItemStack(map.get("drops").asBlob().data());
+                            drops = ItemTools.deserializeItemStack(map.get("drops").asBlob().data());
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

@@ -3,6 +3,7 @@ package com.worldql.client.listeners;
 import com.google.flatbuffers.FlexBuffers;
 import com.google.flatbuffers.FlexBuffersBuilder;
 import com.worldql.client.WorldQLClient;
+import com.worldql.client.listeners.utils.ItemTools;
 import com.worldql.client.protocols.ProtocolManager;
 import com.worldql.client.serialization.Record;
 import com.worldql.client.serialization.*;
@@ -77,8 +78,8 @@ public class PlayerLogOutListener implements Listener {
         FlexBuffersBuilder b = Codec.getFlexBuilder();
         int imap = b.startMap();
 
-        b.putBlob("inventory", PlayerBreakBlockListener.serializeItemStack(player.getInventory().getContents()));
-        b.putBlob("echest", PlayerBreakBlockListener.serializeItemStack(player.getEnderChest().getContents()));
+        b.putBlob("inventory", ItemTools.serializeItemStack(player.getInventory().getContents()));
+        b.putBlob("echest", ItemTools.serializeItemStack(player.getEnderChest().getContents()));
         b.putInt("heldslot", player.getInventory().getHeldItemSlot());
         b.putString("world", player.getWorld().getName());
         b.putFloat("x", player.getLocation().getX());
@@ -144,12 +145,12 @@ public class PlayerLogOutListener implements Listener {
             Location location = new Location(world, x, y, z, yaw, pitch);
 
             try {
-                ItemStack[] inventory = PlayerBreakBlockListener.deserializeItemStack(map.get("inventory").asBlob().data());
+                ItemStack[] inventory = ItemTools.deserializeItemStack(map.get("inventory").asBlob().data());
                 player.getInventory().clear();
                 player.getInventory().setContents(inventory);
                 player.updateInventory();
 
-                ItemStack[] echest = PlayerBreakBlockListener.deserializeItemStack(map.get("echest").asBlob().data());
+                ItemStack[] echest = ItemTools.deserializeItemStack(map.get("echest").asBlob().data());
                 player.getEnderChest().clear();
                 player.getEnderChest().setContents(echest);
 
