@@ -60,7 +60,7 @@ public class MinecraftPlayerDamage {
         new BukkitRunnable() {
             @Override
             public void run() {
-                player.damage(calculateDamageApplied(damage, points, toughness, resist, epf));
+                player.damage(calculateDamageApplied(damage, points, toughness, resist, epf), e.grab().getBukkitEntity());
             }
         }.runTask(WorldQLClient.getPluginInstance());
     }
