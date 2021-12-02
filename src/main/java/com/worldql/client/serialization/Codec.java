@@ -4,11 +4,14 @@ import com.google.flatbuffers.FlatBufferBuilder;
 import com.google.flatbuffers.FlexBuffersBuilder;
 import com.worldql.client.Messages.Vec3d;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public final class Codec {
     private static final FlatBufferBuilder flatBuilder = new FlatBufferBuilder(1024);
@@ -211,4 +214,26 @@ public final class Codec {
                 raw.flexAsByteBuffer()
         );
     }
+
+    // region: Copy Functions
+    public static ByteBuffer copyByteBuffer(@Nullable ByteBuffer original) {
+        // Handle null cases
+        if (original == null) return null;
+
+        ByteBuffer clone = ByteBuffer.allocate(original.capacity());
+        original.rewind();
+
+        clone.put(original);
+        original.rewind();
+
+        clone.flip();
+        return clone;
+    }
+
+    public static <T> @Nullable List<T> copyList(@Nullable List<T> list, @NotNull Function<? super T, T> copyFn) {
+        if (list == null) return null;
+
+        return list.stream().map(copyFn).collect(Collectors.toList());
+    }
+    // endregion
 }

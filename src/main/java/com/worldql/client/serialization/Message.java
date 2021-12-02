@@ -7,6 +7,9 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.UUID;
 
+import static com.worldql.client.serialization.Codec.copyByteBuffer;
+import static com.worldql.client.serialization.Codec.copyList;
+
 public record Message(
         Instruction instruction,
         @NotNull UUID senderUuid,
@@ -37,40 +40,144 @@ public record Message(
     // endregion
 
     // region: Wither Functions
+    public Message copy() {
+        return new Message(
+                instruction(),
+                senderUuid(),
+                worldName(),
+                replication(),
+                position(),
+                copyList(records(), Record::copy),
+                copyList(entities(), Entity::copy),
+                parameter(),
+                copyByteBuffer(flex())
+        );
+    }
+
     public Message withInstruction(Instruction instruction) {
-        return new Message(instruction, senderUuid(), worldName(), replication(), position(), records(), entities(), parameter(), flex());
+        return new Message(
+                instruction,
+                senderUuid(),
+                worldName(),
+                replication(),
+                position(),
+                copyList(records(), Record::copy),
+                copyList(entities(), Entity::copy),
+                parameter(),
+                copyByteBuffer(flex())
+        );
     }
 
     public Message withSenderUuid(@NotNull UUID senderUuid) {
-        return new Message(instruction(), senderUuid, worldName(), replication(), position(), records(), entities(), parameter(), flex());
+        return new Message(
+                instruction(),
+                senderUuid,
+                worldName(),
+                replication(),
+                position(),
+                copyList(records(), Record::copy),
+                copyList(entities(), Entity::copy),
+                parameter(),
+                copyByteBuffer(flex())
+        );
     }
 
     public Message withWorldName(@NotNull String worldName) {
-        return new Message(instruction(), senderUuid(), worldName, replication(), position(), records(), entities(), parameter(), flex());
+        return new Message(
+                instruction(),
+                senderUuid(),
+                worldName,
+                replication(),
+                position(),
+                copyList(records(), Record::copy),
+                copyList(entities(), Entity::copy),
+                parameter(),
+                copyByteBuffer(flex())
+        );
     }
 
     public Message withReplication(Replication replication) {
-        return new Message(instruction(), senderUuid(), worldName(), replication, position(), records(), entities(), parameter(), flex());
+        return new Message(
+                instruction(),
+                senderUuid(),
+                worldName(),
+                replication,
+                position(),
+                copyList(records(), Record::copy),
+                copyList(entities(), Entity::copy),
+                parameter(),
+                copyByteBuffer(flex())
+        );
     }
 
     public Message withPosition(@Nullable Vec3D position) {
-        return new Message(instruction(), senderUuid(), worldName(), replication(), position, records(), entities(), parameter(), flex());
+        return new Message(
+                instruction(),
+                senderUuid(),
+                worldName(),
+                replication(),
+                position,
+                copyList(records(), Record::copy),
+                copyList(entities(), Entity::copy),
+                parameter(),
+                copyByteBuffer(flex())
+        );
     }
 
     public Message withRecords(@Nullable List<Record> records) {
-        return new Message(instruction(), senderUuid(), worldName(), replication(), position(), records, entities(), parameter(), flex());
+        return new Message(
+                instruction(),
+                senderUuid(),
+                worldName(),
+                replication(),
+                position(),
+                records,
+                copyList(entities(), Entity::copy),
+                parameter(),
+                copyByteBuffer(flex())
+        );
     }
 
     public Message withEntities(@Nullable List<Entity> entities) {
-        return new Message(instruction(), senderUuid(), worldName(), replication(), position(), records(), entities, parameter(), flex());
+        return new Message(
+                instruction(),
+                senderUuid(),
+                worldName(),
+                replication(),
+                position(),
+                copyList(records(), Record::copy),
+                entities,
+                parameter(),
+                copyByteBuffer(flex())
+        );
     }
 
     public Message withParameter(@Nullable String parameter) {
-        return new Message(instruction(), senderUuid(), worldName(), replication(), position(), records(), entities(), parameter, flex());
+        return new Message(
+                instruction(),
+                senderUuid(),
+                worldName(),
+                replication(),
+                position(),
+                copyList(records(), Record::copy),
+                copyList(entities(), Entity::copy),
+                parameter,
+                copyByteBuffer(flex())
+        );
     }
 
     public Message withFlex(@Nullable ByteBuffer flex) {
-        return new Message(instruction(), senderUuid(), worldName(), replication(), position(), records(), entities(), parameter(), flex);
+        return new Message(
+                instruction(),
+                senderUuid(),
+                worldName(),
+                replication(),
+                position(),
+                copyList(records(), Record::copy),
+                copyList(entities(), Entity::copy),
+                parameter(),
+                flex
+        );
     }
     // endregion
 
