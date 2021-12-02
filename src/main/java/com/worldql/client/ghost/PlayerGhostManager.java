@@ -9,8 +9,8 @@ import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
 
 import java.util.*;
 
@@ -39,14 +39,14 @@ public class PlayerGhostManager {
                             state.position().x(), state.position().y(), state.position().z()));
             ProtocolManager.sendJoinPacket(expiringEntityPlayer.grab());
             hashtableNPCs.put(playerUUID, expiringEntityPlayer);
-            integerNPCLookup.put(expiringEntityPlayer.grab().getId(), expiringEntityPlayer);
+            integerNPCLookup.put(expiringEntityPlayer.grab().ae(), expiringEntityPlayer);
         }
 
         EntityPlayer entity = expiringEntityPlayer.grab();
 
         if (state.parameter().equals("MinecraftPlayerQuit")) {
             ProtocolManager.sendLeavePacket(entity);
-            int npcId = hashtableNPCs.get(playerUUID).grab().getId();
+            int npcId = hashtableNPCs.get(playerUUID).grab().ae();
             hashtableNPCs.remove(playerUUID);
             integerNPCLookup.remove(npcId);
             playerNeedsGhosts.remove(playerUUID);
@@ -77,7 +77,7 @@ public class PlayerGhostManager {
         WorldServer world = ((CraftWorld) location.getWorld()).getHandle();
         GameProfile profile = new GameProfile(uuid, name);
         EntityPlayer npc = new EntityPlayer(server, world, profile);
-        npc.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+        npc.a(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
 
         return new ExpiringEntityPlayer(npc);
     }

@@ -15,8 +15,8 @@ import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -47,7 +47,7 @@ public class ProtocolManager {
                             Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(),
                                     () -> Bukkit.getPluginManager().callEvent(new OutgoingPlayerHitEvent(sender, entity.grab())));
 
-                            connection.sendPacket(new PacketPlayOutAnimation(entity.grab(), (byte) 1));
+                            connection.a(new PacketPlayOutAnimation(entity.grab(), (byte) 1));
                         }
                     }
                 }
@@ -86,40 +86,41 @@ public class ProtocolManager {
     public static void sendGenericPacket(Packet<?> packet) {
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
-            connection.sendPacket(packet);
+            connection.a(packet);
         }
     }
 
     public static void sendLeavePacket(EntityPlayer npc) {
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
-            connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.e, npc));
-            connection.sendPacket(new PacketPlayOutEntityDestroy(npc.getId()));
+            connection.a(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.e, npc));
+            connection.a(new PacketPlayOutEntityDestroy(npc.ae()));
         }
     }
 
     public static void sendJoinPacket(EntityPlayer npc) {
         // this is for the overlay skin data
-        DataWatcher watcher = npc.getDataWatcher();
+        DataWatcher watcher = npc.ai();
         byte b = 0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20 | 0x40;
-        watcher.set(DataWatcherRegistry.a.a(17), b);
+        // DataWatcher.set
+        watcher.b(DataWatcherRegistry.a.a(17), b);
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
-            connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, npc));
-            connection.sendPacket(new PacketPlayOutNamedEntitySpawn(npc));
-            connection.sendPacket(new PacketPlayOutEntityHeadRotation(npc, (byte) ((npc.getYRot() * 256) / 360)));
-            connection.sendPacket(new PacketPlayOutEntityMetadata(npc.getId(), watcher, true));
+            connection.a(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, npc));
+            connection.a(new PacketPlayOutNamedEntitySpawn(npc));
+            connection.a(new PacketPlayOutEntityHeadRotation(npc, (byte) ((npc.getBukkitYaw() * 256) / 360)));
+            connection.a(new PacketPlayOutEntityMetadata(npc.ae(), watcher, true));
         }
     }
 
     public static void sendJoinPacket(EntityPlayer npc, Player player) {
-        DataWatcher watcher = npc.getDataWatcher();
+        DataWatcher watcher = npc.ai();
         byte b = 0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20 | 0x40;
-        watcher.set(DataWatcherRegistry.a.a(17), b);
+        watcher.b(DataWatcherRegistry.a.a(17), b);
         PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
-        connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, npc));
-        connection.sendPacket(new PacketPlayOutNamedEntitySpawn(npc));
-        connection.sendPacket(new PacketPlayOutEntityHeadRotation(npc, (byte) ((npc.getYRot() * 256) / 360)));
-        connection.sendPacket(new PacketPlayOutEntityMetadata(npc.getId(), watcher, true));
+        connection.a(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, npc));
+        connection.a(new PacketPlayOutNamedEntitySpawn(npc));
+        connection.a(new PacketPlayOutEntityHeadRotation(npc, (byte) ((npc.getBukkitYaw() * 256) / 360)));
+        connection.a(new PacketPlayOutEntityMetadata(npc.ae(), watcher, true));
     }
 }

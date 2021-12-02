@@ -11,7 +11,7 @@ public class MinecraftPlayerMove {
     public static void process(Message state, EntityPlayer entity) {
         FlexBuffers.Map playerMessageMap = FlexBuffers.getRoot(state.flex()).asMap();
         float playerYaw = (float) playerMessageMap.get("yaw").asFloat();
-        entity.setLocation(
+        entity.a(
                 state.position().x(),
                 state.position().y(),
                 state.position().z(),

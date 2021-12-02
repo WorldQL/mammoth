@@ -18,13 +18,13 @@ public class MinecraftPlayerSingleAction {
         String action = playerMessageMap.get("action").asString();
         DataWatcher dw = new DataWatcher(null);
         if (action.equals("crouch")) {
-            dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.f);
-            PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(entity.getId(), dw, true);
+            dw.a(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.f);
+            PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(entity.ae(), dw, true);
             ProtocolManager.sendGenericPacket(packet);
         }
         if (action.equals("uncrouch")) {
-            dw.register(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.a);
-            PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(entity.getId(), dw, true);
+            dw.a(new DataWatcherObject<>(6, DataWatcherRegistry.s), EntityPose.a);
+            PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(entity.ae(), dw, true);
             ProtocolManager.sendGenericPacket(packet);
         }
         if (action.equals("punch")) {

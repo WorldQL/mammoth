@@ -1,6 +1,5 @@
 package com.worldql.client;
 
-import com.worldql.client.events.OutgoingPlayerHitEvent;
 import com.worldql.client.ghost.ExpiringEntityPlayer;
 import com.worldql.client.ghost.PlayerGhostManager;
 import io.netty.channel.Channel;
@@ -9,15 +8,11 @@ import io.netty.handler.codec.MessageToMessageDecoder;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
 import net.minecraft.server.network.PlayerConnection;
-import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class PacketReader {
     //public final Map<UUID, Channel> channels;
@@ -63,7 +58,7 @@ public class PacketReader {
              //           () -> Bukkit.getPluginManager().callEvent(new OutgoingPlayerHitEvent(playerId, player.getLocation().getDirection())));
 
                 PacketPlayOutAnimation damage = new PacketPlayOutAnimation(p.grab(), (byte) 1);
-                connection.sendPacket(damage);
+                connection.a(damage);
             }
             /*
             if (getValue(packet, "b").getClass().getName() == "net.minecraft.network.protocol.game.PacketPlayInUseEntity$d") {
