@@ -137,6 +137,7 @@ public class BlockTools {
 
                 if (copied != null && t != null) {
                     t.a(copied);
+                    b.getState().update();
                 }
             }
         }
