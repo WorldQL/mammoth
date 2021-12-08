@@ -1,4 +1,4 @@
-package com.worldql.client.listeners;
+package com.worldql.client.listeners.player;
 
 import com.worldql.client.listeners.utils.OutgoingMinecraftPlayerSingleAction;
 import org.bukkit.Location;

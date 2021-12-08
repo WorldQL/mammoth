@@ -1,4 +1,4 @@
-package com.worldql.client.listeners;
+package com.worldql.client.listeners.explosions;
 
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.serialization.*;
@@ -19,8 +19,9 @@ import java.util.UUID;
 public class EntityExplodeEventListener implements Listener {
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
-        // TODO: Remove this if game breaking.
-        e.setYield(0);
+
+
+        System.out.println("EntityExplodeEvent " + e.getEntityType());
 
         if (e.getEntity() instanceof TNTPrimed) {
             Entity causer = ((TNTPrimed) e.getEntity()).getSource();

@@ -1,4 +1,4 @@
-package com.worldql.client.listeners;
+package com.worldql.client.listeners.world;
 
 import WorldQLFB_OLD.StandardEvents.Vec3;
 import com.google.flatbuffers.FlatBufferBuilder;

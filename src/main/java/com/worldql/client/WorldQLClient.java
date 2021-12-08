@@ -1,7 +1,16 @@
 package com.worldql.client;
 
+import com.worldql.client.listeners.chunks.ChunkLoadEventListener;
+import com.worldql.client.listeners.chunks.ChunkUnloadEventListener;
+import com.worldql.client.listeners.explosions.EntityExplodeEventListener;
+import com.worldql.client.listeners.explosions.ExplosionPrimeEventListener;
+import com.worldql.client.listeners.explosions.TNTPrimeEventListener;
+import com.worldql.client.listeners.player.*;
+import com.worldql.client.listeners.world.InvestoryMoveEventListener;
+import com.worldql.client.listeners.world.PlayerBreakBlockListener;
+import com.worldql.client.listeners.world.PlayerEditSignListener;
+import com.worldql.client.listeners.world.PlayerPlaceBlockListener;
 import com.worldql.client.protocols.ProtocolManager;
-import com.worldql.client.serialization.Codec;
 import com.worldql.client.serialization.Instruction;
 import com.worldql.client.serialization.Message;
 import org.bukkit.Bukkit;
@@ -72,12 +81,14 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerShieldInteractListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerTeleportEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerLogOutListener(), this);
-        getServer().getPluginManager().registerEvents(new EntityExplodeEventListener(), this);
         // Sync broken and placed blocks.
         getServer().getPluginManager().registerEvents(new PlayerBreakBlockListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerPlaceBlockListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerEditSignListener(), this);
+
         getServer().getPluginManager().registerEvents(new TNTPrimeEventListener(), this);
+        getServer().getPluginManager().registerEvents(new ExplosionPrimeEventListener(), this);
+        getServer().getPluginManager().registerEvents(new EntityExplodeEventListener(), this);
 
         getServer().getPluginManager().registerEvents(new OutgoingPlayerHitListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerShootBowListener(), this);

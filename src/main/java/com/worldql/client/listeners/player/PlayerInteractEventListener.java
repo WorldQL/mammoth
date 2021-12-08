@@ -1,4 +1,4 @@
-package com.worldql.client.listeners;
+package com.worldql.client.listeners.player;
 
 import WorldQLFB_OLD.StandardEvents.Update;
 import WorldQLFB_OLD.StandardEvents.Vec3;

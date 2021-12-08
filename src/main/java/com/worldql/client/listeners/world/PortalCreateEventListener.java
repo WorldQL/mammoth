@@ -1,8 +1,9 @@
-package com.worldql.client.listeners;
+package com.worldql.client.listeners.world;
 
 import WorldQLFB_OLD.StandardEvents.Update;
 import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.WorldQLClient;
+import com.worldql.client.listeners.world.PlayerBreakBlockListener;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;

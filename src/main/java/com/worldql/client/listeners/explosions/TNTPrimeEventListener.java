@@ -1,4 +1,4 @@
-package com.worldql.client.listeners;
+package com.worldql.client.listeners.explosions;
 
 import com.destroystokyo.paper.event.block.TNTPrimeEvent;
 import com.worldql.client.WorldQLClient;

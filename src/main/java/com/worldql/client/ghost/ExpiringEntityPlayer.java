@@ -7,6 +7,11 @@ import net.minecraft.server.level.EntityPlayer;
 
 import java.time.Instant;
 
+// TODO: Actually implement this class and allow entities to expire.
+/* The use case for this is players walking outside of the subscription range of a server.
+They won't get a nice clean PlayerDisconnectEvent. They will simply stop getting updated. We should create a scheduled
+task which loops over the entity players and prunes expired ones.
+ */
 public class ExpiringEntityPlayer {
     private long lastAccessed;
     private final EntityPlayer entityPlayer;

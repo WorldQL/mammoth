@@ -16,7 +16,7 @@ import zmq.ZMQ;
 import java.io.IOException;
 import java.util.Objects;
 
-import static com.worldql.client.listeners.PlayerBreakBlockListener.createRoundedVec3;
+import static com.worldql.client.listeners.world.PlayerBreakBlockListener.createRoundedVec3;
 
 public class NoRepeatBlockBreak {
     public static void sendInitBlockBreakMessage(BlockBreakEvent event) {

@@ -1,4 +1,4 @@
-package com.worldql.client.listeners;
+package com.worldql.client.listeners.world;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

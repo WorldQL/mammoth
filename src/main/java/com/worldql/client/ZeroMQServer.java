@@ -1,9 +1,9 @@
 package com.worldql.client;
 
 import com.worldql.client.ghost.PlayerGhostManager;
-import com.worldql.client.listeners.PlayerChatListener;
-import com.worldql.client.listeners.PlayerDeathListener;
-import com.worldql.client.listeners.PlayerLogOutListener;
+import com.worldql.client.listeners.player.PlayerChatListener;
+import com.worldql.client.listeners.player.PlayerDeathListener;
+import com.worldql.client.listeners.player.PlayerLogOutListener;
 import com.worldql.client.listeners.utils.BlockTools;
 import com.worldql.client.serialization.Instruction;
 import com.worldql.client.serialization.Message;

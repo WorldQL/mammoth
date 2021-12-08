@@ -1,4 +1,4 @@
-package com.worldql.client.listeners;
+package com.worldql.client.listeners.chunks;
 
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.serialization.Instruction;

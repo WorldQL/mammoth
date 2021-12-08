@@ -4,7 +4,7 @@ import com.google.flatbuffers.FlexBuffers;
 import com.google.flatbuffers.FlexBuffersBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.worldql.client.WorldQLClient;
-import com.worldql.client.listeners.PlayerBreakBlockListener;
+import com.worldql.client.listeners.world.PlayerBreakBlockListener;
 import com.worldql.client.serialization.Codec;
 import com.worldql.client.serialization.Record;
 import com.worldql.client.serialization.Vec3D;
