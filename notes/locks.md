@@ -16,7 +16,7 @@ We lock inventories to a single player at once.
 ### What happens when redstone current changes in a block? How is redstone synced?
 We use a strategy called "mark and sync" which follows this process:
 1. Acquire a "redstone lock" on the chunk.
-2. Redstone happens on the host MC server. It keeps an in-memory hashmap of the list of blocks that are effected by the redstone operation.
+2. Redstone happens on the host MC server. It keeps an in-memory list of blocks that are effected by the redstone operation.
 3. Every 1000ms, get the NBT data for every changed block and send a RecordCreate + LocalMessage with "MinecraftBlockUpdate".
 4. The redstone lock is naturally released when the key expires.
 
