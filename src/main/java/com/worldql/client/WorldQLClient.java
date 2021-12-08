@@ -87,6 +87,8 @@ public class WorldQLClient extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new NotImplementedCanceller(), this);
 
+        getServer().getPluginManager().registerEvents(new InvestoryMoveEventListener(), this);
+
         /*
 
         getServer().getPluginManager().registerEvents(new PortalCreateEventListener(), this);

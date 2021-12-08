@@ -1,5 +1,5 @@
 # Mammoth: Horizontally scalable Minecraft server
-### Warning: this is extremely incomplete and not intended for use
+### Warning: this README is very outdated and will be updated ASAP
 ### A WorldQL plugin for Spigot-based servers
 
 ## What is WorldQL?
