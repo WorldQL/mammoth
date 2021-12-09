@@ -59,6 +59,7 @@ public class PlayerInteractEventListener implements Listener {
             (new BukkitRunnable() {
                 @Override
                 public void run() {
+                    // We could also do this with getTileEntity but the Bukkit API is preferred over nms.
                     List<Entity> entities = e.getPlayer().getNearbyEntities(4, 4, 4);
                     for (Entity entity : entities) {
                         if (EntityType.ENDER_CRYSTAL == entity.getType()) {
@@ -66,6 +67,11 @@ public class PlayerInteractEventListener implements Listener {
                             Block belowCrystal = crystal.getLocation().getBlock().getRelative(BlockFace.DOWN);
                             if (e.getClickedBlock().equals(belowCrystal)) {
                                 System.out.println("WE PLACED AN END CRYSTAL");
+                                OutgoingMinecraftPlayerSingleAction.sendPlaceEndCrystalPacket(
+                                        e.getPlayer().getWorld(),
+                                        crystal.getLocation()
+                                );
+                                return;
                             }
                         }
                     }

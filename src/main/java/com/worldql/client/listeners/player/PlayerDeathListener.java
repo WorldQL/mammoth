@@ -3,11 +3,15 @@ package com.worldql.client.listeners.player;
 import com.google.flatbuffers.FlexBuffers;
 import com.google.flatbuffers.FlexBuffersBuilder;
 import com.worldql.client.WorldQLClient;
+import com.worldql.client.ghost.PlayerGhostManager;
 import com.worldql.client.listeners.utils.ItemTools;
+import com.worldql.client.protocols.ProtocolManager;
 import com.worldql.client.serialization.Codec;
 import com.worldql.client.serialization.Instruction;
 import com.worldql.client.serialization.Message;
 import com.worldql.client.serialization.Replication;
+import net.minecraft.network.protocol.game.PacketPlayOutEntityTeleport;
+import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Server;
@@ -89,6 +93,14 @@ public class PlayerDeathListener implements Listener {
         if (!map.get("killer").isNull()) {
             killerUuid = UUID.fromString(map.get("killer").asString());
         }
+
+        // yeet the player below the map so it looks like they "died"
+        // TODO: Maybe play a death animation.
+        EntityPlayer entityPlayer = PlayerGhostManager.hashtableNPCs.get(UUID.fromString(map.get("uuid").asString())).grab();
+        entityPlayer.a(
+                0.0, -50.0, 0.0, 0, 0
+        );
+        ProtocolManager.sendGenericPacket(new PacketPlayOutEntityTeleport(entityPlayer));
 
         if (killerUuid != null) {
             // For lambda

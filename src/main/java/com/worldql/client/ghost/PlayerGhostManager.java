@@ -16,7 +16,7 @@ import java.util.*;
 
 public class PlayerGhostManager {
 
-    private static final Hashtable<UUID, ExpiringEntityPlayer> hashtableNPCs = new Hashtable<>();
+    public static final Hashtable<UUID, ExpiringEntityPlayer> hashtableNPCs = new Hashtable<>();
     public static final Hashtable<Integer, ExpiringEntityPlayer> integerNPCLookup = new Hashtable<>();
 
     public static void updateNPC(Message state) {

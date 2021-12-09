@@ -8,5 +8,7 @@ public class ExplosionPrimeEventListener implements Listener {
     @EventHandler
     public void onExplosionPrime(ExplosionPrimeEvent e) {
         System.out.println(e.getRadius());
+        // TODO: Use this to send cross server explosions instead of EntityExplodeEvent as this gives access to radius.
+        
     }
 }

@@ -8,6 +8,7 @@ import com.worldql.client.listeners.utils.BlockTools;
 import com.worldql.client.serialization.Instruction;
 import com.worldql.client.serialization.Message;
 import com.worldql.client.serialization.Replication;
+import org.bukkit.block.Block;
 import org.bukkit.plugin.Plugin;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
@@ -69,6 +70,10 @@ public class ZeroMQServer implements Runnable {
                 if (incoming.instruction() == Instruction.LocalMessage) {
                     if (incoming.parameter().equals("MinecraftBlockUpdate")) {
                         BlockTools.setRecords(incoming.records(), isSelf);
+                        continue;
+                    }
+                    if (incoming.parameter().equals("MinecraftEndCrystalCreate")) {
+                        BlockTools.createEndCrystal(incoming.position(), incoming.worldName());
                         continue;
                     }
                     if (incoming.parameter().startsWith("MinecraftPlayer")) {

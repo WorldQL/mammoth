@@ -19,6 +19,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
+import org.bukkit.entity.EnderCrystal;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -164,6 +165,18 @@ public class BlockTools {
                 Location tntLocation = new Location(w, position. x(), position.y(), position.z());
                 TNTPrimed tnt = w.spawn(tntLocation, TNTPrimed.class);
                 w.getBlockAt(tntLocation).setType(Material.AIR);
+
+            }
+        }.runTask(WorldQLClient.pluginInstance);
+    }
+
+    public static void createEndCrystal(Vec3D position, String worldName) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                World w = Bukkit.getWorld(worldName);
+                Location location = new Location(w, position. x(), position.y(), position.z());
+                w.spawn(location, EnderCrystal.class);
 
             }
         }.runTask(WorldQLClient.pluginInstance);
