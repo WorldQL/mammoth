@@ -28,7 +28,6 @@ public class ChunkLoadEventListener implements Listener {
 
         int min_height = chunk.getWorld().getMinHeight();
         int max_height = chunk.getWorld().getMaxHeight();
-        int middle = (min_height + max_height) / 2;
 
         String parameter = null;
         if (seenChunks.containsKey(chunk)) {
@@ -41,7 +40,7 @@ public class ChunkLoadEventListener implements Listener {
                 WorldQLClient.worldQLClientId,
                 chunk.getWorld().getName(),
                 Replication.ExceptSelf,
-                new Vec3D(x, middle, z),
+                new Vec3D(x, 0, z),
                 null,
                 null,
                 parameter,
@@ -49,6 +48,25 @@ public class ChunkLoadEventListener implements Listener {
         );
 
         WorldQLClient.getPluginInstance().getPushSocket().send(recordMessage.encode(), ZMQ.ZMQ_DONTWAIT);
+
+        // Handle Y=-1 to Y=-256
+        if (min_height < 0) {
+            Vec3D belowZero = new Vec3D(x, -1, z);
+            Message belowZeroMessage = recordMessage.withPosition(belowZero);
+            WorldQLClient.getPluginInstance().getLogger().info("BELOW ZERO");
+
+            WorldQLClient.getPluginInstance().getPushSocket().send(belowZeroMessage.encode(), ZMQ.ZMQ_DONTWAIT);
+        }
+
+        // Handle Y=256 to Y=511
+        if (max_height > 256) {
+            Vec3D aboveWorld = new Vec3D(x, 256, z);
+            Message aboveWorldMessage = recordMessage.withPosition(aboveWorld);
+            WorldQLClient.getPluginInstance().getLogger().info("ABOVE WORLD");
+
+            WorldQLClient.getPluginInstance().getPushSocket().send(aboveWorldMessage.encode(), ZMQ.ZMQ_DONTWAIT);
+        }
+
         seenChunks.put(chunk, System.currentTimeMillis());
 
         for (int i = min_height; i <= max_height; i += 16) {
