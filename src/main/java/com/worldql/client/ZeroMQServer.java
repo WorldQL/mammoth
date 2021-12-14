@@ -15,6 +15,11 @@ import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQException;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 public class ZeroMQServer implements Runnable {
     private final Plugin plugin;
     private final ZContext context;
@@ -65,6 +70,16 @@ public class ZeroMQServer implements Runnable {
                     if (incoming.parameter().equals("MinecraftPlayerDeath")) {
                         PlayerDeathListener.handleIncomingDeath(incoming, isSelf);
                     }
+
+                    if (incoming.parameter().equals("WorldGuardPlayerClaimRegion")) {
+                        System.out.println("Decode like this...");
+                        System.out.println(StandardCharsets.UTF_8.decode(incoming.flex()));
+                        System.out.println("Not like this...");
+                        System.out.println(new String(incoming.flex().array(), StandardCharsets.UTF_8));
+
+                        System.out.println("WTF??");
+
+                    }
                 }
 
                 if (incoming.instruction() == Instruction.LocalMessage) {
@@ -99,8 +114,10 @@ public class ZeroMQServer implements Runnable {
                 }
 
             } catch (ZMQException e) {
-                if (e.getErrorCode() == ZMQ.Error.ETERM.getCode()) {
-                    break;
+                if (e instanceof ZMQException) {
+                    if (((ZMQException) e).getErrorCode() == ZMQ.Error.ETERM.getCode()) {
+                        break;
+                    }
                 }
             }
         }
