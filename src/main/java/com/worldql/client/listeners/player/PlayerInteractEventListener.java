@@ -1,17 +1,7 @@
 package com.worldql.client.listeners.player;
 
-import WorldQLFB_OLD.StandardEvents.Update;
-import WorldQLFB_OLD.StandardEvents.Vec3;
-import com.google.flatbuffers.FlatBufferBuilder;
-import com.google.flatbuffers.FlexBuffersBuilder;
-import com.worldql.client.Messages.Instruction;
-import com.worldql.client.Messages.Message;
-import com.worldql.client.Messages.Vec3d;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.listeners.utils.OutgoingMinecraftPlayerSingleAction;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.level.block.entity.TileEntity;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -23,11 +13,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import zmq.ZMQ;
 
-import java.nio.ByteBuffer;
 import java.util.List;
 
 public class PlayerInteractEventListener implements Listener {

@@ -1,13 +1,12 @@
 package com.worldql.client.listeners.world;
 
-import WorldQLFB_OLD.StandardEvents.Vec3;
-import com.google.flatbuffers.FlatBufferBuilder;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.listeners.utils.BlockTools;
 import com.worldql.client.serialization.Record;
 import com.worldql.client.serialization.*;
 import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
@@ -20,8 +19,11 @@ public class PlayerBreakBlockListener implements Listener {
     public static final ItemStack[] NO_DROPS = new ItemStack[0];
     public static final Set<UUID> pendingDrops = Collections.synchronizedSet(new HashSet<>());
 
-    @EventHandler
+    @EventHandler(priority= EventPriority.LOW)
     public void onPlayerBreakBlockEvent(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         ItemStack[] drops;
         if (e.isDropItems() && !e.getPlayer().getGameMode().equals(GameMode.CREATIVE)) {
             drops = e.getBlock().getDrops().toArray(new ItemStack[0]);
@@ -58,8 +60,4 @@ public class PlayerBreakBlockListener implements Listener {
         WorldQLClient.getPluginInstance().getPushSocket().send(recordMessage.encode(), ZMQ.ZMQ_DONTWAIT);
     }
 
-    @Deprecated
-    public static int createRoundedVec3(FlatBufferBuilder builder, double x, double y, double z) {
-        return Vec3.createVec3(builder, Math.round(x), Math.round(y), Math.round(z));
-    }
 }

@@ -14,6 +14,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
@@ -26,8 +27,11 @@ import java.util.UUID;
 
 public class PlayerPlaceBlockListener implements Listener {
 
-    @EventHandler
+    @EventHandler(priority= EventPriority.LOW)
     public void onPlayerPlaceBlockEvent(BlockPlaceEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         // TODO: Handle compound blocks (beds, doors) and joined blocks (fences, glass panes)
         Record placedBlock = BlockTools.serializeBlock(e.getBlockPlaced());
 

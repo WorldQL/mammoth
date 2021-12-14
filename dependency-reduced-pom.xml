@@ -67,6 +67,12 @@
       <version>7.0.5</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.sk89q.worldedit</groupId>
+      <artifactId>worldedit-bukkit</artifactId>
+      <version>7.2.8-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <properties>
     <maven.compiler.target>17</maven.compiler.target>

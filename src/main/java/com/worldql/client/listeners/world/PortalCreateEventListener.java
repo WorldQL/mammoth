@@ -1,23 +1,16 @@
 package com.worldql.client.listeners.world;
 
-import WorldQLFB_OLD.StandardEvents.Update;
-import com.google.flatbuffers.FlatBufferBuilder;
-import com.worldql.client.WorldQLClient;
-import com.worldql.client.listeners.world.PlayerBreakBlockListener;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.BlockState;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.world.PortalCreateEvent;
-import zmq.ZMQ;
 
 public class PortalCreateEventListener implements Listener {
     @EventHandler
     public void onPortalCreate(PortalCreateEvent e) {
-        WorldQLClient.getPluginInstance().getLogger().info(String.valueOf(e.getReason()));
-        //WorldQLClient.logger.info("!!!");
+        // TODO: Implement.
+        /*WorldQLClient.getPluginInstance().getLogger().info(String.valueOf(e.getReason()));
+        WorldQLClient.logger.info("!!!");
         for (final BlockState b : e.getBlocks()) {
             //WorldQLClient.logger.info(b.getBlockData().getMaterial().toString());
             if (b.getBlockData().getMaterial().equals(Material.NETHER_PORTAL) || b.getBlockData().getMaterial().equals(Material.OBSIDIAN)) {
@@ -44,6 +37,8 @@ public class PortalCreateEventListener implements Listener {
                 WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
             }
         }
+
+         */
     }
 
 
