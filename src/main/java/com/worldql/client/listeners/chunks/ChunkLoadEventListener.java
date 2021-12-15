@@ -53,8 +53,6 @@ public class ChunkLoadEventListener implements Listener {
         if (min_height < 0) {
             Vec3D belowZero = new Vec3D(x, -1, z);
             Message belowZeroMessage = recordMessage.withPosition(belowZero);
-            WorldQLClient.getPluginInstance().getLogger().info("BELOW ZERO");
-
             WorldQLClient.getPluginInstance().getPushSocket().send(belowZeroMessage.encode(), ZMQ.ZMQ_DONTWAIT);
         }
 
@@ -62,8 +60,6 @@ public class ChunkLoadEventListener implements Listener {
         if (max_height > 256) {
             Vec3D aboveWorld = new Vec3D(x, 256, z);
             Message aboveWorldMessage = recordMessage.withPosition(aboveWorld);
-            WorldQLClient.getPluginInstance().getLogger().info("ABOVE WORLD");
-
             WorldQLClient.getPluginInstance().getPushSocket().send(aboveWorldMessage.encode(), ZMQ.ZMQ_DONTWAIT);
         }
 

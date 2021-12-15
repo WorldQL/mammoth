@@ -14,6 +14,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
@@ -26,8 +27,11 @@ import java.util.UUID;
 
 public class PlayerPlaceBlockListener implements Listener {
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerPlaceBlockEvent(BlockPlaceEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         // TODO: Handle compound blocks (beds, doors) and joined blocks (fences, glass panes)
         Record placedBlock = BlockTools.serializeBlock(e.getBlockPlaced());
 
@@ -51,9 +55,8 @@ public class PlayerPlaceBlockListener implements Listener {
         WorldQLClient.getPluginInstance().getPushSocket().send(localMessage.encode(), ZMQ.ZMQ_DONTWAIT);
 
 
-
         // Update hand visual if they ran out of blocks in their hand.
-        if (e.getPlayer().getInventory().getItemInMainHand().getAmount() -1 <= 0)
+        if (e.getPlayer().getInventory().getItemInMainHand().getAmount() - 1 <= 0)
             Bukkit.getPluginManager().callEvent(new PlayerHoldEvent(e.getPlayer(), new ItemStack(Material.AIR), PlayerHoldEvent.HandType.MAINHAND));
     }
 }
