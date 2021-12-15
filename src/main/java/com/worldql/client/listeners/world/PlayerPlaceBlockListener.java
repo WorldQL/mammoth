@@ -27,7 +27,7 @@ import java.util.UUID;
 
 public class PlayerPlaceBlockListener implements Listener {
 
-    @EventHandler(priority= EventPriority.LOW)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerPlaceBlockEvent(BlockPlaceEvent e) {
         if (e.isCancelled()) {
             return;
@@ -55,9 +55,8 @@ public class PlayerPlaceBlockListener implements Listener {
         WorldQLClient.getPluginInstance().getPushSocket().send(localMessage.encode(), ZMQ.ZMQ_DONTWAIT);
 
 
-
         // Update hand visual if they ran out of blocks in their hand.
-        if (e.getPlayer().getInventory().getItemInMainHand().getAmount() -1 <= 0)
+        if (e.getPlayer().getInventory().getItemInMainHand().getAmount() - 1 <= 0)
             Bukkit.getPluginManager().callEvent(new PlayerHoldEvent(e.getPlayer(), new ItemStack(Material.AIR), PlayerHoldEvent.HandType.MAINHAND));
     }
 }

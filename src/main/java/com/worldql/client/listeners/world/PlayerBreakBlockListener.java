@@ -19,7 +19,7 @@ public class PlayerBreakBlockListener implements Listener {
     public static final ItemStack[] NO_DROPS = new ItemStack[0];
     public static final Set<UUID> pendingDrops = Collections.synchronizedSet(new HashSet<>());
 
-    @EventHandler(priority= EventPriority.LOW)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerBreakBlockEvent(BlockBreakEvent e) {
         if (e.isCancelled()) {
             return;
