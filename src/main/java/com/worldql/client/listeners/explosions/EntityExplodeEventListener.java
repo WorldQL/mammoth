@@ -19,10 +19,6 @@ import java.util.UUID;
 public class EntityExplodeEventListener implements Listener {
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
-
-
-        System.out.println("EntityExplodeEvent " + e.getEntityType());
-
         if (e.getEntity() instanceof TNTPrimed) {
             Entity causer = ((TNTPrimed) e.getEntity()).getSource();
             if (causer == null) {
@@ -65,23 +61,7 @@ public class EntityExplodeEventListener implements Listener {
         Message localMessage = message.withInstruction(Instruction.LocalMessage);
         WorldQLClient.getPluginInstance().getPushSocket().send(localMessage.encode(), ZMQ.ZMQ_DONTWAIT);
 
-        // Send a message to create an explosion effect on the other server too :)
-        // This is another LocalMessage to be passed to other MinecraftServers, but with the parameter
-        // "MinecraftExplosion" instead of "MinecraftBlockUpdate". Parameters do not define behavior in any
-        // special way. They are simply passed to the client and can be processed like any string.
-
-        Message explosionMessage = new Message(
-                Instruction.LocalMessage,
-                WorldQLClient.worldQLClientId,
-                e.getLocation().getWorld().getName(),
-                Replication.ExceptSelf,
-                new Vec3D(e.getLocation()),
-                null,
-                null,
-                "MinecraftExplosion",
-                null
-        );
-        WorldQLClient.getPluginInstance().getPushSocket().send(explosionMessage.encode(), ZMQ.ZMQ_DONTWAIT);
+        // The actual explosion is sent in ExplosionPrimeEventListener
 
         // See ZeroMQServer for the class that receives the messages this one creates.
 

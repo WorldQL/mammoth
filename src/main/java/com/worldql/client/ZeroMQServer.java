@@ -1,5 +1,6 @@
 package com.worldql.client;
 
+import com.google.flatbuffers.FlexBuffers;
 import com.worldql.client.ghost.PlayerGhostManager;
 import com.worldql.client.listeners.player.PlayerChatListener;
 import com.worldql.client.listeners.player.PlayerDeathListener;
@@ -80,7 +81,8 @@ public class ZeroMQServer implements Runnable {
                     }
                     if (incoming.parameter().equals("MinecraftExplosion")) {
                         WorldQLClient.getPluginInstance().getLogger().info("Got incoming explosion");
-                        BlockTools.createExplosion(incoming.position(), incoming.worldName());
+                        float radius = (float) FlexBuffers.getRoot(incoming.flex()).asMap().get("radius").asFloat();
+                        BlockTools.createExplosion(incoming.position(), incoming.worldName(), radius);
                     }
                     if (incoming.parameter().equals("MinecraftPrimeTNT")) {
                         BlockTools.createPrimedTNT(incoming.position(), incoming.worldName());

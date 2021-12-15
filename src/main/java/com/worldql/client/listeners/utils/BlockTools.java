@@ -144,14 +144,14 @@ public class BlockTools {
         }
     }
 
-    public static void createExplosion(Vec3D position, String worldName) {
+    public static void createExplosion(Vec3D position, String worldName, float radius) {
         new BukkitRunnable() {
             @Override
             public void run() {
                 World w = Bukkit.getWorld(worldName);
                 w.createExplosion(
                         position.x(), position.y(), position.z(),
-                        4.0F, false, false);
+                        radius, false, false);
 
             }
         }.runTask(WorldQLClient.pluginInstance);

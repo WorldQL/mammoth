@@ -1,14 +1,40 @@
 package com.worldql.client.listeners.explosions;
 
+import com.google.flatbuffers.FlexBuffersBuilder;
+import com.worldql.client.WorldQLClient;
+import com.worldql.client.serialization.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
+import zmq.ZMQ;
+
+import java.nio.ByteBuffer;
 
 public class ExplosionPrimeEventListener implements Listener {
     @EventHandler
     public void onExplosionPrime(ExplosionPrimeEvent e) {
-        System.out.println(e.getRadius());
-        // TODO: Use this to send cross server explosions instead of EntityExplodeEvent as this gives access to radius.
-        
+        // Send a message to create an explosion effect on the other server too :)
+        // This is another LocalMessage to be passed to other MinecraftServers, but with the parameter
+        // "MinecraftExplosion" instead of "MinecraftBlockUpdate". Parameters do not define behavior in any
+        // special way. They are simply passed to the client and can be processed like any string.
+
+        FlexBuffersBuilder b = Codec.getFlexBuilder();
+        int pmap = b.startMap();
+        b.putFloat("radius", e.getRadius());
+        b.endMap(null, pmap);
+        ByteBuffer bb = b.finish();
+
+        Message explosionMessage = new Message(
+                Instruction.LocalMessage,
+                WorldQLClient.worldQLClientId,
+                e.getEntity().getWorld().getName(),
+                Replication.ExceptSelf,
+                new Vec3D(e.getEntity().getLocation()),
+                null,
+                null,
+                "MinecraftExplosion",
+                bb
+        );
+        WorldQLClient.getPluginInstance().getPushSocket().send(explosionMessage.encode(), ZMQ.ZMQ_DONTWAIT);
     }
 }
