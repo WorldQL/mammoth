@@ -2,9 +2,6 @@ name: WorldQLClient
 version: 1.0
 api-version: 1.16
 main: com.worldql.client.WorldQLClient
-softdepend:
-  - WorldGuard
-  - WorldEdit
 commands:
   refreshworld:
     description: Pull and apply all block actions from database;

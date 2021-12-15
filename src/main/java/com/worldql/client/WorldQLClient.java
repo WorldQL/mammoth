@@ -1,12 +1,7 @@
 package com.worldql.client;
 
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import com.sk89q.worldguard.protection.regions.RegionContainer;
+import com.worldql.client.listeners.NotImplementedCanceller;
+import com.worldql.client.listeners.OutgoingPlayerHitListener;
 import com.worldql.client.listeners.chunks.ChunkLoadEventListener;
 import com.worldql.client.listeners.chunks.ChunkUnloadEventListener;
 import com.worldql.client.listeners.explosions.EntityExplodeEventListener;
@@ -21,9 +16,6 @@ import com.worldql.client.protocols.ProtocolManager;
 import com.worldql.client.serialization.Instruction;
 import com.worldql.client.serialization.Message;
 import org.bukkit.Bukkit;
-
-import com.worldql.client.listeners.*;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.zeromq.SocketType;
@@ -116,25 +108,6 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BlockDropItemEventListener(), this);
 
          */
-
-        try {
-            // TODO: Load from config file.
-            World world = Bukkit.getWorld("world");
-            RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-            RegionManager regions = container.get(BukkitAdapter.adapt(world));
-
-            ProtectedRegion r = regions.getRegion("default_deny_area");
-            if (r == null) {
-                BlockVector3 min = BlockVector3.at(-2000, world.getMinHeight(), -2000);
-                BlockVector3 max = BlockVector3.at(2000, world.getMaxHeight(), 2000);
-                r = new ProtectedCuboidRegion("default_deny_area", min, max);
-                regions.addRegion(r);
-            }
-            WorldQLClient.getPluginInstance().getLogger().info("Created default WorldGuard protection region.");
-
-        } catch (Exception e) {
-            System.out.println("Did not initialize default protected WorldGuard region.");
-        }
 
         zeroMQThread = new Thread(new ZeroMQServer(this, context, selfHostname));
         zeroMQThread.start();
