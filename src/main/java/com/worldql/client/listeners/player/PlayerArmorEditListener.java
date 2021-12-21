@@ -3,7 +3,7 @@ package com.worldql.client.listeners.player;
 import com.google.flatbuffers.FlexBuffersBuilder;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.events.PlayerArmorEditEvent;
-import com.worldql.client.serialization.*;
+import com.worldql.client.worldql_serialization.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Dispenser;

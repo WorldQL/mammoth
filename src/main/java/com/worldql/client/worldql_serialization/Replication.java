@@ -1,4 +1,4 @@
-package com.worldql.client.serialization;
+package com.worldql.client.worldql_serialization;
 
 public enum Replication {
     ExceptSelf(com.worldql.client.Messages.Replication.ExceptSelf),

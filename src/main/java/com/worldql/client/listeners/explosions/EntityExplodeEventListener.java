@@ -1,8 +1,8 @@
 package com.worldql.client.listeners.explosions;
 
 import com.worldql.client.WorldQLClient;
-import com.worldql.client.serialization.*;
-import com.worldql.client.serialization.Record;
+import com.worldql.client.worldql_serialization.*;
+import com.worldql.client.worldql_serialization.Record;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.TNTPrimed;

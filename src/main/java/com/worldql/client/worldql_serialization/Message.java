@@ -1,4 +1,4 @@
-package com.worldql.client.serialization;
+package com.worldql.client.worldql_serialization;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -7,8 +7,8 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.UUID;
 
-import static com.worldql.client.serialization.Codec.copyByteBuffer;
-import static com.worldql.client.serialization.Codec.copyList;
+import static com.worldql.client.worldql_serialization.Codec.copyByteBuffer;
+import static com.worldql.client.worldql_serialization.Codec.copyList;
 
 public record Message(
         Instruction instruction,

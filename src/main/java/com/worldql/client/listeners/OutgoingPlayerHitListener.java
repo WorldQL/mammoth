@@ -3,7 +3,7 @@ package com.worldql.client.listeners;
 import com.google.flatbuffers.FlexBuffersBuilder;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.events.OutgoingPlayerHitEvent;
-import com.worldql.client.serialization.*;
+import com.worldql.client.worldql_serialization.*;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Entity;

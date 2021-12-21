@@ -1,4 +1,4 @@
-package com.worldql.client.serialization;
+package com.worldql.client.worldql_serialization;
 
 public enum Instruction {
     Heartbeat(com.worldql.client.Messages.Instruction.Heartbeat),

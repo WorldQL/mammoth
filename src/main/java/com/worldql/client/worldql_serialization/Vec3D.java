@@ -1,4 +1,4 @@
-package com.worldql.client.serialization;
+package com.worldql.client.worldql_serialization;
 
 import com.worldql.client.Messages.Vec3d;
 import org.bukkit.Location;

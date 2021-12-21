@@ -4,11 +4,10 @@ import com.google.flatbuffers.FlexBuffers;
 import com.worldql.client.ghost.PlayerGhostManager;
 import com.worldql.client.listeners.player.PlayerChatListener;
 import com.worldql.client.listeners.player.PlayerDeathListener;
-import com.worldql.client.listeners.player.PlayerLogOutListener;
 import com.worldql.client.listeners.utils.BlockTools;
-import com.worldql.client.serialization.Instruction;
-import com.worldql.client.serialization.Message;
-import com.worldql.client.serialization.Replication;
+import com.worldql.client.worldql_serialization.Instruction;
+import com.worldql.client.worldql_serialization.Message;
+import com.worldql.client.worldql_serialization.Replication;
 import org.bukkit.plugin.Plugin;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
@@ -53,7 +52,7 @@ public class ZeroMQServer implements Runnable {
                 boolean isSelf = incoming.senderUuid().equals(WorldQLClient.worldQLClientId);
 
                 if (incoming.instruction() == Instruction.Handshake) {
-                    WorldQLClient.getPluginInstance().getLogger().info("Response from WorldQL handshake: " + incoming.parameter());
+                    WorldQLClient.getPluginInstance().getLogger().info("Got response from WorldQL handshake!" + incoming.parameter());
                     continue;
                 }
 
@@ -90,12 +89,8 @@ public class ZeroMQServer implements Runnable {
                 }
 
                 if (incoming.instruction() == Instruction.RecordReply) {
-                    if (incoming.worldName().equals("inventory")) {
-                        PlayerLogOutListener.setInventories(incoming.records());
-                    } else {
-                        if (!incoming.records().isEmpty()) {
-                            BlockTools.setRecords(incoming.records(), false);
-                        }
+                    if (!incoming.records().isEmpty()) {
+                        BlockTools.setRecords(incoming.records(), false);
                     }
                 }
 

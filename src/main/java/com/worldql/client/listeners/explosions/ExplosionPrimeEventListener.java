@@ -2,7 +2,7 @@ package com.worldql.client.listeners.explosions;
 
 import com.google.flatbuffers.FlexBuffersBuilder;
 import com.worldql.client.WorldQLClient;
-import com.worldql.client.serialization.*;
+import com.worldql.client.worldql_serialization.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ExplosionPrimeEvent;

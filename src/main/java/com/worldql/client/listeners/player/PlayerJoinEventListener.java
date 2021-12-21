@@ -4,7 +4,7 @@ import com.google.flatbuffers.FlexBuffersBuilder;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.ghost.PlayerGhostManager;
 import com.worldql.client.protocols.ProtocolManager;
-import com.worldql.client.serialization.*;
+import com.worldql.client.worldql_serialization.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

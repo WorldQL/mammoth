@@ -3,7 +3,7 @@ package com.worldql.client.ghost;
 import com.google.flatbuffers.FlexBuffers;
 import com.mojang.authlib.GameProfile;
 import com.worldql.client.protocols.*;
-import com.worldql.client.serialization.Message;
+import com.worldql.client.worldql_serialization.Message;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;

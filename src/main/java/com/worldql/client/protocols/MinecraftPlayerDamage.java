@@ -3,7 +3,7 @@ package com.worldql.client.protocols;
 import com.google.flatbuffers.FlexBuffers;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.ghost.ExpiringEntityPlayer;
-import com.worldql.client.serialization.Message;
+import com.worldql.client.worldql_serialization.Message;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;

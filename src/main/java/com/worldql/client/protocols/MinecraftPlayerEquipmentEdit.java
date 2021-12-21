@@ -2,7 +2,7 @@ package com.worldql.client.protocols;
 
 import com.google.flatbuffers.FlexBuffers;
 import com.mojang.datafixers.util.Pair;
-import com.worldql.client.serialization.Message;
+import com.worldql.client.worldql_serialization.Message;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityEquipment;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.EnumItemSlot;

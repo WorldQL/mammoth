@@ -13,14 +13,15 @@ import com.worldql.client.listeners.world.PlayerBreakBlockListener;
 import com.worldql.client.listeners.world.PlayerEditSignListener;
 import com.worldql.client.listeners.world.PlayerPlaceBlockListener;
 import com.worldql.client.protocols.ProtocolManager;
-import com.worldql.client.serialization.Instruction;
-import com.worldql.client.serialization.Message;
+import com.worldql.client.worldql_serialization.Instruction;
+import com.worldql.client.worldql_serialization.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
+import redis.clients.jedis.JedisPool;
 
 import java.util.UUID;
 
@@ -28,10 +29,10 @@ import java.util.UUID;
 public class WorldQLClient extends JavaPlugin {
     public static WorldQLClient pluginInstance;
     public static UUID worldQLClientId;
+    public static JedisPool pool;
     private Thread zeroMQThread;
     private ZContext context;
     private ZMQ.Socket pushSocket;
-    private int zmqPortClientId;
     private PacketReader packetReader;
 
     @Override
@@ -49,6 +50,8 @@ public class WorldQLClient extends JavaPlugin {
         packetReader = new PacketReader();
         getLogger().info("Attempting to connect to WorldQL server.");
         pushSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlPushPort));
+
+        pool = new JedisPool("localhost", 6379);
 
         String selfHostname = getConfig().getString("host", "127.0.0.1");
 
@@ -116,7 +119,7 @@ public class WorldQLClient extends JavaPlugin {
     @Override
     public void onDisable() {
         for (Player player : getServer().getOnlinePlayers()) {
-            PlayerLogOutListener.saveInventory(player);
+            PlayerLogOutListener.savePlayerToRedis(player);
         }
 
         getLogger().info("Shutting down ZeroMQ thread.");
@@ -140,7 +143,4 @@ public class WorldQLClient extends JavaPlugin {
         return pushSocket;
     }
 
-    public int getZmqPortClientId() {
-        return zmqPortClientId;
-    }
 }

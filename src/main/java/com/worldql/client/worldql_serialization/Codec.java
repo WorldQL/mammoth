@@ -1,4 +1,4 @@
-package com.worldql.client.serialization;
+package com.worldql.client.worldql_serialization;
 
 import com.google.flatbuffers.FlatBufferBuilder;
 import com.google.flatbuffers.FlexBuffersBuilder;

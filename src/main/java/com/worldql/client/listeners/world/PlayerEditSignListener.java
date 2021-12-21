@@ -2,8 +2,8 @@ package com.worldql.client.listeners.world;
 
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.listeners.utils.BlockTools;
-import com.worldql.client.serialization.Record;
-import com.worldql.client.serialization.*;
+import com.worldql.client.worldql_serialization.Record;
+import com.worldql.client.worldql_serialization.*;
 import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
