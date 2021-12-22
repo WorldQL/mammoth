@@ -69,7 +69,6 @@ public class ZeroMQServer implements Runnable {
                         if (isSelf) {
                             continue;
                         }
-                        System.out.println("got incoming global minecraft block update");
                         BlockTools.setRecords(incoming.records(), false);
                         continue;
                     }

@@ -88,7 +88,6 @@ public class BlockTools {
         new BukkitRunnable() {
             @Override
             public void run() {
-                System.out.println(records.size());
                 for (Record record : records) {
                     setRecord(record, isSelf);
                 }
@@ -98,7 +97,6 @@ public class BlockTools {
     }
 
     private static void setRecord(@NotNull Record record, boolean isSelf) {
-        System.out.println(record.data());
 
         if (record.data().startsWith("minecraft:fire")) {
             return;

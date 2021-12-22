@@ -36,7 +36,6 @@ public class PortalCreateEventListener implements Listener {
                 List<Record> portalBlocks = new ArrayList<>();
                 for (BlockState b : e.getBlocks()) {
                     if (b.getBlockData().getMaterial().equals(Material.OBSIDIAN) || b.getBlockData().getMaterial().equals(Material.NETHER_PORTAL)) {
-                        System.out.println("CREATE " + b.getBlockData());
                         portalBlocks.add(BlockTools.serializeBlock(b.getBlock()));
                     }
                 }
@@ -60,8 +59,6 @@ public class PortalCreateEventListener implements Listener {
                 // This Message notifies other Minecraft servers of the block change immediately (if they are subscribed to the region)
                 // Record changes aren't loaded until the chunk is loaded.
                 WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
-
-                System.out.println("SENT GLOBAL NETHER PORTAL CREATE MESSAGE");
             }
         }.runTaskLater(WorldQLClient.pluginInstance, 1);
 
