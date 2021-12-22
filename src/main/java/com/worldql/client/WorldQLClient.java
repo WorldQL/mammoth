@@ -74,7 +74,6 @@ public class WorldQLClient extends JavaPlugin {
 
         // For syncing player movements
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(), this);
-        getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerCrouchListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
         getServer().getPluginManager().registerEvents(new ChunkLoadEventListener(), this);
@@ -83,7 +82,7 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerArmorEditListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerShieldInteractListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerTeleportEventListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerLogOutListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerServerTransferJoinLeave(), this);
         // Sync broken and placed blocks.
         getServer().getPluginManager().registerEvents(new PlayerBreakBlockListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerPlaceBlockListener(), this);
@@ -119,7 +118,7 @@ public class WorldQLClient extends JavaPlugin {
     @Override
     public void onDisable() {
         for (Player player : getServer().getOnlinePlayers()) {
-            PlayerLogOutListener.savePlayerToRedis(player);
+            PlayerServerTransferJoinLeave.savePlayerToRedis(player);
         }
 
         getLogger().info("Shutting down ZeroMQ thread.");
