@@ -1,74 +1,86 @@
 package com.worldql.client.listeners.world;
 
+import com.worldql.client.WorldQLClient;
+import com.worldql.client.listeners.utils.BlockTools;
+import com.worldql.client.worldql_serialization.*;
+import com.worldql.client.worldql_serialization.Record;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.world.PortalCreateEvent;
+import org.bukkit.scheduler.BukkitRunnable;
+import zmq.ZMQ;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class PortalCreateEventListener implements Listener {
     @EventHandler
     public void onPortalCreate(PortalCreateEvent e) {
-        // TODO: Implement.
-        /*WorldQLClient.getPluginInstance().getLogger().info(String.valueOf(e.getReason()));
-        WorldQLClient.logger.info("!!!");
-        for (final BlockState b : e.getBlocks()) {
-            //WorldQLClient.logger.info(b.getBlockData().getMaterial().toString());
-            if (b.getBlockData().getMaterial().equals(Material.NETHER_PORTAL) || b.getBlockData().getMaterial().equals(Material.OBSIDIAN)) {
-                Location l = b.getLocation();
-                FlatBufferBuilder builder = new FlatBufferBuilder(1024);
-
-                int instruction = builder.createString("MinecraftBlockPlace");
-                int blockData = builder.createString(b.getBlockData().getAsString());
-                int worldName = builder.createString(b.getBlock().getWorld().getName());
-                int[] paramsArray = {blockData};
-                int params = Update.createParamsVector(builder, paramsArray);
-
-                Update.startUpdate(builder);
-                Update.addInstruction(builder, instruction);
-                Update.addWorldName(builder, worldName);
-                Update.addPosition(builder, PlayerBreakBlockListener.createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
-                Update.addParams(builder, params);
-                Update.addSenderid(builder, WorldQLClient.getPluginInstance().getZmqPortClientId());
-
-                int blockUpdate = Update.endUpdate(builder);
-                builder.finish(blockUpdate);
-
-                byte[] buf = builder.sizedByteArray();
-                WorldQLClient.getPluginInstance().getPushSocket().send(buf, ZMQ.ZMQ_DONTWAIT);
-            }
+        WorldQLClient.getPluginInstance().getLogger().info(String.valueOf(e.getReason()));
+        if (e.getBlocks().size() < 1) {
+            return;
         }
 
-         */
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                List<Record> portalBlocks = new ArrayList<>();
+                for (BlockState b : e.getBlocks()) {
+                    if (b.getBlockData().getMaterial().equals(Material.OBSIDIAN) || b.getBlockData().getMaterial().equals(Material.NETHER_PORTAL)) {
+                        System.out.println("CREATE " + b.getBlockData());
+                        portalBlocks.add(BlockTools.serializeBlock(b.getBlock()));
+                    }
+                }
+                System.out.println(portalBlocks.size());
+                Location l = e.getBlocks().get(0).getLocation();
+
+                // Create a WorldQL Message containing the broken blocks.
+                Message message = new Message(
+                        // RecordCreate = Permanently record this change to the world.
+                        Instruction.GlobalMessage,
+                        WorldQLClient.worldQLClientId,
+                        "@global",
+                        Replication.ExceptSelf,
+                        new Vec3D(l),
+                        portalBlocks,
+                        null,
+                        "MinecraftBlockUpdate",
+                        null
+                );
+                // Get a copy of the message we just sent, but with the Instruction type LocalMessage.
+                // This Message notifies other Minecraft servers of the block change immediately (if they are subscribed to the region)
+                // Record changes aren't loaded until the chunk is loaded.
+                WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
+
+                System.out.println("SENT GLOBAL NETHER PORTAL CREATE MESSAGE");
+            }
+        }.runTaskLater(WorldQLClient.pluginInstance, 1);
+
+
     }
+
+
+
 
 
     @EventHandler
     public void onBlockPhysics(BlockPhysicsEvent e) {
-        /*
-        if(e.getChangedType() == Material.NETHER_PORTAL && e.getSourceBlock().getBlockData().getMaterial().equals(Material.AIR)) {
 
-            //WorldQLClient.logger.info("BLOCKPHYSICS ON NETHER PORTAL");
-            Location l = e.getBlock().getLocation();
-            FlatBufferBuilder builder = new FlatBufferBuilder(1024);
-            int instruction = builder.createString("MinecraftBlockBreak");
-            int blockdata = builder.createString(e.getBlock().getBlockData().getAsString());
-            int worldName = builder.createString(e.getBlock().getWorld().getName());
-            int[] params_array = {blockdata};
-            int params = Update.createParamsVector(builder, params_array);
-            Update.startUpdate(builder);
-            Update.addInstruction(builder, instruction);
-            Update.addWorldName(builder, worldName);
-            Update.addPosition(builder, PlayerBlockPlaceListener.createRoundedVec3(builder, l.getX(), l.getY(), l.getZ()));
-            Update.addParams(builder, params);
-            Update.addSenderid(builder, WorldQLClient.zmqPortClientId);
-            int blockupdate = Update.endUpdate(builder);
-            builder.finish(blockupdate);
-
-            byte[] buf = builder.sizedByteArray();
-            WorldQLClient.push_socket.send(buf, 0);
+        if (e.getChangedType() == Material.NETHER_PORTAL && e.getSourceBlock().getBlockData().getMaterial().equals(Material.AIR)) {
+            System.out.println("EXIT PORTAL?");
+            System.out.println(e.getBlock().getBlockData().getMaterial());
         }
 
-         */
+
     }
 
 }

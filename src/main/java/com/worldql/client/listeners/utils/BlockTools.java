@@ -34,6 +34,7 @@ import java.util.UUID;
 
 public class BlockTools {
     public static Record serializeBlock(@NotNull Block block) {
+        System.out.println("serializing " + block.getType());
         FlexBuffersBuilder b = Codec.getFlexBuilder();
         int pmap = b.startMap();
 
@@ -87,6 +88,7 @@ public class BlockTools {
         new BukkitRunnable() {
             @Override
             public void run() {
+                System.out.println(records.size());
                 for (Record record : records) {
                     setRecord(record, isSelf);
                 }
@@ -96,6 +98,12 @@ public class BlockTools {
     }
 
     private static void setRecord(@NotNull Record record, boolean isSelf) {
+        System.out.println(record.data());
+
+        if (record.data().startsWith("minecraft:fire")) {
+            return;
+        }
+
         Vec3D p = record.position();
         Block b = Bukkit.getWorld(record.worldName()).getBlockAt((int) p.x(), (int) p.y(), (int) p.z());
 

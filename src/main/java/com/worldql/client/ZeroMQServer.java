@@ -64,6 +64,15 @@ public class ZeroMQServer implements Runnable {
                     if (incoming.parameter().equals("MinecraftPlayerDeath")) {
                         PlayerDeathListener.handleIncomingDeath(incoming, isSelf);
                     }
+
+                    if (incoming.parameter().equals("MinecraftBlockUpdate")) {
+                        if (isSelf) {
+                            continue;
+                        }
+                        System.out.println("got incoming global minecraft block update");
+                        BlockTools.setRecords(incoming.records(), false);
+                        continue;
+                    }
                 }
 
                 if (incoming.instruction() == Instruction.LocalMessage) {

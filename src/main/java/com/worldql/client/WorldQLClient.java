@@ -8,10 +8,7 @@ import com.worldql.client.listeners.explosions.EntityExplodeEventListener;
 import com.worldql.client.listeners.explosions.ExplosionPrimeEventListener;
 import com.worldql.client.listeners.explosions.TNTPrimeEventListener;
 import com.worldql.client.listeners.player.*;
-import com.worldql.client.listeners.world.InvestoryMoveEventListener;
-import com.worldql.client.listeners.world.PlayerBreakBlockListener;
-import com.worldql.client.listeners.world.PlayerEditSignListener;
-import com.worldql.client.listeners.world.PlayerPlaceBlockListener;
+import com.worldql.client.listeners.world.*;
 import com.worldql.client.protocols.ProtocolManager;
 import com.worldql.client.worldql_serialization.Instruction;
 import com.worldql.client.worldql_serialization.Message;
@@ -25,7 +22,6 @@ import org.zeromq.ZMQ;
 import redis.clients.jedis.JedisPool;
 
 import java.util.UUID;
-
 
 public class WorldQLClient extends JavaPlugin {
     public static WorldQLClient pluginInstance;
@@ -56,9 +52,19 @@ public class WorldQLClient extends JavaPlugin {
             Slices.sliceWidth = getConfig().getInt("slice-width");
             Slices.dmzSize = getConfig().getInt("dmz-size");
 
+            int worldDiameter = getConfig().getInt("world-diameter");
+
             WorldBorder wb = Bukkit.getWorld("world").getWorldBorder();
             wb.setCenter(0,0);
-            wb.setSize(getConfig().getInt("world-diameter"));
+            wb.setSize(worldDiameter);
+
+            wb = Bukkit.getWorld("world_nether").getWorldBorder();
+            wb.setCenter(0, 0);
+            wb.setSize(worldDiameter / 8 - 10);
+
+            wb = Bukkit.getWorld("world_the_end").getWorldBorder();
+            wb.setCenter(0,0);
+            wb.setSize(worldDiameter);
         }
 
         worldQLClientId = java.util.UUID.randomUUID();
@@ -119,15 +125,8 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new NotImplementedCanceller(), this);
 
         getServer().getPluginManager().registerEvents(new InvestoryMoveEventListener(), this);
-
-        /*
-
         getServer().getPluginManager().registerEvents(new PortalCreateEventListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerLoadChunkListener(), this);
-        getServer().getPluginManager().registerEvents(new OutgoingPlayerHitListener(), this);
-        getServer().getPluginManager().registerEvents(new BlockDropItemEventListener(), this);
 
-         */
 
         zeroMQThread = new Thread(new ZeroMQServer(this, context, selfHostname));
         zeroMQThread.start();

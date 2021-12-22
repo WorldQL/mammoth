@@ -21,7 +21,7 @@ public class PlayerPlaceBlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerPlaceBlockEvent(BlockPlaceEvent e) {
-        if (e.isCancelled()) {
+        if (e.isCancelled() || e.getBlockPlaced().getType().equals(Material.FIRE)) {
             return;
         }
         // TODO: Handle compound blocks (beds, doors) and joined blocks (fences, glass panes)
