@@ -134,14 +134,14 @@ public class PlayerServerTransferJoinLeave implements Listener {
 
         Collection<PotionEffect> potionEffects = player.getActivePotionEffects();
         Iterator<PotionEffect> iterator = potionEffects.iterator();
-        String potionString = "";
+        StringBuilder potionString = new StringBuilder();
         while (iterator.hasNext()) {
             PotionEffect effect = iterator.next();
-            potionString += (effect.getType().getName() + ",");
-            potionString += ((Integer) effect.getDuration()).toString() + ",";
-            potionString += ((Integer) effect.getAmplifier()).toString() + ",";
+            potionString.append(effect.getType().getName()).append(",");
+            potionString.append(((Integer) effect.getDuration())).append(",");
+            potionString.append(((Integer) effect.getAmplifier())).append(",");
         }
-        playerData.put("potions", potionString);
+        playerData.put("potions", potionString.toString());
 
 
         // is the player riding a horse

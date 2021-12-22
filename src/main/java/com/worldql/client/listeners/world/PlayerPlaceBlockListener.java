@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.inventory.ItemStack;
 import zmq.ZMQ;
 
@@ -50,4 +51,5 @@ public class PlayerPlaceBlockListener implements Listener {
         if (e.getPlayer().getInventory().getItemInMainHand().getAmount() - 1 <= 0)
             Bukkit.getPluginManager().callEvent(new PlayerHoldEvent(e.getPlayer(), new ItemStack(Material.AIR), PlayerHoldEvent.HandType.MAINHAND));
     }
+
 }

@@ -16,6 +16,7 @@ import com.worldql.client.protocols.ProtocolManager;
 import com.worldql.client.worldql_serialization.Instruction;
 import com.worldql.client.worldql_serialization.Message;
 import org.bukkit.Bukkit;
+import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.zeromq.SocketType;
@@ -30,6 +31,7 @@ public class WorldQLClient extends JavaPlugin {
     public static WorldQLClient pluginInstance;
     public static UUID worldQLClientId;
     public static JedisPool pool;
+    public static int mammothServerId;
     private Thread zeroMQThread;
     private ZContext context;
     private ZMQ.Socket pushSocket;
@@ -43,6 +45,22 @@ public class WorldQLClient extends JavaPlugin {
 
         String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
         int worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);
+
+        mammothServerId = Bukkit.getServer().getPort() - getConfig().getInt("starting-port");
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+
+        Slices.enabled = getConfig().getBoolean("slice-mode");
+        if (Slices.enabled) {
+            Slices.numServers = getConfig().getInt("num-servers");
+            Slices.worldDiameter = getConfig().getInt("world-diameter");
+            Slices.sliceWidth = getConfig().getInt("slice-width");
+            Slices.dmzSize = getConfig().getInt("dmz-size");
+
+            WorldBorder wb = Bukkit.getWorld("world").getWorldBorder();
+            wb.setCenter(0,0);
+            wb.setSize(getConfig().getInt("world-diameter"));
+        }
+
         worldQLClientId = java.util.UUID.randomUUID();
 
         context = new ZContext();

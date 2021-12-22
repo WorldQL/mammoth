@@ -3,5 +3,12 @@ worldql:
   host: '127.0.0.1'
   push-port: 5555
 
+slice-mode: true
+num-servers: 2
+world-diameter: 1000
+slice-width: 100
+dmz-size: 10
+starting-port: 25580
+
 # Client (self) Host
 host: '127.0.0.1'
