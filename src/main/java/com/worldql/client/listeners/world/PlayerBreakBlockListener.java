@@ -1,5 +1,6 @@
 package com.worldql.client.listeners.world;
 
+import com.worldql.client.Slices;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.listeners.utils.BlockTools;
 import com.worldql.client.worldql_serialization.Record;
@@ -21,6 +22,38 @@ public class PlayerBreakBlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerBreakBlockEvent(BlockBreakEvent e) {
+        if (Slices.enabled) {
+            // When slices are enabled, ignore the complex block drop logic and just forward a global message if it's in the DMZ.
+            if (Slices.isDMZ(e.getBlock().getLocation())) {
+                Record airBlock = new Record(
+                        UUID.nameUUIDFromBytes(e.getBlock().getLocation().toString().getBytes(StandardCharsets.UTF_8)),
+                        new Vec3D(e.getBlock().getLocation()),
+                        e.getBlock().getWorld().getName(),
+                        "minecraft:air",
+                        null
+                );
+                Message message = new Message(
+                        Instruction.GlobalMessage,
+                        WorldQLClient.worldQLClientId,
+                        e.getPlayer().getWorld().getName(),
+                        Replication.IncludingSelf,
+                        // This field isn't really used since the Record also contains the position
+                        // of the changed block(s).
+                        new Vec3D(e.getBlock().getLocation()),
+                        List.of(airBlock),
+                        null,
+                        "MinecraftBlockUpdate",
+                        null
+                );
+
+                WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
+            }
+            return;
+        }
+
+
+
+
         if (e.isCancelled()) {
             return;
         }

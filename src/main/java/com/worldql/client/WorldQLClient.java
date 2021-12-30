@@ -36,7 +36,7 @@ public class WorldQLClient extends JavaPlugin {
     @Override
     public void onEnable() {
         pluginInstance = this;
-        getLogger().info("Initializing Mammoth WorldQL client v0.3");
+        getLogger().info("Initializing Mammoth WorldQL client v0.5");
         saveDefaultConfig();
 
         String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
@@ -45,29 +45,23 @@ public class WorldQLClient extends JavaPlugin {
         mammothServerId = Bukkit.getServer().getPort() - getConfig().getInt("starting-port");
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
-        Slices.enabled = getConfig().getBoolean("slice-mode");
-        if (Slices.enabled) {
-            Slices.numServers = getConfig().getInt("num-servers");
-            Slices.worldDiameter = getConfig().getInt("world-diameter");
-            Slices.sliceWidth = getConfig().getInt("slice-width");
-            Slices.dmzSize = getConfig().getInt("dmz-size");
-
-            int worldDiameter = getConfig().getInt("world-diameter");
-
-            WorldBorder wb = Bukkit.getWorld("world").getWorldBorder();
-            wb.setCenter(0,0);
-            wb.setSize(worldDiameter);
-
-            wb = Bukkit.getWorld("world_nether").getWorldBorder();
-            wb.setCenter(0, 0);
-            wb.setSize(worldDiameter / 8 - 10);
-
-            wb = Bukkit.getWorld("world_the_end").getWorldBorder();
-            wb.setCenter(0,0);
-            wb.setSize(worldDiameter);
-        }
 
         worldQLClientId = java.util.UUID.randomUUID();
+
+
+        pool = new JedisPool(getConfig().getString("redis.host"), getConfig().getInt("redis.port"));
+
+        String selfHostname = getConfig().getString("host", "127.0.0.1");
+
+        // For syncing player movements
+
+        getServer().getPluginManager().registerEvents(new PlayerServerTransferJoinLeave(), this);
+
+
+        if (WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only")) {
+            getLogger().info("RUNNING IN INVENTORY SYNC ONLY MODE!");
+            return;
+        }
 
         context = new ZContext();
         pushSocket = context.createSocket(SocketType.PUSH);
@@ -75,9 +69,35 @@ public class WorldQLClient extends JavaPlugin {
         getLogger().info("Attempting to connect to WorldQL server.");
         pushSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlPushPort));
 
-        pool = new JedisPool("localhost", 6379);
+        Slices.enabled = getConfig().getBoolean("slice-mode");
+        if (Slices.enabled) {
+            Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+                @Override
+                public void run() {
+                    Slices.numServers = getConfig().getInt("num-servers");
+                    Slices.worldDiameter = getConfig().getInt("world-diameter");
+                    Slices.sliceWidth = getConfig().getInt("slice-width");
+                    Slices.dmzSize = getConfig().getInt("dmz-size");
+                    int worldDiameter = getConfig().getInt("world-diameter");
+                    try {
+                        WorldBorder wb = Bukkit.getWorld("world").getWorldBorder();
+                        wb.setCenter(0, 0);
+                        wb.setSize(worldDiameter);
 
-        String selfHostname = getConfig().getString("host", "127.0.0.1");
+                        wb = Bukkit.getWorld("world_nether").getWorldBorder();
+                        wb.setCenter(0, 0);
+                        wb.setSize(worldDiameter / 8 - 10);
+
+                        wb = Bukkit.getWorld("world_the_end").getWorldBorder();
+                        wb.setCenter(0, 0);
+                        wb.setSize(worldDiameter);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }, 2);
+        }
+
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
             @Override
@@ -96,7 +116,6 @@ public class WorldQLClient extends JavaPlugin {
         // Initialize Protocol
         ProtocolManager.read();
 
-        // For syncing player movements
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(), this);
         getServer().getPluginManager().registerEvents(new PlayerCrouchListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
@@ -106,7 +125,6 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerArmorEditListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerShieldInteractListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerTeleportEventListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerServerTransferJoinLeave(), this);
         // Sync broken and placed blocks.
         getServer().getPluginManager().registerEvents(new PlayerBreakBlockListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerPlaceBlockListener(), this);

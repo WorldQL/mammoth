@@ -38,6 +38,12 @@ import java.util.Map;
 public class PlayerServerTransferJoinLeave implements Listener {
     @EventHandler
     public void onPlayerLogOut(PlayerQuitEvent e) {
+        savePlayerToRedis(e.getPlayer());
+
+        if (WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only")) {
+            return;
+        }
+
         if (ProtocolManager.isinjected(e.getPlayer()))
             ProtocolManager.uninjectPlayer(e.getPlayer());
         // Send quit event to other clients
@@ -59,9 +65,6 @@ public class PlayerServerTransferJoinLeave implements Listener {
                 bb
         );
         WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
-        // Save player position and inventory
-        Player player = e.getPlayer();
-        savePlayerToRedis(player);
     }
 
     @EventHandler
@@ -77,6 +80,11 @@ public class PlayerServerTransferJoinLeave implements Listener {
                 ioException.printStackTrace();
             }
         }
+
+        if (WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only")) {
+            return;
+        }
+
         //WorldQLClient.logger.info("Setting player " + e.getPlayer().getDisplayName() + " to get ghost join packets sent.");
         ProtocolManager.injectPlayer(e.getPlayer());
         Player player = e.getPlayer();
@@ -110,6 +118,21 @@ public class PlayerServerTransferJoinLeave implements Listener {
 
     public static void savePlayerToRedis(Player player) {
         Jedis j = WorldQLClient.pool.getResource();
+        HashMap<String, Object> oldPlayerData = new HashMap<String, Object>();
+        Boolean hasOldData = false;
+
+        if (j.exists("player-" + player.getUniqueId())) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                oldPlayerData = mapper.readValue(j.get("player-" + player.getUniqueId()), new TypeReference<Map<String, Object>>() {
+                });
+                if (WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only")) {
+                    hasOldData = true;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         HashMap<String, Object> playerData = new HashMap<String, Object>();
         String[] inventoryStrings = PlayerDataSerialize.playerInventoryToBase64(player.getInventory());
@@ -121,9 +144,15 @@ public class PlayerServerTransferJoinLeave implements Listener {
         playerData.put("xp", ExperienceUtil.getTotalExperience(player));
         playerData.put("pitch", player.getLocation().getPitch());
         playerData.put("yaw", player.getLocation().getYaw());
-        playerData.put("x", player.getLocation().getX());
-        playerData.put("y", player.getLocation().getY());
-        playerData.put("z", player.getLocation().getZ());
+        if (hasOldData) {
+            playerData.put("x", oldPlayerData.get("x"));
+            playerData.put("y", oldPlayerData.get("y"));
+            playerData.put("z", oldPlayerData.get("z"));
+        } else {
+            playerData.put("x", player.getLocation().getX());
+            playerData.put("y", player.getLocation().getY());
+            playerData.put("z", player.getLocation().getZ());
+        }
         playerData.put("world", player.getWorld().getName());
         playerData.put("isGliding", player.isGliding());
 
@@ -195,14 +224,16 @@ public class PlayerServerTransferJoinLeave implements Listener {
     public static void setInventory(String playerJSON, Player player) throws IOException {
         HashMap<String, Object> playerData = new HashMap<String, Object>();
         ObjectMapper mapper = new ObjectMapper();
-        playerData = mapper.readValue(playerJSON, new TypeReference<Map<String, Object>>() {
-        });
+        playerData = mapper.readValue(playerJSON, new TypeReference<Map<String, Object>>() {});
 
         // teleport the player to the right place.
         World w = player.getServer().getWorld((String) playerData.get("world"));
-        Location loc = new Location(w, (Double) playerData.get("x"), (Double) playerData.get("y"), (Double) playerData.get("z"),
+        if (!WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only") && playerData.get("x") != null) {
+            Location loc = new Location(w, (Double) playerData.get("x"), (Double) playerData.get("y"), (Double) playerData.get("z"),
                 (float) (double) (Double) playerData.get("yaw"), (float) (double) (Double) playerData.get("pitch"));
-        player.teleport(loc);
+
+            player.teleport(loc);
+        }
 
         // set inventory and player stats
         ItemStack[] playerInventory = PlayerDataSerialize.itemStackArrayFromBase64((String) playerData.get("inventory"));
@@ -220,20 +251,22 @@ public class PlayerServerTransferJoinLeave implements Listener {
                 Double.parseDouble(velocityComponents[2]));
         player.setVelocity(velocity);
 
-        if (playerData.containsKey("horse")) {
-            Entity newHorse = player.getWorld().spawnEntity(player.getLocation(), EntityType.HORSE);
-            setNBT(newHorse, (String) playerData.get("horse"));
-            newHorse.addPassenger(player);
-        }
-        if (playerData.containsKey("boat")) {
-            Entity newBoat = player.getWorld().spawnEntity(player.getLocation(), EntityType.BOAT);
-            setNBT(newBoat, (String) playerData.get("boat"));
-            newBoat.addPassenger(player);
-        }
-        if (playerData.containsKey("strider")) {
-            Entity newStrider = player.getWorld().spawnEntity(player.getLocation(), EntityType.STRIDER);
-            setNBT(newStrider, (String) playerData.get("strider"));
-            newStrider.addPassenger(player);
+        if (!WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only")) {
+            if (playerData.containsKey("horse")) {
+                Entity newHorse = player.getWorld().spawnEntity(player.getLocation(), EntityType.HORSE);
+                setNBT(newHorse, (String) playerData.get("horse"));
+                newHorse.addPassenger(player);
+            }
+            if (playerData.containsKey("boat")) {
+                Entity newBoat = player.getWorld().spawnEntity(player.getLocation(), EntityType.BOAT);
+                setNBT(newBoat, (String) playerData.get("boat"));
+                newBoat.addPassenger(player);
+            }
+            if (playerData.containsKey("strider")) {
+                Entity newStrider = player.getWorld().spawnEntity(player.getLocation(), EntityType.STRIDER);
+                setNBT(newStrider, (String) playerData.get("strider"));
+                newStrider.addPassenger(player);
+            }
         }
 
         player.setGliding((boolean) playerData.get("isGliding"));

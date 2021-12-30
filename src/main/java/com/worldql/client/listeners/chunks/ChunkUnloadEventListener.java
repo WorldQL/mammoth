@@ -1,5 +1,6 @@
 package com.worldql.client.listeners.chunks;
 
+import com.worldql.client.Slices;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.worldql_serialization.Instruction;
 import com.worldql.client.worldql_serialization.Message;
@@ -14,6 +15,10 @@ public class ChunkUnloadEventListener implements Listener {
 
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent e) {
+        if (Slices.enabled) {
+            return;
+        }
+
         Chunk chunk = e.getChunk();
 
         // Multiply coords by 16
