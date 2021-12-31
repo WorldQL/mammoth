@@ -40,10 +40,14 @@ public class PlayerMoveAndLookHandler implements Listener {
                 CrossDirection shoveDirection = Slices.getShoveDirection(playerLocation);
 
                 switch (shoveDirection) {
-                    case EAST_POSITIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(1, 0,0));
-                    case WEST_NEGATIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(-1, 0, 0));
-                    case NORTH_NEGATIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, -1));
-                    case SOUTH_POSITIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, 1));
+                    case EAST_POSITIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(0.3, 0,0));
+                    case WEST_NEGATIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(-0.3, 0, 0));
+                    case NORTH_NEGATIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, -0.3));
+                    case SOUTH_POSITIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, 0.3));
+                    case ERROR -> {
+                        e.getPlayer().kickPlayer("The Mammoth server responsible for your region of the world is inaccessible.");
+                        return;
+                    }
                 }
 
                 WorldQLClient.pool.returnResource(j);
