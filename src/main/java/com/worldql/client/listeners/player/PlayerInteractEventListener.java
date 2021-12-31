@@ -33,7 +33,6 @@ public class PlayerInteractEventListener implements Listener {
 
                 NBTTagCompound nbt = new NBTTagCompound();
                 t.save(nbt);
-                System.out.println(nbt.toString());
             }
             return;
         }

@@ -23,7 +23,7 @@ public class EntityExplodeEventListener implements Listener {
         if (Slices.enabled && Slices.isDMZ(e.getLocation())) {
             e.setCancelled(true);
         }
-        
+
         if (e.getEntity() instanceof TNTPrimed) {
             Entity causer = ((TNTPrimed) e.getEntity()).getSource();
             if (causer == null) {

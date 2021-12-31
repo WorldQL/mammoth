@@ -34,7 +34,6 @@ import java.util.UUID;
 
 public class BlockTools {
     public static Record serializeBlock(@NotNull Block block) {
-        System.out.println("serializing " + block.getType());
         FlexBuffersBuilder b = Codec.getFlexBuilder();
         int pmap = b.startMap();
 

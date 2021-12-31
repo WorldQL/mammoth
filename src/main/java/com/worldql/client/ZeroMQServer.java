@@ -52,7 +52,7 @@ public class ZeroMQServer implements Runnable {
                 boolean isSelf = incoming.senderUuid().equals(WorldQLClient.worldQLClientId);
 
                 if (incoming.instruction() == Instruction.Handshake) {
-                    WorldQLClient.getPluginInstance().getLogger().info("Got response from WorldQL handshake!" + incoming.parameter());
+                    WorldQLClient.getPluginInstance().getLogger().info("Got response from WorldQL handshake: " + incoming.parameter());
                     continue;
                 }
 
@@ -87,7 +87,6 @@ public class ZeroMQServer implements Runnable {
                         PlayerGhostManager.updateNPC(incoming);
                     }
                     if (incoming.parameter().equals("MinecraftExplosion")) {
-                        WorldQLClient.getPluginInstance().getLogger().info("Got incoming explosion");
                         float radius = (float) FlexBuffers.getRoot(incoming.flex()).asMap().get("radius").asFloat();
                         BlockTools.createExplosion(incoming.position(), incoming.worldName(), radius);
                     }

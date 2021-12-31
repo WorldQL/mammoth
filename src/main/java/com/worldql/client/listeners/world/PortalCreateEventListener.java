@@ -25,7 +25,6 @@ import java.util.UUID;
 public class PortalCreateEventListener implements Listener {
     @EventHandler
     public void onPortalCreate(PortalCreateEvent e) {
-        WorldQLClient.getPluginInstance().getLogger().info(String.valueOf(e.getReason()));
         if (e.getBlocks().size() < 1) {
             return;
         }
@@ -39,7 +38,6 @@ public class PortalCreateEventListener implements Listener {
                         portalBlocks.add(BlockTools.serializeBlock(b.getBlock()));
                     }
                 }
-                System.out.println(portalBlocks.size());
                 Location l = e.getBlocks().get(0).getLocation();
 
                 // Create a WorldQL Message containing the broken blocks.
@@ -71,11 +69,6 @@ public class PortalCreateEventListener implements Listener {
 
     @EventHandler
     public void onBlockPhysics(BlockPhysicsEvent e) {
-
-        if (e.getChangedType() == Material.NETHER_PORTAL && e.getSourceBlock().getBlockData().getMaterial().equals(Material.AIR)) {
-            System.out.println("EXIT PORTAL?");
-            System.out.println(e.getBlock().getBlockData().getMaterial());
-        }
 
 
     }
