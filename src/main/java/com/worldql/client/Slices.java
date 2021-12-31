@@ -9,6 +9,30 @@ public class Slices {
     public static int sliceWidth = 1000;
     public static int dmzSize = 4;
 
+    public static CrossDirection getShoveDirection(Location playerLocation) {
+        int northOwner = getOwnerOfLocation(playerLocation.clone().add(0, 0, -25));
+        int southOwner = getOwnerOfLocation(playerLocation.clone().add(0, 0, 25));
+        int westOwner = getOwnerOfLocation(playerLocation.clone().add(-25, 0, 0));
+        int eastOwner = getOwnerOfLocation(playerLocation.clone().add(25, 0,  0));
+
+        int currentOwner = WorldQLClient.mammothServerId;
+
+        if (northOwner == currentOwner) {
+            return CrossDirection.NORTH_NEGATIVE_Z;
+        }
+        if (southOwner == currentOwner) {
+            return CrossDirection.SOUTH_POSITIVE_Z;
+        }
+        if (westOwner == currentOwner) {
+            return CrossDirection.WEST_NEGATIVE_X;
+        }
+        if (eastOwner == currentOwner) {
+            return CrossDirection.EAST_POSITIVE_X;
+        }
+
+        return CrossDirection.ERROR;
+    }
+
     public static boolean isDMZ(Location l) {
         int adjustedX = (int) (l.getX() + (worldDiameter / 2));
         int adjustedZ = (int) (l.getZ() + (worldDiameter / 2));

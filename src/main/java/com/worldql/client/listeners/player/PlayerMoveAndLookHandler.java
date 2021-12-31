@@ -4,6 +4,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.flatbuffers.FlexBuffersBuilder;
 
+import com.worldql.client.CrossDirection;
 import com.worldql.client.Slices;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.worldql_serialization.*;
@@ -32,12 +33,25 @@ public class PlayerMoveAndLookHandler implements Listener {
                     new TextComponent(sliceMessage));
         }
 
+        // 1. Compute the "edge direction" defined by the direction from the source server TO the destination server.
+        // 2. If the user is on cooldown, push them back one block in the direction they came from.
+
         if (locationOwner != WorldQLClient.mammothServerId) {
             Jedis j = WorldQLClient.pool.getResource();
             String cooldownKey = "cooldown-" + e.getPlayer().getUniqueId();
 
             if (j.exists(cooldownKey)) {
-                e.getPlayer().sendMessage("You must wait before crossing server borders again!");
+                e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                        new TextComponent("You must wait before crossing server borders again!"));
+                CrossDirection shoveDirection = Slices.getShoveDirection(playerLocation);
+
+                switch (shoveDirection) {
+                    case EAST_POSITIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(1, 0,0));
+                    case WEST_NEGATIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(-1, 0, 0));
+                    case NORTH_NEGATIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, -1));
+                    case SOUTH_POSITIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, 1));
+                }
+
                 WorldQLClient.pool.returnResource(j);
                 return;
             }

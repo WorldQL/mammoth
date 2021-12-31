@@ -1,5 +1,6 @@
 package com.worldql.client.listeners.player;
 
+import com.worldql.client.Slices;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.listeners.utils.OutgoingMinecraftPlayerSingleAction;
 import org.bukkit.Location;
@@ -46,6 +47,9 @@ public class PlayerInteractEventListener implements Listener {
             (new BukkitRunnable() {
                 @Override
                 public void run() {
+                    if (Slices.enabled) {
+                        return;
+                    }
                     // We could also do this with getTileEntity but the Bukkit API is preferred over nms.
                     List<Entity> entities = e.getPlayer().getNearbyEntities(4, 4, 4);
                     for (Entity entity : entities) {
@@ -53,7 +57,6 @@ public class PlayerInteractEventListener implements Listener {
                             EnderCrystal crystal = (EnderCrystal) entity;
                             Block belowCrystal = crystal.getLocation().getBlock().getRelative(BlockFace.DOWN);
                             if (e.getClickedBlock().equals(belowCrystal)) {
-                                System.out.println("WE PLACED AN END CRYSTAL");
                                 OutgoingMinecraftPlayerSingleAction.sendPlaceEndCrystalPacket(
                                         e.getPlayer().getWorld(),
                                         crystal.getLocation()
