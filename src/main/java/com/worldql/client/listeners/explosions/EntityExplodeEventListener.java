@@ -1,5 +1,6 @@
 package com.worldql.client.listeners.explosions;
 
+import com.worldql.client.Slices;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.worldql_serialization.*;
 import com.worldql.client.worldql_serialization.Record;
@@ -19,6 +20,10 @@ import java.util.UUID;
 public class EntityExplodeEventListener implements Listener {
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
+        if (Slices.enabled && Slices.isDMZ(e.getLocation())) {
+            e.setCancelled(true);
+        }
+        
         if (e.getEntity() instanceof TNTPrimed) {
             Entity causer = ((TNTPrimed) e.getEntity()).getSource();
             if (causer == null) {

@@ -29,8 +29,6 @@ public class PlayerPlaceBlockListener implements Listener {
             return;
         }
 
-        System.out.println("slices? " + Slices.enabled);
-
         if (Slices.enabled) {
             if (Slices.isDMZ(e.getBlockPlaced().getLocation()) && e.getBlockPlaced().getState() instanceof Container) {
                 e.setCancelled(true);

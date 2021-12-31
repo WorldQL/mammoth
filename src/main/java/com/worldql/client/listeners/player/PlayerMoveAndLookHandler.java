@@ -26,12 +26,6 @@ public class PlayerMoveAndLookHandler implements Listener {
         Location playerLocation = e.getTo();
         int locationOwner = Slices.getOwnerOfLocation(playerLocation);
 
-        String sliceMessage = "Server: " + locationOwner;
-        if (Slices.isDMZ(e.getPlayer().getLocation())) {
-            sliceMessage += " " + ChatColor.RED + "In cross-server zone.";
-            e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                    new TextComponent(sliceMessage));
-        }
 
         // 1. Compute the "edge direction" defined by the direction from the source server TO the destination server.
         // 2. If the user is on cooldown, push them back one block in the direction they came from.
@@ -42,7 +36,7 @@ public class PlayerMoveAndLookHandler implements Listener {
 
             if (j.exists(cooldownKey)) {
                 e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                        new TextComponent("You must wait before crossing server borders again!"));
+                        new TextComponent(ChatColor.GOLD + "You must wait before crossing server borders again!"));
                 CrossDirection shoveDirection = Slices.getShoveDirection(playerLocation);
 
                 switch (shoveDirection) {
