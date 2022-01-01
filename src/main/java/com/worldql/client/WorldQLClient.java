@@ -36,7 +36,7 @@ public class WorldQLClient extends JavaPlugin {
     @Override
     public void onEnable() {
         pluginInstance = this;
-        getLogger().info("Initializing Mammoth WorldQL client v0.6");
+        getLogger().info("Initializing Mammoth WorldQL client v0.62");
         saveDefaultConfig();
 
         String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");

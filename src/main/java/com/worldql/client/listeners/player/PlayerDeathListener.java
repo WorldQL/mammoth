@@ -2,6 +2,7 @@ package com.worldql.client.listeners.player;
 
 import com.google.flatbuffers.FlexBuffers;
 import com.google.flatbuffers.FlexBuffersBuilder;
+import com.worldql.client.Slices;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.ghost.PlayerGhostManager;
 import com.worldql.client.listeners.utils.ItemTools;
@@ -23,6 +24,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import redis.clients.jedis.Jedis;
 import zmq.ZMQ;
 
 import java.io.IOException;
@@ -34,6 +36,17 @@ public class PlayerDeathListener implements Listener {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e) {
+        // Drop items normally when players die with slice mode enabled.
+        // Also delete their record from redis.
+        if (Slices.enabled) {
+            Jedis j = WorldQLClient.pool.getResource();
+            String playerKey = "player-" + e.getEntity().getUniqueId();
+            j.del(playerKey);
+            WorldQLClient.pool.returnResource(j);
+            return;
+        }
+
+
         String killerUuid = null;
         if (e.getEntity().getKiller() != null) {
             killerUuid = e.getEntity().getKiller().getUniqueId().toString();

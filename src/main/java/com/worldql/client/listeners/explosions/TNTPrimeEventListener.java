@@ -1,6 +1,7 @@
 package com.worldql.client.listeners.explosions;
 
 import com.destroystokyo.paper.event.block.TNTPrimeEvent;
+import com.worldql.client.Slices;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.worldql_serialization.*;
 import com.worldql.client.worldql_serialization.Record;
@@ -15,6 +16,10 @@ import java.util.UUID;
 public class TNTPrimeEventListener implements Listener {
     @EventHandler
     public void onTNTPrime(TNTPrimeEvent e) {
+        if (Slices.enabled) {
+            return;
+        }
+
         UUID blockUuid = UUID.nameUUIDFromBytes(e.getBlock().getLocation().toString().getBytes(StandardCharsets.UTF_8));
 
         Record airBlock = new Record(
