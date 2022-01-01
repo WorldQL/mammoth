@@ -70,6 +70,8 @@ public class WorldQLClient extends JavaPlugin {
         getLogger().info("Attempting to connect to WorldQL server.");
         pushSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlPushPort));
 
+        getCommand("unstuck").setExecutor(new CommandUnstuck());
+
         Slices.enabled = getConfig().getBoolean("slice-mode");
         if (Slices.enabled) {
             Bukkit.getScheduler().runTaskLater(this, new Runnable() {
@@ -85,7 +87,6 @@ public class WorldQLClient extends JavaPlugin {
                         wb.setCenter(0, 0);
                         wb.setSize(worldDiameter);
 
-                        /*
                         wb = Bukkit.getWorld("world_nether").getWorldBorder();
                         wb.setCenter(0, 0);
                         wb.setSize(worldDiameter / 8 - 10);
@@ -93,8 +94,6 @@ public class WorldQLClient extends JavaPlugin {
                         wb = Bukkit.getWorld("world_the_end").getWorldBorder();
                         wb.setCenter(0, 0);
                         wb.setSize(worldDiameter);
-
-                         */
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

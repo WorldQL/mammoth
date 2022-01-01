@@ -11,6 +11,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Container;
+import org.bukkit.block.EnderChest;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -30,6 +31,13 @@ public class PlayerPlaceBlockListener implements Listener {
         }
 
         if (Slices.enabled) {
+            if (e.getBlockPlaced().getState() instanceof EnderChest || e.getBlockPlaced() instanceof EnderChest) {
+                e.setCancelled(true);
+                e.getPlayer().sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "Ender chests are disabled for now.");
+                return;
+            }
+
+
             if (Slices.isDMZ(e.getBlockPlaced().getLocation()) && e.getBlockPlaced().getState() instanceof Container) {
                 e.setCancelled(true);
                 e.getPlayer().sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "You cannot place containers here.");

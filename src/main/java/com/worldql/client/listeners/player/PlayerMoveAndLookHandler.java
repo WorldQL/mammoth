@@ -66,6 +66,10 @@ public class PlayerMoveAndLookHandler implements Listener {
 
         if (e.getTo() == null) return;
 
+        if (Slices.enabled) {
+            return;
+        }
+
         FlexBuffersBuilder b = Codec.getFlexBuilder();
         int pmap = b.startMap();
         b.putFloat("pitch", e.getTo().getPitch());
