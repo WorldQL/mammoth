@@ -279,6 +279,18 @@ public class PlayerServerTransferJoinLeave implements Listener {
         ObjectMapper mapper = new ObjectMapper();
         playerData = mapper.readValue(playerJSON, new TypeReference<Map<String, Object>>() {});
 
+
+        if (WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only")) {
+            if (((Double) playerData.get("health")) == 0) {
+                Jedis j = WorldQLClient.pool.getResource();
+                String playerKey = "player-" + player.getUniqueId();
+                j.del(playerKey);
+                WorldQLClient.pool.returnResource(j);
+                player.setExp(0);
+                return;
+            }
+        }
+
         // teleport the player to the right place.
         World w = player.getServer().getWorld((String) playerData.get("world"));
         if (!WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only") && playerData.get("x") != null) {
