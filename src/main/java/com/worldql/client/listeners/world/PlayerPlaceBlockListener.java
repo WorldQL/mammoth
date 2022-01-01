@@ -41,7 +41,7 @@ public class PlayerPlaceBlockListener implements Listener {
                 Message message = new Message(
                         Instruction.GlobalMessage,
                         WorldQLClient.worldQLClientId,
-                        e.getPlayer().getWorld().getName(),
+                        "@global",
                         Replication.ExceptSelf,
                         // This field isn't really used since the Record also contains the position
                         // of the changed block(s).

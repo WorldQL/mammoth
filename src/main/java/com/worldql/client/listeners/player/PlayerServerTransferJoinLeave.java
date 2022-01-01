@@ -3,15 +3,22 @@ package com.worldql.client.listeners.player;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import com.google.flatbuffers.FlexBuffersBuilder;
+import com.worldql.client.CrossDirection;
+import com.worldql.client.Slices;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.ghost.PlayerGhostManager;
 import com.worldql.client.minecraft_serialization.ExperienceUtil;
 import com.worldql.client.minecraft_serialization.PlayerDataSerialize;
 import com.worldql.client.protocols.ProtocolManager;
 import com.worldql.client.worldql_serialization.*;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.nbt.MojangsonParser;
 import net.minecraft.nbt.NBTTagCompound;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_18_R1.entity.CraftEntity;
@@ -82,6 +89,52 @@ public class PlayerServerTransferJoinLeave implements Listener {
         }
 
         if (WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only")) {
+            return;
+        }
+
+        Location playerLocation = e.getPlayer().getLocation();
+        // TODO: Remove this duplicate code.
+        int locationOwner = Slices.getOwnerOfLocation(playerLocation);
+
+
+        // 1. Compute the "edge direction" defined by the direction from the source server TO the destination server.
+        // 2. If the user is on cooldown, push them back one block in the direction they came from.
+
+        if (locationOwner != WorldQLClient.mammothServerId) {
+            Jedis _j = WorldQLClient.pool.getResource();
+            String cooldownKey = "cooldown-" + e.getPlayer().getUniqueId();
+
+            if (_j.exists(cooldownKey)) {
+                e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                        new TextComponent(ChatColor.GOLD + "You must wait before crossing server borders again!"));
+                CrossDirection shoveDirection = Slices.getShoveDirection(playerLocation);
+
+                switch (shoveDirection) {
+                    case EAST_POSITIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(0.3, 0,0));
+                    case WEST_NEGATIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(-0.3, 0, 0));
+                    case NORTH_NEGATIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, -0.3));
+                    case SOUTH_POSITIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, 0.3));
+                    case ERROR -> {
+                        e.getPlayer().kickPlayer("The Mammoth server responsible for your region of the world is inaccessible.");
+                        return;
+                    }
+                }
+
+                WorldQLClient.pool.returnResource(_j);
+                return;
+            }
+
+            PlayerServerTransferJoinLeave.savePlayerToRedis(e.getPlayer());
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+
+            out.writeUTF("Connect");
+            out.writeUTF("mammoth_" + locationOwner);
+            e.getPlayer().sendPluginMessage(WorldQLClient.getPluginInstance(), "BungeeCord", out.toByteArray());
+
+            _j.set(cooldownKey, "true");
+            _j.expire(cooldownKey, 10);
+
+            WorldQLClient.pool.returnResource(_j);
             return;
         }
 

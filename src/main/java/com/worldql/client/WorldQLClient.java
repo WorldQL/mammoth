@@ -36,11 +36,12 @@ public class WorldQLClient extends JavaPlugin {
     @Override
     public void onEnable() {
         pluginInstance = this;
-        getLogger().info("Initializing Mammoth WorldQL client v0.5");
+        getLogger().info("Initializing Mammoth WorldQL client v0.6");
         saveDefaultConfig();
 
         String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
         int worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);
+        System.out.println("Trying to connect to WQL at " + worldqlHost + ":" + worldqlPushPort);
 
         mammothServerId = Bukkit.getServer().getPort() - getConfig().getInt("starting-port");
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
@@ -84,6 +85,7 @@ public class WorldQLClient extends JavaPlugin {
                         wb.setCenter(0, 0);
                         wb.setSize(worldDiameter);
 
+                        /*
                         wb = Bukkit.getWorld("world_nether").getWorldBorder();
                         wb.setCenter(0, 0);
                         wb.setSize(worldDiameter / 8 - 10);
@@ -91,11 +93,13 @@ public class WorldQLClient extends JavaPlugin {
                         wb = Bukkit.getWorld("world_the_end").getWorldBorder();
                         wb.setCenter(0, 0);
                         wb.setSize(worldDiameter);
+
+                         */
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-            }, 2);
+            }, 25);
         }
 
 
