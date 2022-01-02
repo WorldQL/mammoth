@@ -1,6 +1,7 @@
 package com.worldql.client.listeners.explosions;
 
 import com.google.flatbuffers.FlexBuffersBuilder;
+import com.worldql.client.Slices;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.worldql_serialization.*;
 import org.bukkit.event.EventHandler;
@@ -17,6 +18,10 @@ public class ExplosionPrimeEventListener implements Listener {
         // This is another LocalMessage to be passed to other MinecraftServers, but with the parameter
         // "MinecraftExplosion" instead of "MinecraftBlockUpdate". Parameters do not define behavior in any
         // special way. They are simply passed to the client and can be processed like any string.
+
+        if (Slices.enabled) {
+            return;
+        }
 
         FlexBuffersBuilder b = Codec.getFlexBuilder();
         int pmap = b.startMap();

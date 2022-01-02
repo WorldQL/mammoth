@@ -12,6 +12,7 @@ import com.worldql.client.listeners.world.*;
 import com.worldql.client.protocols.ProtocolManager;
 import com.worldql.client.worldql_serialization.Instruction;
 import com.worldql.client.worldql_serialization.Message;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
@@ -36,7 +37,7 @@ public class WorldQLClient extends JavaPlugin {
     @Override
     public void onEnable() {
         pluginInstance = this;
-        getLogger().info("Initializing Mammoth WorldQL client v0.6");
+        getLogger().info("Initializing Mammoth WorldQL client v0.62");
         saveDefaultConfig();
 
         String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
@@ -49,8 +50,10 @@ public class WorldQLClient extends JavaPlugin {
 
         worldQLClientId = java.util.UUID.randomUUID();
 
+        GenericObjectPoolConfig jedisPoolConfig = new GenericObjectPoolConfig();
+        jedisPoolConfig.setMaxTotal(256);
 
-        pool = new JedisPool(getConfig().getString("redis.host"), getConfig().getInt("redis.port"));
+        pool = new JedisPool(jedisPoolConfig, getConfig().getString("redis.host"), getConfig().getInt("redis.port"));
 
         String selfHostname = getConfig().getString("host", "127.0.0.1");
 
@@ -70,6 +73,8 @@ public class WorldQLClient extends JavaPlugin {
         getLogger().info("Attempting to connect to WorldQL server.");
         pushSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlPushPort));
 
+        getCommand("unstuck").setExecutor(new CommandUnstuck());
+
         Slices.enabled = getConfig().getBoolean("slice-mode");
         if (Slices.enabled) {
             Bukkit.getScheduler().runTaskLater(this, new Runnable() {
@@ -85,7 +90,6 @@ public class WorldQLClient extends JavaPlugin {
                         wb.setCenter(0, 0);
                         wb.setSize(worldDiameter);
 
-                        /*
                         wb = Bukkit.getWorld("world_nether").getWorldBorder();
                         wb.setCenter(0, 0);
                         wb.setSize(worldDiameter / 8 - 10);
@@ -93,8 +97,6 @@ public class WorldQLClient extends JavaPlugin {
                         wb = Bukkit.getWorld("world_the_end").getWorldBorder();
                         wb.setCenter(0, 0);
                         wb.setSize(worldDiameter);
-
-                         */
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

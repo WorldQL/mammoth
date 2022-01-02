@@ -44,10 +44,6 @@ public class PlayerMoveAndLookHandler implements Listener {
                     case WEST_NEGATIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(-0.3, 0, 0));
                     case NORTH_NEGATIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, -0.3));
                     case SOUTH_POSITIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, 0.3));
-                    case ERROR -> {
-                        e.getPlayer().kickPlayer("The Mammoth server responsible for your region of the world is inaccessible.");
-                        return;
-                    }
                 }
 
                 WorldQLClient.pool.returnResource(j);
@@ -69,6 +65,10 @@ public class PlayerMoveAndLookHandler implements Listener {
         }
 
         if (e.getTo() == null) return;
+
+        if (Slices.enabled) {
+            return;
+        }
 
         FlexBuffersBuilder b = Codec.getFlexBuilder();
         int pmap = b.startMap();

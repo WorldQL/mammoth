@@ -18,6 +18,7 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.nbt.MojangsonParser;
 import net.minecraft.nbt.NBTTagCompound;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -110,7 +111,7 @@ public class PlayerServerTransferJoinLeave implements Listener {
                 CrossDirection shoveDirection = Slices.getShoveDirection(playerLocation);
 
                 switch (shoveDirection) {
-                    case EAST_POSITIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(0.3, 0,0));
+                    case EAST_POSITIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(0.3, 0, 0));
                     case WEST_NEGATIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(-0.3, 0, 0));
                     case NORTH_NEGATIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, -0.3));
                     case SOUTH_POSITIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, 0.3));
@@ -254,7 +255,6 @@ public class PlayerServerTransferJoinLeave implements Listener {
             e.printStackTrace();
         }
         WorldQLClient.pool.returnResource(j);
-
     }
 
     private static String getNBT(Entity e) {
@@ -277,13 +277,26 @@ public class PlayerServerTransferJoinLeave implements Listener {
     public static void setInventory(String playerJSON, Player player) throws IOException {
         HashMap<String, Object> playerData = new HashMap<String, Object>();
         ObjectMapper mapper = new ObjectMapper();
-        playerData = mapper.readValue(playerJSON, new TypeReference<Map<String, Object>>() {});
+        playerData = mapper.readValue(playerJSON, new TypeReference<Map<String, Object>>() {
+        });
+
+
+        if (WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only")) {
+            if (((Double) playerData.get("health")) == 0) {
+                Jedis j = WorldQLClient.pool.getResource();
+                String playerKey = "player-" + player.getUniqueId();
+                j.del(playerKey);
+                WorldQLClient.pool.returnResource(j);
+                player.setExp(0);
+                return;
+            }
+        }
 
         // teleport the player to the right place.
         World w = player.getServer().getWorld((String) playerData.get("world"));
         if (!WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only") && playerData.get("x") != null) {
             Location loc = new Location(w, (Double) playerData.get("x"), (Double) playerData.get("y"), (Double) playerData.get("z"),
-                (float) (double) (Double) playerData.get("yaw"), (float) (double) (Double) playerData.get("pitch"));
+                    (float) (double) (Double) playerData.get("yaw"), (float) (double) (Double) playerData.get("pitch"));
 
             player.teleport(loc);
         }
