@@ -31,13 +31,6 @@ public class PlayerPlaceBlockListener implements Listener {
         }
 
         if (Slices.enabled) {
-            if (e.getBlockPlaced().getState() instanceof EnderChest || e.getBlockPlaced() instanceof EnderChest) {
-                e.setCancelled(true);
-                e.getPlayer().sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "Ender chests are disabled for now.");
-                return;
-            }
-
-
             if (Slices.isDMZ(e.getBlockPlaced().getLocation()) && e.getBlockPlaced().getState() instanceof Container) {
                 e.setCancelled(true);
                 e.getPlayer().sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "You cannot place containers here.");
