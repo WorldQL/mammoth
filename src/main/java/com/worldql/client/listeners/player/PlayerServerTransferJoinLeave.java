@@ -111,7 +111,7 @@ public class PlayerServerTransferJoinLeave implements Listener {
                 CrossDirection shoveDirection = Slices.getShoveDirection(playerLocation);
 
                 switch (shoveDirection) {
-                    case EAST_POSITIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(0.3, 0,0));
+                    case EAST_POSITIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(0.3, 0, 0));
                     case WEST_NEGATIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(-0.3, 0, 0));
                     case NORTH_NEGATIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, -0.3));
                     case SOUTH_POSITIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, 0.3));
@@ -171,92 +171,90 @@ public class PlayerServerTransferJoinLeave implements Listener {
 
 
     public static void savePlayerToRedis(Player player) {
-        Bukkit.getScheduler().runTaskAsynchronously(WorldQLClient.getPluginInstance(), () -> {
-            Jedis j = WorldQLClient.pool.getResource();
-            HashMap<String, Object> oldPlayerData = new HashMap<String, Object>();
-            Boolean hasOldData = false;
+        Jedis j = WorldQLClient.pool.getResource();
+        HashMap<String, Object> oldPlayerData = new HashMap<String, Object>();
+        Boolean hasOldData = false;
 
-            if (j.exists("player-" + player.getUniqueId())) {
-                ObjectMapper mapper = new ObjectMapper();
-                try {
-                    oldPlayerData = mapper.readValue(j.get("player-" + player.getUniqueId()), new TypeReference<Map<String, Object>>() {
-                    });
-                    if (WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only")) {
-                        hasOldData = true;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            HashMap<String, Object> playerData = new HashMap<String, Object>();
-            String[] inventoryStrings = PlayerDataSerialize.playerInventoryToBase64(player.getInventory());
-            playerData.put("inventory", inventoryStrings[0]);
-            playerData.put("armor", inventoryStrings[1]);
-            playerData.put("heldslot", player.getInventory().getHeldItemSlot());
-            playerData.put("hunger", player.getFoodLevel());
-            playerData.put("health", player.getHealth());
-            playerData.put("xp", ExperienceUtil.getTotalExperience(player));
-            playerData.put("pitch", player.getLocation().getPitch());
-            playerData.put("yaw", player.getLocation().getYaw());
-            if (hasOldData) {
-                playerData.put("x", oldPlayerData.get("x"));
-                playerData.put("y", oldPlayerData.get("y"));
-                playerData.put("z", oldPlayerData.get("z"));
-            } else {
-                playerData.put("x", player.getLocation().getX());
-                playerData.put("y", player.getLocation().getY());
-                playerData.put("z", player.getLocation().getZ());
-            }
-            playerData.put("world", player.getWorld().getName());
-            playerData.put("isGliding", player.isGliding());
-
-            // get speed for better elytra flight
-            Vector velocity = player.getVelocity();
-            String velocityString = velocity.getX() + "," + velocity.getY() + "," + velocity.getZ();
-            playerData.put("velocity", velocityString);
-
-            Collection<PotionEffect> potionEffects = player.getActivePotionEffects();
-            Iterator<PotionEffect> iterator = potionEffects.iterator();
-            StringBuilder potionString = new StringBuilder();
-            while (iterator.hasNext()) {
-                PotionEffect effect = iterator.next();
-                potionString.append(effect.getType().getName()).append(",");
-                potionString.append(((Integer) effect.getDuration())).append(",");
-                potionString.append(((Integer) effect.getAmplifier())).append(",");
-            }
-            playerData.put("potions", potionString.toString());
-
-
-            // is the player riding a horse
-            if (player.isInsideVehicle() && player.getVehicle() instanceof Horse) {
-                Horse horse = (Horse) player.getVehicle();
-                playerData.put("horse", getNBT(horse));
-                horse.getInventory().setArmor(null);
-                horse.getInventory().setSaddle(null);
-                horse.remove();
-            }
-            // check for boat
-            if (player.isInsideVehicle() && player.getVehicle() instanceof Boat) {
-                Boat boat = (Boat) player.getVehicle();
-                playerData.put("boat", getNBT(boat));
-                boat.remove();
-            }
-            // check for nether strider
-            if (player.isInsideVehicle() && player.getVehicle() instanceof Strider) {
-                Strider strider = (Strider) player.getVehicle();
-                playerData.put("strider", getNBT(strider));
-                strider.remove();
-            }
+        if (j.exists("player-" + player.getUniqueId())) {
             ObjectMapper mapper = new ObjectMapper();
             try {
-                String playerAsJson = mapper.writeValueAsString(playerData);
-                j.set("player-" + player.getUniqueId(), playerAsJson);
+                oldPlayerData = mapper.readValue(j.get("player-" + player.getUniqueId()), new TypeReference<Map<String, Object>>() {
+                });
+                if (WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only")) {
+                    hasOldData = true;
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            WorldQLClient.pool.returnResource(j);
-        });
+        }
+
+        HashMap<String, Object> playerData = new HashMap<String, Object>();
+        String[] inventoryStrings = PlayerDataSerialize.playerInventoryToBase64(player.getInventory());
+        playerData.put("inventory", inventoryStrings[0]);
+        playerData.put("armor", inventoryStrings[1]);
+        playerData.put("heldslot", player.getInventory().getHeldItemSlot());
+        playerData.put("hunger", player.getFoodLevel());
+        playerData.put("health", player.getHealth());
+        playerData.put("xp", ExperienceUtil.getTotalExperience(player));
+        playerData.put("pitch", player.getLocation().getPitch());
+        playerData.put("yaw", player.getLocation().getYaw());
+        if (hasOldData) {
+            playerData.put("x", oldPlayerData.get("x"));
+            playerData.put("y", oldPlayerData.get("y"));
+            playerData.put("z", oldPlayerData.get("z"));
+        } else {
+            playerData.put("x", player.getLocation().getX());
+            playerData.put("y", player.getLocation().getY());
+            playerData.put("z", player.getLocation().getZ());
+        }
+        playerData.put("world", player.getWorld().getName());
+        playerData.put("isGliding", player.isGliding());
+
+        // get speed for better elytra flight
+        Vector velocity = player.getVelocity();
+        String velocityString = velocity.getX() + "," + velocity.getY() + "," + velocity.getZ();
+        playerData.put("velocity", velocityString);
+
+        Collection<PotionEffect> potionEffects = player.getActivePotionEffects();
+        Iterator<PotionEffect> iterator = potionEffects.iterator();
+        StringBuilder potionString = new StringBuilder();
+        while (iterator.hasNext()) {
+            PotionEffect effect = iterator.next();
+            potionString.append(effect.getType().getName()).append(",");
+            potionString.append(((Integer) effect.getDuration())).append(",");
+            potionString.append(((Integer) effect.getAmplifier())).append(",");
+        }
+        playerData.put("potions", potionString.toString());
+
+
+        // is the player riding a horse
+        if (player.isInsideVehicle() && player.getVehicle() instanceof Horse) {
+            Horse horse = (Horse) player.getVehicle();
+            playerData.put("horse", getNBT(horse));
+            horse.getInventory().setArmor(null);
+            horse.getInventory().setSaddle(null);
+            horse.remove();
+        }
+        // check for boat
+        if (player.isInsideVehicle() && player.getVehicle() instanceof Boat) {
+            Boat boat = (Boat) player.getVehicle();
+            playerData.put("boat", getNBT(boat));
+            boat.remove();
+        }
+        // check for nether strider
+        if (player.isInsideVehicle() && player.getVehicle() instanceof Strider) {
+            Strider strider = (Strider) player.getVehicle();
+            playerData.put("strider", getNBT(strider));
+            strider.remove();
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String playerAsJson = mapper.writeValueAsString(playerData);
+            j.set("player-" + player.getUniqueId(), playerAsJson);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        WorldQLClient.pool.returnResource(j);
     }
 
     private static String getNBT(Entity e) {
@@ -279,7 +277,8 @@ public class PlayerServerTransferJoinLeave implements Listener {
     public static void setInventory(String playerJSON, Player player) throws IOException {
         HashMap<String, Object> playerData = new HashMap<String, Object>();
         ObjectMapper mapper = new ObjectMapper();
-        playerData = mapper.readValue(playerJSON, new TypeReference<Map<String, Object>>() {});
+        playerData = mapper.readValue(playerJSON, new TypeReference<Map<String, Object>>() {
+        });
 
 
         if (WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only")) {
@@ -297,7 +296,7 @@ public class PlayerServerTransferJoinLeave implements Listener {
         World w = player.getServer().getWorld((String) playerData.get("world"));
         if (!WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only") && playerData.get("x") != null) {
             Location loc = new Location(w, (Double) playerData.get("x"), (Double) playerData.get("y"), (Double) playerData.get("z"),
-                (float) (double) (Double) playerData.get("yaw"), (float) (double) (Double) playerData.get("pitch"));
+                    (float) (double) (Double) playerData.get("yaw"), (float) (double) (Double) playerData.get("pitch"));
 
             player.teleport(loc);
         }
