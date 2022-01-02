@@ -12,6 +12,7 @@ import com.worldql.client.listeners.world.*;
 import com.worldql.client.protocols.ProtocolManager;
 import com.worldql.client.worldql_serialization.Instruction;
 import com.worldql.client.worldql_serialization.Message;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
@@ -49,8 +50,10 @@ public class WorldQLClient extends JavaPlugin {
 
         worldQLClientId = java.util.UUID.randomUUID();
 
+        GenericObjectPoolConfig jedisPoolConfig = new GenericObjectPoolConfig();
+        jedisPoolConfig.setMaxTotal(256);
 
-        pool = new JedisPool(getConfig().getString("redis.host"), getConfig().getInt("redis.port"));
+        pool = new JedisPool(jedisPoolConfig, getConfig().getString("redis.host"), getConfig().getInt("redis.port"));
 
         String selfHostname = getConfig().getString("host", "127.0.0.1");
 
