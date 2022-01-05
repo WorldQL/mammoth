@@ -125,11 +125,14 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(), this);
         getServer().getPluginManager().registerEvents(new PlayerCrouchListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
-        getServer().getPluginManager().registerEvents(new ChunkLoadEventListener(), this);
-        getServer().getPluginManager().registerEvents(new ChunkUnloadEventListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerHeldItemListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerArmorEditListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerShieldInteractListener(), this);
+        // TODO: Remove this when re-enabling ghosts in Slice mode.
+        if (!Slices.enabled) {
+            getServer().getPluginManager().registerEvents(new PlayerArmorEditListener(), this);
+            getServer().getPluginManager().registerEvents(new ChunkLoadEventListener(), this);
+            getServer().getPluginManager().registerEvents(new ChunkUnloadEventListener(), this);
+            getServer().getPluginManager().registerEvents(new PlayerHeldItemListener(), this);
+            getServer().getPluginManager().registerEvents(new PlayerShieldInteractListener(), this);
+        }
         getServer().getPluginManager().registerEvents(new PlayerTeleportEventListener(), this);
         // Sync broken and placed blocks.
         getServer().getPluginManager().registerEvents(new PlayerBreakBlockListener(), this);
