@@ -40,40 +40,30 @@ public class WorldQLClient extends JavaPlugin {
         getLogger().info("Initializing Mammoth WorldQL client v0.62");
         saveDefaultConfig();
 
-        String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
-        int worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);
-        System.out.println("Trying to connect to WQL at " + worldqlHost + ":" + worldqlPushPort);
-
-        mammothServerId = Bukkit.getServer().getPort() - getConfig().getInt("starting-port");
-        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
-
-
-        worldQLClientId = java.util.UUID.randomUUID();
-
         GenericObjectPoolConfig jedisPoolConfig = new GenericObjectPoolConfig();
         jedisPoolConfig.setMaxTotal(256);
-
         pool = new JedisPool(jedisPoolConfig, getConfig().getString("redis.host"), getConfig().getInt("redis.port"));
 
-        String selfHostname = getConfig().getString("host", "127.0.0.1");
-
-        // For syncing player movements
-
-        getServer().getPluginManager().registerEvents(new PlayerServerTransferJoinLeave(), this);
-
-
-        if (WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only")) {
-            getLogger().info("RUNNING IN INVENTORY SYNC ONLY MODE!");
-            return;
-        }
-
+        mammothServerId = Bukkit.getServer().getPort() - getConfig().getInt("starting-port");
+        worldQLClientId = java.util.UUID.randomUUID();
         context = new ZContext();
         pushSocket = context.createSocket(SocketType.PUSH);
         packetReader = new PacketReader();
+
+        String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
+        int worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        String selfHostname = getConfig().getString("host", "127.0.0.1");
+
+        if (WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only")) {
+            getLogger().info("RUNNING IN INVENTORY SYNC ONLY MODE!");
+            getServer().getPluginManager().registerEvents(new PlayerServerTransferJoinLeave(), this);
+            return;
+        }
+
+        // Connect to the WorldQL server.
         getLogger().info("Attempting to connect to WorldQL server.");
         pushSocket.connect("tcp://%s:%d".formatted(worldqlHost, worldqlPushPort));
-
-        getCommand("unstuck").setExecutor(new CommandUnstuck());
 
         Slices.enabled = getConfig().getBoolean("slice-mode");
         if (Slices.enabled) {
@@ -101,9 +91,8 @@ public class WorldQLClient extends JavaPlugin {
                         e.printStackTrace();
                     }
                 }
-            }, 25);
+            }, 20);
         }
-
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
             @Override
@@ -118,42 +107,48 @@ public class WorldQLClient extends JavaPlugin {
             }
         }, 0L, 20L * 5L);
 
-
         // Initialize Protocol
         ProtocolManager.read();
 
+        // TODO: Remove this command after we figure out the cause of players being spawned in the ground.
+        getCommand("unstuck").setExecutor(new CommandUnstuck());
+
+        getServer().getPluginManager().registerEvents(new PlayerServerTransferJoinLeave(), this);
+        // Handles server transfers and the movement component of ghosts.
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(), this);
+
+        // For ghosts.
         getServer().getPluginManager().registerEvents(new PlayerCrouchListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
-        // TODO: Remove this when re-enabling ghosts in Slice mode.
-        if (!Slices.enabled) {
-            getServer().getPluginManager().registerEvents(new PlayerArmorEditListener(), this);
-            getServer().getPluginManager().registerEvents(new ChunkLoadEventListener(), this);
-            getServer().getPluginManager().registerEvents(new ChunkUnloadEventListener(), this);
-            getServer().getPluginManager().registerEvents(new PlayerHeldItemListener(), this);
-            getServer().getPluginManager().registerEvents(new PlayerShieldInteractListener(), this);
-        }
+        getServer().getPluginManager().registerEvents(new PlayerArmorEditListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerHeldItemListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerShieldInteractListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerTeleportEventListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerShootBowListener(), this);
+
+        // To sub/unsub from regions of the world.
+        getServer().getPluginManager().registerEvents(new ChunkLoadEventListener(), this);
+        getServer().getPluginManager().registerEvents(new ChunkUnloadEventListener(), this);
+
         // Sync broken and placed blocks.
         getServer().getPluginManager().registerEvents(new PlayerBreakBlockListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerPlaceBlockListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerEditSignListener(), this);
 
+        // For explosions.
         getServer().getPluginManager().registerEvents(new TNTPrimeEventListener(), this);
         getServer().getPluginManager().registerEvents(new ExplosionPrimeEventListener(), this);
         getServer().getPluginManager().registerEvents(new EntityExplodeEventListener(), this);
 
-        getServer().getPluginManager().registerEvents(new OutgoingPlayerHitListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerShootBowListener(), this);
-
+        // Chat sync
         getServer().getPluginManager().registerEvents(new PlayerChatListener(), this);
+        // Death drop mechanics.
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(), this);
 
+        // Cancel events that can cause desync in any mode.
         getServer().getPluginManager().registerEvents(new NotImplementedCanceller(), this);
-
-        getServer().getPluginManager().registerEvents(new InvestoryMoveEventListener(), this);
-        getServer().getPluginManager().registerEvents(new PortalCreateEventListener(), this);
-
+        // Custom listeners.
+        getServer().getPluginManager().registerEvents(new OutgoingPlayerHitListener(), this);
 
         zeroMQThread = new Thread(new ZeroMQServer(this, context, selfHostname));
         zeroMQThread.start();
@@ -177,13 +172,10 @@ public class WorldQLClient extends JavaPlugin {
     public static WorldQLClient getPluginInstance() {
         return pluginInstance;
     }
-
     public PacketReader getPacketReader() {
         return packetReader;
     }
-
     public ZMQ.Socket getPushSocket() {
         return pushSocket;
     }
-
 }

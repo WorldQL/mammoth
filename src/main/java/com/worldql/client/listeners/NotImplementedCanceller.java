@@ -15,11 +15,17 @@ public class NotImplementedCanceller implements Listener {
         if (Slices.enabled && Slices.isDMZ(e.getBlock().getLocation())) {
             e.setNewCurrent(0);
         }
+        if (!Slices.enabled) {
+            e.setNewCurrent(0);
+        }
     }
 
     @EventHandler
     public void onLiquid(BlockFromToEvent e){
         if (Slices.enabled && Slices.isDMZ(e.getToBlock().getLocation())) {
+            e.setCancelled(true);
+        }
+        if (!Slices.enabled) {
             e.setCancelled(true);
         }
     }
@@ -29,6 +35,9 @@ public class NotImplementedCanceller implements Listener {
         if (Slices.enabled && Slices.isDMZ(e.getBlock().getLocation())) {
             e.setCancelled(true);
         }
+        if (!Slices.enabled) {
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler
@@ -36,11 +45,17 @@ public class NotImplementedCanceller implements Listener {
         if (Slices.enabled && Slices.isDMZ(e.getBlock().getLocation())) {
             e.setCancelled(true);
         }
+        if (!Slices.enabled) {
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler
     public void onBonemeal(StructureGrowEvent e) {
         if (Slices.enabled && Slices.isDMZ(e.getLocation())) {
+            e.setCancelled(true);
+        }
+        if (!Slices.enabled) {
             e.setCancelled(true);
         }
     }

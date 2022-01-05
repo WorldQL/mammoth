@@ -66,9 +66,7 @@ public class PlayerMoveAndLookHandler implements Listener {
 
         if (e.getTo() == null) return;
 
-        if (Slices.enabled) {
-            return;
-        }
+        // TODO: Add a "ghosts enabled" option.
 
         FlexBuffersBuilder b = Codec.getFlexBuilder();
         int pmap = b.startMap();
