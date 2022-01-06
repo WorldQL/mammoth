@@ -24,6 +24,11 @@ import java.nio.ByteBuffer;
 public class PlayerMoveAndLookHandler implements Listener {
     @EventHandler
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
+        if (!WorldQLClient.getPluginInstance().playerDataSavingManager.isSafe(e.getPlayer())) {
+            e.setCancelled(true);
+            return;
+        }
+
         Location playerLocation = e.getTo();
         int locationOwner = Slices.getOwnerOfLocation(playerLocation);
 
