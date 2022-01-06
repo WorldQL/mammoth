@@ -4,6 +4,7 @@ import com.worldql.client.listeners.NotImplementedCanceller;
 import com.worldql.client.listeners.OutgoingPlayerHitListener;
 import com.worldql.client.listeners.chunks.ChunkLoadEventListener;
 import com.worldql.client.listeners.chunks.ChunkUnloadEventListener;
+import com.worldql.client.listeners.explosions.BlockExplodeEventListener;
 import com.worldql.client.listeners.explosions.EntityExplodeEventListener;
 import com.worldql.client.listeners.explosions.ExplosionPrimeEventListener;
 import com.worldql.client.listeners.explosions.TNTPrimeEventListener;
@@ -162,6 +163,7 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new TNTPrimeEventListener(), this);
         getServer().getPluginManager().registerEvents(new ExplosionPrimeEventListener(), this);
         getServer().getPluginManager().registerEvents(new EntityExplodeEventListener(), this);
+        getServer().getPluginManager().registerEvents(new BlockExplodeEventListener(), this);
 
         // Chat sync
         getServer().getPluginManager().registerEvents(new PlayerChatListener(), this);
