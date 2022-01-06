@@ -61,9 +61,7 @@ public class PlayerServerTransferJoinLeave implements Listener {
 
     @EventHandler
     public void onPlayerLogIn(PlayerJoinEvent e) {
-        // TODO: Move the IO to async event.
         WorldQLClient.getPluginInstance().playerDataSavingManager.markUnsafe(e.getPlayer());
-
         Bukkit.getScheduler().runTaskLaterAsynchronously(WorldQLClient.getPluginInstance(), () -> {
             // make sure the transferring server doesn't save any junk on the way out.
             WorldQLClient.getPluginInstance().playerDataSavingManager.markSaved(e.getPlayer());
