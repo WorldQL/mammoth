@@ -10,10 +10,10 @@ public class Slices {
     public static int dmzSize = 4;
 
     public static CrossDirection getShoveDirection(Location playerLocation) {
-        int northOwner = getOwnerOfLocation(playerLocation.clone().add(0, 0, -25));
-        int southOwner = getOwnerOfLocation(playerLocation.clone().add(0, 0, 25));
-        int westOwner = getOwnerOfLocation(playerLocation.clone().add(-25, 0, 0));
-        int eastOwner = getOwnerOfLocation(playerLocation.clone().add(25, 0,  0));
+        int northOwner = getOwnerOfLocation(playerLocation.clone().add(0, 0, -5));
+        int southOwner = getOwnerOfLocation(playerLocation.clone().add(0, 0, 5));
+        int westOwner = getOwnerOfLocation(playerLocation.clone().add(-5, 0, 0));
+        int eastOwner = getOwnerOfLocation(playerLocation.clone().add(5, 0,  0));
 
         int currentOwner = WorldQLClient.mammothServerId;
 

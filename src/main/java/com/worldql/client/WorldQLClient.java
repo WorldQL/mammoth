@@ -20,7 +20,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.util.UUID;
 
@@ -33,6 +35,8 @@ public class WorldQLClient extends JavaPlugin {
     private ZContext context;
     private ZMQ.Socket pushSocket;
     private PacketReader packetReader;
+    public boolean processGhosts;
+    public boolean loadPlayerData;
 
     @Override
     public void onEnable() {
@@ -43,12 +47,23 @@ public class WorldQLClient extends JavaPlugin {
         GenericObjectPoolConfig jedisPoolConfig = new GenericObjectPoolConfig();
         jedisPoolConfig.setMaxTotal(256);
         pool = new JedisPool(jedisPoolConfig, getConfig().getString("redis.host"), getConfig().getInt("redis.port"));
+        // Make sure we're connected
+        try {
+            Jedis j = pool.getResource();
+            pool.returnResource(j);
+        } catch (JedisConnectionException e) {
+            getLogger().warning("Failed to connect to redis. Redis is required for Mammoth.");
+            Bukkit.getServer().shutdown();
+            return;
+        }
 
         mammothServerId = Bukkit.getServer().getPort() - getConfig().getInt("starting-port");
         worldQLClientId = java.util.UUID.randomUUID();
         context = new ZContext();
         pushSocket = context.createSocket(SocketType.PUSH);
         packetReader = new PacketReader();
+        processGhosts = getConfig().getBoolean("ghosts", true);
+        loadPlayerData = getConfig().getBoolean("sync-player-data", true);
 
         String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
         int worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);
@@ -87,6 +102,10 @@ public class WorldQLClient extends JavaPlugin {
                         wb = Bukkit.getWorld("world_the_end").getWorldBorder();
                         wb.setCenter(0, 0);
                         wb.setSize(worldDiameter);
+
+
+
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

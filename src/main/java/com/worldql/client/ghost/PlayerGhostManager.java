@@ -3,6 +3,7 @@ package com.worldql.client.ghost;
 import com.google.flatbuffers.FlexBuffers;
 import com.mojang.authlib.GameProfile;
 import com.worldql.client.Slices;
+import com.worldql.client.WorldQLClient;
 import com.worldql.client.protocols.*;
 import com.worldql.client.worldql_serialization.Message;
 import net.minecraft.server.MinecraftServer;
@@ -21,7 +22,7 @@ public class PlayerGhostManager {
     public static final Hashtable<Integer, ExpiringEntityPlayer> integerNPCLookup = new Hashtable<>();
 
     public static void updateNPC(Message state) {
-        if (Slices.enabled) {
+        if (!WorldQLClient.getPluginInstance().processGhosts) {
             return;
         }
 

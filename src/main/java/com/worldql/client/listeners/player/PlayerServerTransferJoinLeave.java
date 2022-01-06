@@ -302,14 +302,17 @@ public class PlayerServerTransferJoinLeave implements Listener {
         }
 
         // set inventory and player stats
-        //ItemStack[] playerInventory = PlayerDataSerialize.itemStackArrayFromBase64((String) playerData.get("inventory"));
-        //ItemStack[] armorContents = PlayerDataSerialize.itemStackArrayFromBase64((String) playerData.get("armor"));
-        //player.getInventory().setContents(playerInventory);
-        //player.getInventory().setArmorContents(armorContents);
-        ExperienceUtil.setTotalExperience(player, (Integer) playerData.get("xp"));
-        player.setFoodLevel((Integer) playerData.get("hunger"));
-        player.setHealth((Double) playerData.get("health"));
-        player.getInventory().setHeldItemSlot((Integer) playerData.get("heldslot"));
+        if (WorldQLClient.getPluginInstance().loadPlayerData) {
+            ItemStack[] playerInventory = PlayerDataSerialize.itemStackArrayFromBase64((String) playerData.get("inventory"));
+            ItemStack[] armorContents = PlayerDataSerialize.itemStackArrayFromBase64((String) playerData.get("armor"));
+            player.getInventory().setContents(playerInventory);
+            player.getInventory().setArmorContents(armorContents);
+
+            ExperienceUtil.setTotalExperience(player, (Integer) playerData.get("xp"));
+            player.setFoodLevel((Integer) playerData.get("hunger"));
+            player.setHealth((Double) playerData.get("health"));
+            player.getInventory().setHeldItemSlot((Integer) playerData.get("heldslot"));
+        }
 
         // set velocity
         String[] velocityComponents = ((String) playerData.get("velocity")).split(",");
