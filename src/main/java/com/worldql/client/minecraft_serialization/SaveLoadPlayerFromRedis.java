@@ -115,7 +115,7 @@ public class SaveLoadPlayerFromRedis {
             e.printStackTrace();
         }
         WorldQLClient.pool.returnResource(j);
-        WorldQLClient.getPluginInstance().playerDataSavingManager.markSave(player);
+        WorldQLClient.getPluginInstance().playerDataSavingManager.markSaved(player);
     }
 
     private static String getNBT(Entity e) {

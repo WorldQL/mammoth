@@ -65,7 +65,7 @@ public class PlayerServerTransferJoinLeave implements Listener {
         WorldQLClient.getPluginInstance().playerDataSavingManager.markUnsafe(e.getPlayer());
         Bukkit.getScheduler().runTaskLaterAsynchronously(WorldQLClient.getPluginInstance(), () -> {
             // make sure the transferring server doesn't save any junk on the way out.
-            WorldQLClient.getPluginInstance().playerDataSavingManager.markSave(e.getPlayer());
+            WorldQLClient.getPluginInstance().playerDataSavingManager.markSaved(e.getPlayer());
             Jedis j = WorldQLClient.pool.getResource();
             String data = j.get("player-" + e.getPlayer().getUniqueId());
 

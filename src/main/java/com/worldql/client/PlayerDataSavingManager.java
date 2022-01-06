@@ -15,7 +15,7 @@ public class PlayerDataSavingManager {
         syncedAfterJoin = new HashMap<>();
     }
 
-    public void markSave(Player p) {
+    public void markSaved(Player p) {
         Instant now = Instant.now();
         timeSinceLastSave.put(p.getUniqueId(), now.toEpochMilli());
     }
