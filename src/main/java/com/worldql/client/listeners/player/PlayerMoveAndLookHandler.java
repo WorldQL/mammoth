@@ -7,12 +7,12 @@ import com.google.flatbuffers.FlexBuffersBuilder;
 import com.worldql.client.CrossDirection;
 import com.worldql.client.Slices;
 import com.worldql.client.WorldQLClient;
+import com.worldql.client.minecraft_serialization.SaveLoadPlayerFromRedis;
 import com.worldql.client.worldql_serialization.*;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -30,7 +30,7 @@ public class PlayerMoveAndLookHandler implements Listener {
         if (Slices.isDMZ(playerLocation)) {
             int distance = Slices.getDistanceFromDMZ(playerLocation);
             e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                    new TextComponent(ChatColor.RED + "You are " + distance + " blocks away from a server boundary."));
+                    new TextComponent(ChatColor.RED + "You are " + ChatColor.BOLD + "" + distance + ChatColor.RESET + ChatColor.RED + " blocks away from a server boundary."));
         }
 
         if (locationOwner != WorldQLClient.mammothServerId) {
@@ -55,8 +55,10 @@ public class PlayerMoveAndLookHandler implements Listener {
                 return;
             }
 
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            // TODO: Move the IO to async event.
+            SaveLoadPlayerFromRedis.savePlayerToRedis(e.getPlayer());
 
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Connect");
             out.writeUTF("mammoth_" + locationOwner);
             e.getPlayer().sendPluginMessage(WorldQLClient.getPluginInstance(), "BungeeCord", out.toByteArray());

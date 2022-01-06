@@ -9,6 +9,7 @@ import com.worldql.client.listeners.explosions.ExplosionPrimeEventListener;
 import com.worldql.client.listeners.explosions.TNTPrimeEventListener;
 import com.worldql.client.listeners.player.*;
 import com.worldql.client.listeners.world.*;
+import com.worldql.client.minecraft_serialization.SaveLoadPlayerFromRedis;
 import com.worldql.client.protocols.ProtocolManager;
 import com.worldql.client.worldql_serialization.Instruction;
 import com.worldql.client.worldql_serialization.Message;
@@ -36,8 +37,9 @@ public class WorldQLClient extends JavaPlugin {
     private ZMQ.Socket pushSocket;
     private PacketReader packetReader;
     public boolean processGhosts;
-    public boolean loadPlayerData;
+    public boolean syncPlayerInventory;
     public boolean inventorySyncOnly;
+    public PlayerDataSavingManager playerDataSavingManager;
 
     @Override
     public void onEnable() {
@@ -64,7 +66,8 @@ public class WorldQLClient extends JavaPlugin {
         pushSocket = context.createSocket(SocketType.PUSH);
         packetReader = new PacketReader();
         processGhosts = getConfig().getBoolean("ghosts", true);
-        loadPlayerData = getConfig().getBoolean("sync-player-data", true);
+        syncPlayerInventory = getConfig().getBoolean("sync-player-inventory", true);
+        playerDataSavingManager = new PlayerDataSavingManager();
 
         String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
         int worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);
@@ -106,9 +109,6 @@ public class WorldQLClient extends JavaPlugin {
                         wb.setCenter(0, 0);
                         wb.setSize(worldDiameter);
 
-
-
-
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -116,7 +116,7 @@ public class WorldQLClient extends JavaPlugin {
             }, 20);
         }
 
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
             @Override
             public void run() {
                 Message message = new Message(
@@ -127,7 +127,7 @@ public class WorldQLClient extends JavaPlugin {
 
                 pushSocket.send(message.encode(), zmq.ZMQ.ZMQ_DONTWAIT);
             }
-        }, 0L, 20L * 5L);
+        }, 1L, 20L * 5L);
 
         // Initialize Protocol
         ProtocolManager.read();
@@ -156,6 +156,7 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerBreakBlockListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerPlaceBlockListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerEditSignListener(), this);
+        getServer().getPluginManager().registerEvents(new PortalCreateEventListener(), this);
 
         // For explosions.
         getServer().getPluginManager().registerEvents(new TNTPrimeEventListener(), this);
@@ -169,6 +170,7 @@ public class WorldQLClient extends JavaPlugin {
 
         // Cancel events that can cause desync in any mode.
         getServer().getPluginManager().registerEvents(new NotImplementedCanceller(), this);
+        getServer().getPluginManager().registerEvents(new PlayerDropItemListener(), this);
         // Custom listeners.
         getServer().getPluginManager().registerEvents(new OutgoingPlayerHitListener(), this);
 
@@ -179,7 +181,7 @@ public class WorldQLClient extends JavaPlugin {
     @Override
     public void onDisable() {
         for (Player player : getServer().getOnlinePlayers()) {
-            PlayerServerTransferJoinLeave.savePlayerToRedis(player);
+            SaveLoadPlayerFromRedis.savePlayerToRedis(player);
         }
 
         getLogger().info("Shutting down ZeroMQ thread.");

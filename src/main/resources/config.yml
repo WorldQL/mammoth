@@ -19,7 +19,7 @@ inventory-sync-only: false
 # See players on other servers?
 ghosts: true
 # Disable this if you want to replace Mammoth's sync with MySQLPlayerDataBridge.
-sync-player-data: true
+sync-player-inventory: true
 
 # Client (self) Host
 host: '127.0.0.1'

@@ -86,6 +86,10 @@ public class Slices {
     }
 
     public static int getOwnerOfLocation(Location l) {
+        if (l.getWorld().getName().equalsIgnoreCase("world_the_end")) {
+            return 0;
+        }
+
         int slicesPerRow = worldDiameter / sliceWidth;
 
         int adjustedX = (int) (l.getX() + (worldDiameter / 2));

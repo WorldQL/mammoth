@@ -56,6 +56,11 @@ public class ZeroMQServer implements Runnable {
                     continue;
                 }
 
+                if (incoming.instruction() == Instruction.Heartbeat) {
+                    //WorldQLClient.getPluginInstance().getLogger().info("Heartbeat from WorldQL");
+                    continue;
+                }
+
                 if (incoming.instruction() == Instruction.GlobalMessage) {
                     if (incoming.parameter().equals("MinecraftPlayerChat")) {
                         PlayerChatListener.relayChat(incoming);
