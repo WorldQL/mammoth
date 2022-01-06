@@ -37,6 +37,7 @@ public class WorldQLClient extends JavaPlugin {
     private PacketReader packetReader;
     public boolean processGhosts;
     public boolean loadPlayerData;
+    public boolean inventorySyncOnly;
 
     @Override
     public void onEnable() {
@@ -70,7 +71,9 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         String selfHostname = getConfig().getString("host", "127.0.0.1");
 
-        if (WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only")) {
+        inventorySyncOnly = WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only", false);
+
+        if (inventorySyncOnly) {
             getLogger().info("RUNNING IN INVENTORY SYNC ONLY MODE!");
             getServer().getPluginManager().registerEvents(new PlayerServerTransferJoinLeave(), this);
             return;

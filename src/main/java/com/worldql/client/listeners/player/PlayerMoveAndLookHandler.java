@@ -12,6 +12,7 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -26,9 +27,11 @@ public class PlayerMoveAndLookHandler implements Listener {
         Location playerLocation = e.getTo();
         int locationOwner = Slices.getOwnerOfLocation(playerLocation);
 
-
-        // 1. Compute the "edge direction" defined by the direction from the source server TO the destination server.
-        // 2. If the user is on cooldown, push them back one block in the direction they came from.
+        if (Slices.isDMZ(playerLocation)) {
+            int distance = Slices.getDistanceFromDMZ(playerLocation);
+            e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                    new TextComponent(ChatColor.RED + "You are " + distance + " blocks away from a server boundary."));
+        }
 
         if (locationOwner != WorldQLClient.mammothServerId) {
             Jedis j = WorldQLClient.pool.getResource();
@@ -36,9 +39,11 @@ public class PlayerMoveAndLookHandler implements Listener {
 
             if (j.exists(cooldownKey)) {
                 e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                        new TextComponent(ChatColor.GOLD + "You must wait before crossing server borders again!"));
-                CrossDirection shoveDirection = Slices.getShoveDirection(playerLocation);
+                        new TextComponent(ChatColor.GOLD + "You must wait before crossing server boundaries again!"));
 
+                // 1. Compute the "cross direction" defined by the direction from the source server TO the destination server.
+                // 2. Push them back in the direction they came from towards the correct server.
+                CrossDirection shoveDirection = Slices.getShoveDirection(playerLocation);
                 switch (shoveDirection) {
                     case EAST_POSITIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(0.3, 0,0));
                     case WEST_NEGATIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(-0.3, 0, 0));
@@ -50,7 +55,6 @@ public class PlayerMoveAndLookHandler implements Listener {
                 return;
             }
 
-            PlayerServerTransferJoinLeave.savePlayerToRedis(e.getPlayer());
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
 
             out.writeUTF("Connect");
@@ -58,7 +62,7 @@ public class PlayerMoveAndLookHandler implements Listener {
             e.getPlayer().sendPluginMessage(WorldQLClient.getPluginInstance(), "BungeeCord", out.toByteArray());
 
             j.set(cooldownKey, "true");
-            j.expire(cooldownKey, 10);
+            j.expire(cooldownKey, 5);
 
             WorldQLClient.pool.returnResource(j);
             return;
@@ -66,7 +70,9 @@ public class PlayerMoveAndLookHandler implements Listener {
 
         if (e.getTo() == null) return;
 
-        // TODO: Add a "ghosts enabled" option.
+        if (!WorldQLClient.getPluginInstance().processGhosts) {
+            return;
+        }
 
         FlexBuffersBuilder b = Codec.getFlexBuilder();
         int pmap = b.startMap();

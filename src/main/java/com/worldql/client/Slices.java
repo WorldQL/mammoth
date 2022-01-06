@@ -13,7 +13,7 @@ public class Slices {
         int northOwner = getOwnerOfLocation(playerLocation.clone().add(0, 0, -5));
         int southOwner = getOwnerOfLocation(playerLocation.clone().add(0, 0, 5));
         int westOwner = getOwnerOfLocation(playerLocation.clone().add(-5, 0, 0));
-        int eastOwner = getOwnerOfLocation(playerLocation.clone().add(5, 0,  0));
+        int eastOwner = getOwnerOfLocation(playerLocation.clone().add(5, 0, 0));
 
         int currentOwner = WorldQLClient.mammothServerId;
 
@@ -31,6 +31,39 @@ public class Slices {
         }
 
         return CrossDirection.ERROR;
+    }
+
+    public static int getDistanceFromDMZ(Location l) {
+        int adjustedX = (int) (l.getX() + (worldDiameter / 2));
+        int adjustedZ = (int) (l.getZ() + (worldDiameter / 2));
+        int xModSliceWidth = adjustedX % sliceWidth;
+        int zModSliceWidth = adjustedZ % sliceWidth;
+        int upper = sliceWidth - dmzSize;
+        int smallest = 99999;
+
+        if (xModSliceWidth < dmzSize) {
+            if (xModSliceWidth < smallest) {
+                smallest = xModSliceWidth;
+            }
+        } else if (xModSliceWidth > upper) {
+            int distance = sliceWidth - xModSliceWidth;
+            if (distance < smallest) {
+                smallest = distance;
+            }
+        }
+
+        if (zModSliceWidth < dmzSize) {
+            if (zModSliceWidth < smallest) {
+                smallest = zModSliceWidth;
+            }
+        } else if (zModSliceWidth > upper) {
+            int distance = sliceWidth - zModSliceWidth;
+            if (distance < smallest) {
+                smallest = distance;
+            }
+        }
+
+        return smallest;
     }
 
     public static boolean isDMZ(Location l) {
