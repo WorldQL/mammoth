@@ -63,6 +63,7 @@ public class PlayerServerTransferJoinLeave implements Listener {
     public void onPlayerLogIn(PlayerJoinEvent e) {
         // TODO: Move the IO to async event.
         WorldQLClient.getPluginInstance().playerDataSavingManager.markUnsafe(e.getPlayer());
+
         Bukkit.getScheduler().runTaskLaterAsynchronously(WorldQLClient.getPluginInstance(), () -> {
             // make sure the transferring server doesn't save any junk on the way out.
             WorldQLClient.getPluginInstance().playerDataSavingManager.markSaved(e.getPlayer());
@@ -77,54 +78,51 @@ public class PlayerServerTransferJoinLeave implements Listener {
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
                     }
-                }
-            });
 
-            if (WorldQLClient.getPluginInstance().inventorySyncOnly) {
-                return;
-            }
+                    if (WorldQLClient.getPluginInstance().inventorySyncOnly) {
+                        return;
+                    }
 
-            Location playerLocation = e.getPlayer().getLocation();
-            int locationOwner = Slices.getOwnerOfLocation(playerLocation);
+                    Location playerLocation = e.getPlayer().getLocation();
+                    int locationOwner = Slices.getOwnerOfLocation(playerLocation);
 
-            if (locationOwner != WorldQLClient.mammothServerId) {
-                String cooldownKey = "cooldown-" + e.getPlayer().getUniqueId();
+                    if (locationOwner != WorldQLClient.mammothServerId) {
+                        String cooldownKey = "cooldown-" + e.getPlayer().getUniqueId();
 
-                if (j.exists(cooldownKey)) {
-                    e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                            new TextComponent(ChatColor.GOLD + "You must wait before crossing server borders again!"));
-                    CrossDirection shoveDirection = Slices.getShoveDirection(playerLocation);
-                    switch (shoveDirection) {
-                        case EAST_POSITIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(0.3, 0, 0));
-                        case WEST_NEGATIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(-0.3, 0, 0));
-                        case NORTH_NEGATIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, -0.3));
-                        case SOUTH_POSITIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, 0.3));
-                        case ERROR -> {
-                            e.getPlayer().kickPlayer("The Mammoth server responsible for your region of the world is inaccessible.");
+                        if (j.exists(cooldownKey)) {
+                            e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                                    new TextComponent(ChatColor.GOLD + "You must wait before crossing server borders again!"));
+                            CrossDirection shoveDirection = Slices.getShoveDirection(playerLocation);
+                            Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), () -> {
+                                switch (shoveDirection) {
+                                    case EAST_POSITIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(0.3, 0, 0));
+                                    case WEST_NEGATIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(-0.3, 0, 0));
+                                    case NORTH_NEGATIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, -0.3));
+                                    case SOUTH_POSITIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, 0.3));
+                                    case ERROR -> {
+                                        e.getPlayer().kickPlayer("The Mammoth server responsible for your region of the world is inaccessible.");
+                                    }
+                                }
+                            });
+                            WorldQLClient.pool.returnResource(j);
+                            return;
                         }
+
+                        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                        out.writeUTF("Connect");
+                        out.writeUTF("mammoth_" + locationOwner);
+                        e.getPlayer().sendPluginMessage(WorldQLClient.getPluginInstance(), "BungeeCord", out.toByteArray());
+
+                        j.set(cooldownKey, "true");
+                        j.expire(cooldownKey, 5);
+
+                        WorldQLClient.pool.returnResource(j);
+                        return;
                     }
                     WorldQLClient.pool.returnResource(j);
-                    return;
                 }
-
-                ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                out.writeUTF("Connect");
-                out.writeUTF("mammoth_" + locationOwner);
-                e.getPlayer().sendPluginMessage(WorldQLClient.getPluginInstance(), "BungeeCord", out.toByteArray());
-
-                j.set(cooldownKey, "true");
-                j.expire(cooldownKey, 5);
-
-                WorldQLClient.pool.returnResource(j);
-                return;
-            }
-            WorldQLClient.pool.returnResource(j);
-        }, 4L);
-
-
-        if (WorldQLClient.getPluginInstance().inventorySyncOnly) {
-            return;
-        }
+            });
+        }, 5L);
 
         //WorldQLClient.logger.info("Setting player " + e.getPlayer().getDisplayName() + " to get ghost join packets sent.");
         ProtocolManager.injectPlayer(e.getPlayer());

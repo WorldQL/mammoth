@@ -1,5 +1,6 @@
 package com.worldql.client.listeners.world;
 
+import com.worldql.client.Slices;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.listeners.utils.BlockTools;
 import com.worldql.client.worldql_serialization.Record;
@@ -20,10 +21,8 @@ public class PlayerEditSignListener implements Listener {
                 String line = e.getLines()[i];
                 sign.setLine(i, line);
             }
-
             sign.update();
         }
-
         Record placedBlock = BlockTools.serializeBlock(e.getBlock());
         Message message = new Message(
                 Instruction.RecordCreate,
@@ -38,10 +37,16 @@ public class PlayerEditSignListener implements Listener {
                 "MinecraftBlockUpdate",
                 null
         );
-        WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
 
-        // send a LocalMessage instruction with the same information so that clients can get an update on the chunk.
-        Message localMessage = message.withInstruction(Instruction.LocalMessage);
-        WorldQLClient.getPluginInstance().getPushSocket().send(localMessage.encode(), ZMQ.ZMQ_DONTWAIT);
+        if (!Slices.enabled) {
+            WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
+
+            // send a LocalMessage instruction with the same information so that clients can get an update on the chunk.
+            Message localMessage = message.withInstruction(Instruction.LocalMessage);
+            WorldQLClient.getPluginInstance().getPushSocket().send(localMessage.encode(), ZMQ.ZMQ_DONTWAIT);
+        } else if (Slices.enabled && Slices.isDMZ(e.getBlock().getLocation())) {
+            Message globalMessage = message.withInstruction(Instruction.LocalMessage);
+            WorldQLClient.getPluginInstance().getPushSocket().send(globalMessage.encode(), ZMQ.ZMQ_DONTWAIT);
+        }
     }
 }

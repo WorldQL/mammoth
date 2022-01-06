@@ -1,6 +1,8 @@
 package com.worldql.client;
 
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -38,9 +40,12 @@ public class PlayerDataSavingManager {
         }
         return syncedAfterJoin.get(p.getUniqueId());
     }
+
     public void markUnsafe(Player p) {
         syncedAfterJoin.put(p.getUniqueId(), false);
+        p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 250, 10));
     }
+
     public void markSafe(Player p) {
         syncedAfterJoin.put(p.getUniqueId(), true);
     }
