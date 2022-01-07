@@ -27,7 +27,7 @@ Mammoth has a number of features:
 ## How to build this plugin and use Mammoth yourself!
 I recommend using IntelliJ IDEA and following the guides on the Spigot website to set up your Java 16 environment.
 
-Then just clone this repo, open it in IntelliJ, and use the maven "package" lifecycle action to build the plugin. It's required to run [Spigot BuildTools](https://www.spigotmc.org/wiki/buildtools/) first to install a 1.17.1 jar in your local maven repo.
+Then just clone this repo, open it in IntelliJ, and use the maven "package" lifecycle action to build the plugin. It's required to run [Spigot BuildTools](https://www.spigotmc.org/wiki/buildtools/) first to install a 1.18 jar in your local maven repo.
 Also, you'll need to create a PostgreSQL database:
 
 ```sql
