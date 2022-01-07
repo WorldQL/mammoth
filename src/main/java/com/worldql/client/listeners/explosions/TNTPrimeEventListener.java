@@ -16,10 +16,6 @@ import java.util.UUID;
 public class TNTPrimeEventListener implements Listener {
     @EventHandler
     public void onTNTPrime(TNTPrimeEvent e) {
-        if (Slices.enabled) {
-            return;
-        }
-
         UUID blockUuid = UUID.nameUUIDFromBytes(e.getBlock().getLocation().toString().getBytes(StandardCharsets.UTF_8));
 
         Record airBlock = new Record(
@@ -44,8 +40,13 @@ public class TNTPrimeEventListener implements Listener {
                 null
         );
 
-        WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
+        if (Slices.enabled && Slices.isDMZ(e.getBlock().getLocation())) {
+            Message globalMessage = message.withInstruction(Instruction.GlobalMessage).withParameter("MinecraftBlockUpdate");
+            WorldQLClient.getPluginInstance().getPushSocket().send(globalMessage.encode(), ZMQ.ZMQ_DONTWAIT);
+            return;
+        }
 
+        WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
         Message recordMessage = message.withInstruction(Instruction.LocalMessage);
         WorldQLClient.getPluginInstance().getPushSocket().send(recordMessage.encode(), ZMQ.ZMQ_DONTWAIT);
     }
