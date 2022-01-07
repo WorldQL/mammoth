@@ -46,7 +46,7 @@ public class PlayerChatListener implements Listener {
         String messageText = map.get("message").asString();
 
         // TODO: Allow configuring custom message format
-        String output = MessageFormat.format("<{0}> {1}", playerName, messageText);
+        String output = MessageFormat.format("{0} §8»§f {1}", playerName, messageText);
         WorldQLClient.getPluginInstance().getServer().broadcastMessage(output);
     }
 }
