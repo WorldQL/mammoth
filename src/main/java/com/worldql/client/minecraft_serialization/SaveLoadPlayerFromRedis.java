@@ -70,19 +70,41 @@ public class SaveLoadPlayerFromRedis {
             // is the player riding a horse
             if (player.isInsideVehicle() && player.getVehicle() instanceof Horse horse) {
                 playerData.put("horse", getNBT(horse));
-                horse.getInventory().setArmor(null);
-                horse.getInventory().setSaddle(null);
-                Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), horse::remove);
+                Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), new Runnable() {
+                    @Override
+                    public void run() {
+                        Location l = horse.getLocation().clone();
+                        l.setY(-100);
+                        horse.teleport(l);
+                        horse.remove();
+                    }
+                });
             }
             // check for boat
             if (player.isInsideVehicle() && player.getVehicle() instanceof Boat boat) {
                 playerData.put("boat", getNBT(boat));
-                Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), boat::remove);
+                Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), new Runnable() {
+                    @Override
+                    public void run() {
+                        Location l = boat.getLocation().clone();
+                        l.setY(-100);
+                        boat.teleport(l);
+                        boat.remove();
+                    }
+                });
             }
             // check for nether strider
             if (player.isInsideVehicle() && player.getVehicle() instanceof Strider strider) {
                 playerData.put("strider", getNBT(strider));
-                Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), strider::remove);
+                Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), new Runnable() {
+                    @Override
+                    public void run() {
+                        Location l = strider.getLocation().clone();
+                        l.setY(-100);
+                        strider.teleport(l);
+                        strider.remove();
+                    }
+                });
             }
             ObjectMapper mapper = new ObjectMapper();
             try {
@@ -126,16 +148,19 @@ public class SaveLoadPlayerFromRedis {
         player.teleport(loc);
 
 
-        if (WorldQLClient.getPluginInstance().syncPlayerInventory) {
+        if (WorldQLClient.syncPlayerInventory) {
             ItemStack[] playerInventory = PlayerDataSerialize.itemStackArrayFromBase64((String) playerData.get("inventory"));
             ItemStack[] armorContents = PlayerDataSerialize.itemStackArrayFromBase64((String) playerData.get("armor"));
             player.getInventory().setContents(playerInventory);
             player.getInventory().setArmorContents(armorContents);
         }
 
-        ExperienceUtil.setTotalExperience(player, (Integer) playerData.get("xp"));
-        player.setFoodLevel((Integer) playerData.get("hunger"));
-        player.setHealth((Double) playerData.get("health"));
+        if (WorldQLClient.syncPlayerHealthXPHunger) {
+            ExperienceUtil.setTotalExperience(player, (Integer) playerData.get("xp"));
+            player.setFoodLevel((Integer) playerData.get("hunger"));
+            player.setHealth((Double) playerData.get("health"));
+        }
+
         player.getInventory().setHeldItemSlot((Integer) playerData.get("heldslot"));
 
         // set velocity
@@ -163,24 +188,25 @@ public class SaveLoadPlayerFromRedis {
 
 
         player.setGliding((boolean) playerData.get("isGliding"));
-
-        String potions[] = ((String) playerData.get("potions")).split(",");
-        // remove all potion effects
-        for (PotionEffect effect : player.getActivePotionEffects()) {
-            player.removePotionEffect(effect.getType());
-        }
-        if (potions.length > 1) {
-            // loop through effects and apply them.
-            int c = 0;
-            while (c < potions.length) {
-                PotionEffectType effectType = PotionEffectType.getByName(potions[c]);
-                c++;
-                int duration = Integer.parseInt(potions[c]);
-                c++;
-                int amplifier = Integer.parseInt(potions[c]);
-                PotionEffect potionEffect = effectType.createEffect(duration, amplifier);
-                player.addPotionEffect(potionEffect);
-                c++;
+        if (WorldQLClient.syncPlayerEffects) {
+            String potions[] = ((String) playerData.get("potions")).split(",");
+            // remove all potion effects
+            for (PotionEffect effect : player.getActivePotionEffects()) {
+                player.removePotionEffect(effect.getType());
+            }
+            if (potions.length > 1) {
+                // loop through effects and apply them.
+                int c = 0;
+                while (c < potions.length) {
+                    PotionEffectType effectType = PotionEffectType.getByName(potions[c]);
+                    c++;
+                    int duration = Integer.parseInt(potions[c]);
+                    c++;
+                    int amplifier = Integer.parseInt(potions[c]);
+                    PotionEffect potionEffect = effectType.createEffect(duration, amplifier);
+                    player.addPotionEffect(potionEffect);
+                    c++;
+                }
             }
         }
     }

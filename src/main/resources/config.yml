@@ -15,7 +15,7 @@ dmz-size: 10
 starting-port: 25580
 
 # See players on other servers?
-ghosts: true
+ghosts: false
 
 # Disable these if you want to use Mammoth with MySQLPlayerDataBridge.
 sync-player-inventory: true

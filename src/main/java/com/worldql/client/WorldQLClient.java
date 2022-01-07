@@ -41,6 +41,8 @@ public class WorldQLClient extends JavaPlugin {
     private PacketReader packetReader;
     public static boolean processGhosts;
     public static boolean syncPlayerInventory;
+    public static boolean syncPlayerHealthXPHunger;
+    public static boolean syncPlayerEffects;
     public static PlayerDataSavingManager playerDataSavingManager;
     public static long timestampOfLastHeartbeat;
     static int zeroMQServerPort;
@@ -48,7 +50,7 @@ public class WorldQLClient extends JavaPlugin {
     @Override
     public void onEnable() {
         pluginInstance = this;
-        getLogger().info("Initializing Mammoth WorldQL client v0.62");
+        getLogger().info("Initializing Mammoth v0.7");
         saveDefaultConfig();
 
         GenericObjectPoolConfig jedisPoolConfig = new GenericObjectPoolConfig();
@@ -71,6 +73,8 @@ public class WorldQLClient extends JavaPlugin {
         packetReader = new PacketReader();
         processGhosts = getConfig().getBoolean("ghosts", true);
         syncPlayerInventory = getConfig().getBoolean("sync-player-inventory", true);
+        syncPlayerHealthXPHunger = getConfig().getBoolean("sync-player-health-xp-hunger", true);
+        syncPlayerEffects = getConfig().getBoolean("sync-player-effects", true);
         playerDataSavingManager = new PlayerDataSavingManager();
         timestampOfLastHeartbeat = Instant.now().toEpochMilli();
 
