@@ -32,23 +32,7 @@ public class SaveLoadPlayerFromRedis {
             if (WorldQLClient.playerDataSavingManager.skip(player, 1000)) {
                 return;
             }
-
             Jedis j = WorldQLClient.pool.getResource();
-            HashMap<String, Object> oldPlayerData = new HashMap<String, Object>();
-            Boolean hasOldData = false;
-
-            if (j.exists("player-" + player.getUniqueId())) {
-                ObjectMapper mapper = new ObjectMapper();
-                try {
-                    oldPlayerData = mapper.readValue(j.get("player-" + player.getUniqueId()), new TypeReference<Map<String, Object>>() {
-                    });
-                    if (WorldQLClient.getPluginInstance().inventorySyncOnly) {
-                        hasOldData = true;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
 
             HashMap<String, Object> playerData = new HashMap<String, Object>();
             String[] inventoryStrings = PlayerDataSerialize.playerInventoryToBase64(player.getInventory());
@@ -60,15 +44,9 @@ public class SaveLoadPlayerFromRedis {
             playerData.put("xp", ExperienceUtil.getTotalExperience(player));
             playerData.put("pitch", player.getLocation().getPitch());
             playerData.put("yaw", player.getLocation().getYaw());
-            if (hasOldData) {
-                playerData.put("x", oldPlayerData.get("x"));
-                playerData.put("y", oldPlayerData.get("y"));
-                playerData.put("z", oldPlayerData.get("z"));
-            } else {
-                playerData.put("x", player.getLocation().getX());
-                playerData.put("y", player.getLocation().getY());
-                playerData.put("z", player.getLocation().getZ());
-            }
+            playerData.put("x", player.getLocation().getX());
+            playerData.put("y", player.getLocation().getY());
+            playerData.put("z", player.getLocation().getZ());
             playerData.put("world", player.getWorld().getName());
             playerData.put("isGliding", player.isGliding());
 
@@ -90,30 +68,21 @@ public class SaveLoadPlayerFromRedis {
 
 
             // is the player riding a horse
-            if (player.isInsideVehicle() && player.getVehicle() instanceof Horse) {
-                Horse horse = (Horse) player.getVehicle();
+            if (player.isInsideVehicle() && player.getVehicle() instanceof Horse horse) {
                 playerData.put("horse", getNBT(horse));
                 horse.getInventory().setArmor(null);
                 horse.getInventory().setSaddle(null);
-                Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), () -> {
-                    horse.remove();
-                });
+                Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), horse::remove);
             }
             // check for boat
-            if (player.isInsideVehicle() && player.getVehicle() instanceof Boat) {
-                Boat boat = (Boat) player.getVehicle();
+            if (player.isInsideVehicle() && player.getVehicle() instanceof Boat boat) {
                 playerData.put("boat", getNBT(boat));
-                Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), () -> {
-                    boat.remove();
-                });
+                Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), boat::remove);
             }
             // check for nether strider
-            if (player.isInsideVehicle() && player.getVehicle() instanceof Strider) {
-                Strider strider = (Strider) player.getVehicle();
+            if (player.isInsideVehicle() && player.getVehicle() instanceof Strider strider) {
                 playerData.put("strider", getNBT(strider));
-                Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), () -> {
-                    strider.remove();
-                });
+                Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), strider::remove);
             }
             ObjectMapper mapper = new ObjectMapper();
             try {
@@ -123,7 +92,7 @@ public class SaveLoadPlayerFromRedis {
                 e.printStackTrace();
             }
             WorldQLClient.pool.returnResource(j);
-            WorldQLClient.getPluginInstance().playerDataSavingManager.markSaved(player);
+            WorldQLClient.playerDataSavingManager.markSaved(player);
         });
     }
 
@@ -152,11 +121,10 @@ public class SaveLoadPlayerFromRedis {
 
         // teleport the player to the right place.
         World w = player.getServer().getWorld((String) playerData.get("world"));
-        if (!WorldQLClient.getPluginInstance().inventorySyncOnly && playerData.get("x") != null) {
-            Location loc = new Location(w, (Double) playerData.get("x"), (Double) playerData.get("y"), (Double) playerData.get("z"),
-                    (float) (double) (Double) playerData.get("yaw"), (float) (double) (Double) playerData.get("pitch"));
-            player.teleport(loc);
-        }
+        Location loc = new Location(w, (Double) playerData.get("x"), (Double) playerData.get("y"), (Double) playerData.get("z"),
+                (float) (double) (Double) playerData.get("yaw"), (float) (double) (Double) playerData.get("pitch"));
+        player.teleport(loc);
+
 
         if (WorldQLClient.getPluginInstance().syncPlayerInventory) {
             ItemStack[] playerInventory = PlayerDataSerialize.itemStackArrayFromBase64((String) playerData.get("inventory"));
@@ -176,23 +144,23 @@ public class SaveLoadPlayerFromRedis {
                 Double.parseDouble(velocityComponents[2]));
         player.setVelocity(velocity);
 
-        if (!WorldQLClient.getPluginInstance().inventorySyncOnly) {
-            if (playerData.containsKey("horse")) {
-                Entity newHorse = player.getWorld().spawnEntity(player.getLocation(), EntityType.HORSE);
-                setNBT(newHorse, (String) playerData.get("horse"));
-                newHorse.addPassenger(player);
-            }
-            if (playerData.containsKey("boat")) {
-                Entity newBoat = player.getWorld().spawnEntity(player.getLocation(), EntityType.BOAT);
-                setNBT(newBoat, (String) playerData.get("boat"));
-                newBoat.addPassenger(player);
-            }
-            if (playerData.containsKey("strider")) {
-                Entity newStrider = player.getWorld().spawnEntity(player.getLocation(), EntityType.STRIDER);
-                setNBT(newStrider, (String) playerData.get("strider"));
-                newStrider.addPassenger(player);
-            }
+
+        if (playerData.containsKey("horse")) {
+            Entity newHorse = player.getWorld().spawnEntity(player.getLocation(), EntityType.HORSE);
+            setNBT(newHorse, (String) playerData.get("horse"));
+            newHorse.addPassenger(player);
         }
+        if (playerData.containsKey("boat")) {
+            Entity newBoat = player.getWorld().spawnEntity(player.getLocation(), EntityType.BOAT);
+            setNBT(newBoat, (String) playerData.get("boat"));
+            newBoat.addPassenger(player);
+        }
+        if (playerData.containsKey("strider")) {
+            Entity newStrider = player.getWorld().spawnEntity(player.getLocation(), EntityType.STRIDER);
+            setNBT(newStrider, (String) playerData.get("strider"));
+            newStrider.addPassenger(player);
+        }
+
 
         player.setGliding((boolean) playerData.get("isGliding"));
 

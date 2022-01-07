@@ -41,7 +41,6 @@ public class WorldQLClient extends JavaPlugin {
     private PacketReader packetReader;
     public static boolean processGhosts;
     public static boolean syncPlayerInventory;
-    public static boolean inventorySyncOnly;
     public static PlayerDataSavingManager playerDataSavingManager;
     public static long timestampOfLastHeartbeat;
     static int zeroMQServerPort;
@@ -79,14 +78,6 @@ public class WorldQLClient extends JavaPlugin {
         int worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         String selfHostname = getConfig().getString("host", "127.0.0.1");
-
-        inventorySyncOnly = WorldQLClient.getPluginInstance().getConfig().getBoolean("inventory-sync-only", false);
-
-        if (inventorySyncOnly) {
-            getLogger().info("RUNNING IN INVENTORY SYNC ONLY MODE!");
-            getServer().getPluginManager().registerEvents(new PlayerServerTransferJoinLeave(), this);
-            return;
-        }
 
         // Connect to the WorldQL server.
         getLogger().info("Attempting to connect to WorldQL server.");

@@ -14,8 +14,6 @@ slice-width: 100
 dmz-size: 10
 starting-port: 25580
 
-inventory-sync-only: false
-
 # See players on other servers?
 ghosts: true
 

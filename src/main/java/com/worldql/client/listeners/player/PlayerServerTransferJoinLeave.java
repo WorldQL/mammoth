@@ -32,10 +32,6 @@ public class PlayerServerTransferJoinLeave implements Listener {
     public void onPlayerLogOut(PlayerQuitEvent e) {
         SaveLoadPlayerFromRedis.savePlayerToRedis(e.getPlayer());
 
-        if (WorldQLClient.getPluginInstance().inventorySyncOnly) {
-            return;
-        }
-
         if (ProtocolManager.isinjected(e.getPlayer()))
             ProtocolManager.uninjectPlayer(e.getPlayer());
         // Send quit event to other clients
@@ -75,10 +71,6 @@ public class PlayerServerTransferJoinLeave implements Listener {
                         WorldQLClient.getPluginInstance().playerDataSavingManager.markSafe(e.getPlayer());
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
-                    }
-
-                    if (WorldQLClient.getPluginInstance().inventorySyncOnly) {
-                        return;
                     }
 
                     Location playerLocation = e.getPlayer().getLocation();
