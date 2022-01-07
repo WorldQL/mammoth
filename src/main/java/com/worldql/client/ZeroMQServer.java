@@ -14,6 +14,8 @@ import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQException;
 
+import java.time.Instant;
+
 public class ZeroMQServer implements Runnable {
     private final Plugin plugin;
     private final ZContext context;
@@ -29,6 +31,7 @@ public class ZeroMQServer implements Runnable {
     public void run() {
         ZMQ.Socket socket = context.createSocket(SocketType.PULL);
         int port = socket.bindToRandomPort("tcp://" + hostname, 29000, 30000);
+        WorldQLClient.zeroMQServerPort = port;
 
         Message message = new Message(
                 Instruction.Handshake,
@@ -52,12 +55,13 @@ public class ZeroMQServer implements Runnable {
                 boolean isSelf = incoming.senderUuid().equals(WorldQLClient.worldQLClientId);
 
                 if (incoming.instruction() == Instruction.Handshake) {
-                    WorldQLClient.getPluginInstance().getLogger().info("Got response from WorldQL handshake: " + incoming.parameter());
+                    WorldQLClient.getPluginInstance().getLogger().info("Got successful handshake response from WorldQL server!");
                     continue;
                 }
 
                 if (incoming.instruction() == Instruction.Heartbeat) {
                     //WorldQLClient.getPluginInstance().getLogger().info("Heartbeat from WorldQL");
+                    WorldQLClient.timestampOfLastHeartbeat = Instant.now().toEpochMilli();
                     continue;
                 }
 

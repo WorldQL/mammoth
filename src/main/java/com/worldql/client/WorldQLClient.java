@@ -14,6 +14,7 @@ import com.worldql.client.minecraft_serialization.SaveLoadPlayerFromRedis;
 import com.worldql.client.protocols.ProtocolManager;
 import com.worldql.client.worldql_serialization.Instruction;
 import com.worldql.client.worldql_serialization.Message;
+import com.worldql.client.worldql_serialization.Replication;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.WorldBorder;
@@ -26,6 +27,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public class WorldQLClient extends JavaPlugin {
@@ -37,10 +39,12 @@ public class WorldQLClient extends JavaPlugin {
     private ZContext context;
     private ZMQ.Socket pushSocket;
     private PacketReader packetReader;
-    public boolean processGhosts;
-    public boolean syncPlayerInventory;
-    public boolean inventorySyncOnly;
-    public PlayerDataSavingManager playerDataSavingManager;
+    public static boolean processGhosts;
+    public static boolean syncPlayerInventory;
+    public static boolean inventorySyncOnly;
+    public static PlayerDataSavingManager playerDataSavingManager;
+    public static long timestampOfLastHeartbeat;
+    static int zeroMQServerPort;
 
     @Override
     public void onEnable() {
@@ -69,6 +73,7 @@ public class WorldQLClient extends JavaPlugin {
         processGhosts = getConfig().getBoolean("ghosts", true);
         syncPlayerInventory = getConfig().getBoolean("sync-player-inventory", true);
         playerDataSavingManager = new PlayerDataSavingManager();
+        timestampOfLastHeartbeat = Instant.now().toEpochMilli();
 
         String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
         int worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);
@@ -127,8 +132,26 @@ public class WorldQLClient extends JavaPlugin {
                 );
 
                 pushSocket.send(message.encode(), zmq.ZMQ.ZMQ_DONTWAIT);
+
+                long now = Instant.now().toEpochMilli();
+                if (now - timestampOfLastHeartbeat > 15000) {
+                    getLogger().warning("Haven't received a heartbeat from WorldQL in over 15 seconds! Attempting to reconnect.");
+                    Message reconnectMessage = new Message(
+                            Instruction.Handshake,
+                            WorldQLClient.worldQLClientId,
+                            "@global",
+                            Replication.ExceptSelf,
+                            null,
+                            null,
+                            null,
+                            selfHostname + ":" + WorldQLClient.zeroMQServerPort,
+                            null
+                    );
+
+                    WorldQLClient.getPluginInstance().getPushSocket().send(reconnectMessage.encode(), ZMQ.DONTWAIT);
+                }
             }
-        }, 1L, 20L * 5L);
+        }, 5L, 20L * 5L);
 
         // Initialize Protocol
         ProtocolManager.read();

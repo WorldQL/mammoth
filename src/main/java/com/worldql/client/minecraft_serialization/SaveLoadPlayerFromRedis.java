@@ -29,8 +29,7 @@ public class SaveLoadPlayerFromRedis {
                 return;
             }
 
-            if (WorldQLClient.getPluginInstance().playerDataSavingManager.skip(player, 1000)) {
-                System.out.println("Skipping save! (probably transferring player)");
+            if (WorldQLClient.playerDataSavingManager.skip(player, 1000)) {
                 return;
             }
 
