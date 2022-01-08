@@ -13,9 +13,11 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.util.Vector;
 import redis.clients.jedis.Jedis;
 import zmq.ZMQ;
 
@@ -26,7 +28,7 @@ public class PlayerMoveAndLookHandler implements Listener {
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
         if (!WorldQLClient.playerDataSavingManager.isFullySynced(e.getPlayer())) {
             e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                    new TextComponent(ChatColor.GREEN + "Switched servers! One moment..."));
+                    new TextComponent(ChatColor.GREEN + "Connected!"));
             e.setCancelled(true);
             return;
         }
@@ -36,8 +38,10 @@ public class PlayerMoveAndLookHandler implements Listener {
 
         if (Slices.isDMZ(playerLocation)) {
             int distance = Slices.getDistanceFromDMZ(playerLocation);
-            e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                    new TextComponent(ChatColor.RED + "You are " + ChatColor.BOLD + "" + distance + ChatColor.RESET + ChatColor.RED + " blocks away from a server boundary."));
+            if (distance > 1) {
+                e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                        new TextComponent(ChatColor.RED + "You are " + ChatColor.BOLD + "" + distance + ChatColor.RESET + ChatColor.RED + " blocks away from a server boundary."));
+            }
         }
 
         if (locationOwner != WorldQLClient.mammothServerId) {
@@ -46,22 +50,35 @@ public class PlayerMoveAndLookHandler implements Listener {
 
             if (j.exists(cooldownKey)) {
                 e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                        new TextComponent(ChatColor.GOLD + "You must wait 10 seconds between crossing server boundaries!"));
+                        new TextComponent(ChatColor.GOLD + "" + ChatColor.BOLD + "(!) You must wait 5 seconds between crossing server boundaries!"));
 
                 // 1. Compute the "cross direction" defined by the direction from the source server TO the destination server.
                 // 2. Push them back in the direction they came from towards the correct server.
                 CrossDirection shoveDirection = Slices.getShoveDirection(playerLocation);
                 switch (shoveDirection) {
-                    case EAST_POSITIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(0.3, 0,0));
-                    case WEST_NEGATIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(-0.3, 0, 0));
-                    case NORTH_NEGATIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, -0.3));
-                    case SOUTH_POSITIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, 0.3));
+                    case EAST_POSITIVE_X -> {
+                        Vector v = new Vector(.3, .1, 0);
+                        e.getPlayer().setVelocity(v);
+                    }
+                    case WEST_NEGATIVE_X -> {
+                        Vector v = new Vector(-.3, .1, 0);
+                        e.getPlayer().setVelocity(v);
+                    }
+                    case NORTH_NEGATIVE_Z -> {
+                        Vector v = new Vector(0, .1, -.3);
+                        e.getPlayer().setVelocity(v);
+                    }
+                    case SOUTH_POSITIVE_Z -> {
+                        Vector v = new Vector(0, .1, .3);
+                        e.getPlayer().setVelocity(v);
+                    }
                     case ERROR -> {
                         if (WorldQLClient.playerDataSavingManager.getMsSinceLogin(e.getPlayer()) > 4000) {
                             e.getPlayer().kickPlayer("The Mammoth server responsible for your region of the world is inaccessible.");
                         }
                     }
                 }
+                e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.BLOCK_BUBBLE_COLUMN_BUBBLE_POP, 20, .5F);
 
                 WorldQLClient.pool.returnResource(j);
                 return;
@@ -76,7 +93,7 @@ public class PlayerMoveAndLookHandler implements Listener {
             e.getPlayer().sendPluginMessage(WorldQLClient.getPluginInstance(), "BungeeCord", out.toByteArray());
 
             j.set(cooldownKey, "true");
-            j.expire(cooldownKey, 10);
+            j.expire(cooldownKey, 5);
 
             WorldQLClient.pool.returnResource(j);
             return;
