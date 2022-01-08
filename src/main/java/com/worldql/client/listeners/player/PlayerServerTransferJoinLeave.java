@@ -4,17 +4,13 @@ package com.worldql.client.listeners.player;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.flatbuffers.FlexBuffersBuilder;
-import com.worldql.client.CrossDirection;
 import com.worldql.client.Slices;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.ghost.PlayerGhostManager;
 import com.worldql.client.minecraft_serialization.SaveLoadPlayerFromRedis;
 import com.worldql.client.protocols.ProtocolManager;
 import com.worldql.client.worldql_serialization.*;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -32,32 +28,36 @@ public class PlayerServerTransferJoinLeave implements Listener {
     public void onPlayerLogOut(PlayerQuitEvent e) {
         SaveLoadPlayerFromRedis.savePlayerToRedisAsync(e.getPlayer());
 
-        if (ProtocolManager.isinjected(e.getPlayer()))
-            ProtocolManager.uninjectPlayer(e.getPlayer());
-        // Send quit event to other clients
-        FlexBuffersBuilder b = Codec.getFlexBuilder();
-        int pmap = b.startMap();
-        b.putString("username", e.getPlayer().getName());
-        b.putString("uuid", e.getPlayer().getUniqueId().toString());
-        b.endMap(null, pmap);
-        ByteBuffer bb = b.finish();
-        Message message = new Message(
-                Instruction.LocalMessage,
-                WorldQLClient.worldQLClientId,
-                e.getPlayer().getWorld().getName(),
-                Replication.ExceptSelf,
-                new Vec3D(e.getPlayer().getLocation()),
-                null,
-                null,
-                "MinecraftPlayerQuit",
-                bb
-        );
-        WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
+        if (WorldQLClient.processGhosts) {
+
+            if (ProtocolManager.isinjected(e.getPlayer()))
+                ProtocolManager.uninjectPlayer(e.getPlayer());
+
+            // Send quit event to other clients
+            FlexBuffersBuilder b = Codec.getFlexBuilder();
+            int pmap = b.startMap();
+            b.putString("username", e.getPlayer().getName());
+            b.putString("uuid", e.getPlayer().getUniqueId().toString());
+            b.endMap(null, pmap);
+            ByteBuffer bb = b.finish();
+            Message message = new Message(
+                    Instruction.LocalMessage,
+                    WorldQLClient.worldQLClientId,
+                    e.getPlayer().getWorld().getName(),
+                    Replication.ExceptSelf,
+                    new Vec3D(e.getPlayer().getLocation()),
+                    null,
+                    null,
+                    "MinecraftPlayerQuit",
+                    bb
+            );
+            WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
+        }
     }
 
     @EventHandler
     public void onPlayerLogIn(PlayerJoinEvent e) {
-        WorldQLClient.playerDataSavingManager.markUnsafe(e.getPlayer());
+        WorldQLClient.playerDataSavingManager.markUnsynced(e.getPlayer());
         WorldQLClient.playerDataSavingManager.markSaved(e.getPlayer());
         Bukkit.getScheduler().runTaskLaterAsynchronously(WorldQLClient.getPluginInstance(), () -> {
             // make sure the transferring server doesn't save any junk on the way out.

@@ -34,14 +34,14 @@ public class PlayerDataSavingManager {
     }
 
     // Can this player move and drop items?
-    public boolean isSafe(Player p) {
+    public boolean isFullySynced(Player p) {
         if (!syncedAfterJoin.containsKey(p.getUniqueId())) {
             return false;
         }
         return syncedAfterJoin.get(p.getUniqueId());
     }
 
-    public void markUnsafe(Player p) {
+    public void markUnsynced(Player p) {
         syncedAfterJoin.put(p.getUniqueId(), false);
         p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 250, 10));
     }

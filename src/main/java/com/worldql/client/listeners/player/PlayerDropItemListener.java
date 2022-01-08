@@ -10,7 +10,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 public class PlayerDropItemListener implements Listener {
     @EventHandler
     public void onPlayerDropEvent(PlayerDropItemEvent e) {
-        if (!WorldQLClient.getPluginInstance().playerDataSavingManager.isSafe(e.getPlayer())) {
+        if (!WorldQLClient.getPluginInstance().playerDataSavingManager.isFullySynced(e.getPlayer())) {
             e.setCancelled(true);
             return;
         }

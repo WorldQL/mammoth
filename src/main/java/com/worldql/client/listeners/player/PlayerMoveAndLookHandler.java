@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 public class PlayerMoveAndLookHandler implements Listener {
     @EventHandler
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
-        if (!WorldQLClient.playerDataSavingManager.isSafe(e.getPlayer())) {
+        if (!WorldQLClient.playerDataSavingManager.isFullySynced(e.getPlayer())) {
             e.setCancelled(true);
             return;
         }
@@ -54,7 +54,11 @@ public class PlayerMoveAndLookHandler implements Listener {
                     case WEST_NEGATIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(-0.3, 0, 0));
                     case NORTH_NEGATIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, -0.3));
                     case SOUTH_POSITIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, 0.3));
-                    case ERROR -> e.getPlayer().kickPlayer("The Mammoth server responsible for your region of the world is inaccessible.");
+                    case ERROR -> {
+                        if (WorldQLClient.playerDataSavingManager.isFullySynced(e.getPlayer())) {
+                            e.getPlayer().kickPlayer("The Mammoth server responsible for your region of the world is inaccessible.");
+                        }
+                    }
                 }
 
                 WorldQLClient.pool.returnResource(j);
