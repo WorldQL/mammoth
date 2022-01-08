@@ -40,7 +40,7 @@ public class PlayerMoveAndLookHandler implements Listener {
             int distance = Slices.getDistanceFromDMZ(playerLocation);
             if (distance > 1) {
                 e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                        new TextComponent(ChatColor.RED + "You are " + ChatColor.BOLD + "" + distance + ChatColor.RESET + ChatColor.RED + " blocks away from a server boundary."));
+                        new TextComponent(ChatColor.RED + "You are " + ChatColor.BOLD + "" + distance + ChatColor.RESET + ChatColor.RED + " blocks away from a server border."));
             }
         }
 
@@ -50,7 +50,7 @@ public class PlayerMoveAndLookHandler implements Listener {
 
             if (j.exists(cooldownKey)) {
                 e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                        new TextComponent(ChatColor.GOLD + "" + ChatColor.BOLD + "(!) You must wait 5 seconds between crossing server boundaries!"));
+                        new TextComponent(ChatColor.GOLD + "" + ChatColor.BOLD + "(!) You must wait 5 seconds between crossing server borders!"));
 
                 // 1. Compute the "cross direction" defined by the direction from the source server TO the destination server.
                 // 2. Push them back in the direction they came from towards the correct server.
