@@ -43,7 +43,7 @@ public class SaveLoadPlayerFromRedis {
             return;
         }
 
-        if (WorldQLClient.playerDataSavingManager.skip(player, 1500)) {
+        if (WorldQLClient.playerDataSavingManager.skip(player, 1500) || WorldQLClient.playerDataSavingManager.getMsSinceLogin(player) < 5500) {
             return;
         }
         Jedis j = WorldQLClient.pool.getResource();
@@ -104,6 +104,7 @@ public class SaveLoadPlayerFromRedis {
         }
         WorldQLClient.pool.returnResource(j);
         WorldQLClient.playerDataSavingManager.markSaved(player);
+        WorldQLClient.playerDataSavingManager.processLogout(player);
     }
 
     public static void savePlayerToRedisAsync(Player player) {

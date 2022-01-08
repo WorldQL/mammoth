@@ -24,7 +24,9 @@ import java.nio.ByteBuffer;
 public class PlayerMoveAndLookHandler implements Listener {
     @EventHandler
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
-        if (!WorldQLClient.playerDataSavingManager.isFullySynced(e.getPlayer())) {
+        if (!WorldQLClient.playerDataSavingManager.isFullySynced(e.getPlayer()) || WorldQLClient.playerDataSavingManager.getMsSinceLogin(e.getPlayer()) < 1500) {
+            e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                    new TextComponent(ChatColor.GREEN + "Switched servers! One moment..."));
             e.setCancelled(true);
             return;
         }
@@ -55,7 +57,7 @@ public class PlayerMoveAndLookHandler implements Listener {
                     case NORTH_NEGATIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, -0.3));
                     case SOUTH_POSITIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, 0.3));
                     case ERROR -> {
-                        if (WorldQLClient.playerDataSavingManager.getMsSinceLogin(e.getPlayer()) > 5000) {
+                        if (WorldQLClient.playerDataSavingManager.getMsSinceLogin(e.getPlayer()) > 4000) {
                             e.getPlayer().kickPlayer("The Mammoth server responsible for your region of the world is inaccessible.");
                         }
                     }

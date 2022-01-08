@@ -27,10 +27,7 @@ public class PlayerServerTransferJoinLeave implements Listener {
     @EventHandler
     public void onPlayerLogOut(PlayerQuitEvent e) {
         SaveLoadPlayerFromRedis.savePlayerToRedisAsync(e.getPlayer());
-        WorldQLClient.playerDataSavingManager.processLogout(e.getPlayer());
-
         if (WorldQLClient.processGhosts) {
-
             if (ProtocolManager.isinjected(e.getPlayer()))
                 ProtocolManager.uninjectPlayer(e.getPlayer());
 
