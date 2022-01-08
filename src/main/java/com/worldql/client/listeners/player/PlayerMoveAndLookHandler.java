@@ -46,7 +46,7 @@ public class PlayerMoveAndLookHandler implements Listener {
 
             if (j.exists(cooldownKey)) {
                 e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                        new TextComponent(ChatColor.GOLD + "You must wait before crossing server boundaries again!"));
+                        new TextComponent(ChatColor.GOLD + "You must wait 10 seconds between crossing server boundaries!"));
 
                 // 1. Compute the "cross direction" defined by the direction from the source server TO the destination server.
                 // 2. Push them back in the direction they came from towards the correct server.
@@ -76,7 +76,7 @@ public class PlayerMoveAndLookHandler implements Listener {
             e.getPlayer().sendPluginMessage(WorldQLClient.getPluginInstance(), "BungeeCord", out.toByteArray());
 
             j.set(cooldownKey, "true");
-            j.expire(cooldownKey, 5);
+            j.expire(cooldownKey, 10);
 
             WorldQLClient.pool.returnResource(j);
             return;

@@ -78,19 +78,11 @@ public class PlayerServerTransferJoinLeave implements Listener {
                     int locationOwner = Slices.getOwnerOfLocation(playerLocation);
 
                     if (locationOwner != WorldQLClient.mammothServerId) {
-                        String cooldownKey = "cooldown-" + e.getPlayer().getUniqueId();
-
-                        if (j.exists(cooldownKey)) {
-                            return;
-                        }
 
                         ByteArrayDataOutput out = ByteStreams.newDataOutput();
                         out.writeUTF("Connect");
                         out.writeUTF("mammoth_" + locationOwner);
                         e.getPlayer().sendPluginMessage(WorldQLClient.getPluginInstance(), "BungeeCord", out.toByteArray());
-
-                        j.set(cooldownKey, "true");
-                        j.expire(cooldownKey, 5);
 
                         WorldQLClient.pool.returnResource(j);
                         return;

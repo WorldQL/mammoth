@@ -4,7 +4,10 @@ import com.google.flatbuffers.FlexBuffersBuilder;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.events.PlayerHoldEvent;
 import com.worldql.client.worldql_serialization.*;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -75,6 +78,14 @@ public class PlayerHeldItemListener implements Listener {
     @EventHandler
     public void onInventoryInteract(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
+
+        if (!WorldQLClient.playerDataSavingManager.isFullySynced(player) || WorldQLClient.playerDataSavingManager.getMsSinceLogin(player) < 8000) {
+            event.setCancelled(true);
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                    new TextComponent(ChatColor.RED + "You can't move items right now. Please wait a moment..."));
+            return;
+        }
+
         int slot = player.getInventory().getHeldItemSlot();
 
         if (event.getSlot() == slot) {
