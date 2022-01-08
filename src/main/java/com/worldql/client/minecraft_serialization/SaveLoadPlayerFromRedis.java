@@ -23,99 +23,91 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class SaveLoadPlayerFromRedis {
+    private static void nukeMob(Entity entity) {
+        if (!WorldQLClient.disabling) {
+            Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), () -> {
+                Location l = entity.getLocation().clone();
+                l.setY(-100);
+                entity.teleport(l);
+                entity.remove();
+            });
+        } else {
+            Location l = entity.getLocation().clone();
+            l.setY(-100);
+            entity.teleport(l);
+            entity.remove();
+        }
+    }
     public static void savePlayerToRedis(Player player) {
-        Bukkit.getScheduler().runTaskAsynchronously(WorldQLClient.getPluginInstance(), () -> {
-            if (player.getHealth() == 0) {
-                return;
-            }
+        if (player.getHealth() == 0) {
+            return;
+        }
 
-            if (WorldQLClient.playerDataSavingManager.skip(player, 1000)) {
-                return;
-            }
-            Jedis j = WorldQLClient.pool.getResource();
+        if (WorldQLClient.playerDataSavingManager.skip(player, 1500)) {
+            return;
+        }
+        Jedis j = WorldQLClient.pool.getResource();
 
-            HashMap<String, Object> playerData = new HashMap<String, Object>();
-            String[] inventoryStrings = PlayerDataSerialize.playerInventoryToBase64(player.getInventory());
-            playerData.put("inventory", inventoryStrings[0]);
-            playerData.put("armor", inventoryStrings[1]);
-            playerData.put("heldslot", player.getInventory().getHeldItemSlot());
-            playerData.put("hunger", player.getFoodLevel());
-            playerData.put("health", player.getHealth());
-            playerData.put("xp", ExperienceUtil.getTotalExperience(player));
-            playerData.put("pitch", player.getLocation().getPitch());
-            playerData.put("yaw", player.getLocation().getYaw());
-            playerData.put("x", player.getLocation().getX());
-            playerData.put("y", player.getLocation().getY());
-            playerData.put("z", player.getLocation().getZ());
-            playerData.put("world", player.getWorld().getName());
-            playerData.put("isGliding", player.isGliding());
+        HashMap<String, Object> playerData = new HashMap<String, Object>();
+        String[] inventoryStrings = PlayerDataSerialize.playerInventoryToBase64(player.getInventory());
+        playerData.put("inventory", inventoryStrings[0]);
+        playerData.put("armor", inventoryStrings[1]);
+        playerData.put("heldslot", player.getInventory().getHeldItemSlot());
+        playerData.put("hunger", player.getFoodLevel());
+        playerData.put("health", player.getHealth());
+        playerData.put("xp", ExperienceUtil.getTotalExperience(player));
+        playerData.put("pitch", player.getLocation().getPitch());
+        playerData.put("yaw", player.getLocation().getYaw());
+        playerData.put("x", player.getLocation().getX());
+        playerData.put("y", player.getLocation().getY());
+        playerData.put("z", player.getLocation().getZ());
+        playerData.put("world", player.getWorld().getName());
+        playerData.put("isGliding", player.isGliding());
 
-            // get speed for better elytra flight
-            Vector velocity = player.getVelocity();
-            String velocityString = velocity.getX() + "," + velocity.getY() + "," + velocity.getZ();
-            playerData.put("velocity", velocityString);
+        // get speed for better elytra flight
+        Vector velocity = player.getVelocity();
+        String velocityString = velocity.getX() + "," + velocity.getY() + "," + velocity.getZ();
+        playerData.put("velocity", velocityString);
 
-            Collection<PotionEffect> potionEffects = player.getActivePotionEffects();
-            Iterator<PotionEffect> iterator = potionEffects.iterator();
-            StringBuilder potionString = new StringBuilder();
-            while (iterator.hasNext()) {
-                PotionEffect effect = iterator.next();
-                potionString.append(effect.getType().getName()).append(",");
-                potionString.append(((Integer) effect.getDuration())).append(",");
-                potionString.append(((Integer) effect.getAmplifier())).append(",");
-            }
-            playerData.put("potions", potionString.toString());
+        Collection<PotionEffect> potionEffects = player.getActivePotionEffects();
+        Iterator<PotionEffect> iterator = potionEffects.iterator();
+        StringBuilder potionString = new StringBuilder();
+        while (iterator.hasNext()) {
+            PotionEffect effect = iterator.next();
+            potionString.append(effect.getType().getName()).append(",");
+            potionString.append(((Integer) effect.getDuration())).append(",");
+            potionString.append(((Integer) effect.getAmplifier())).append(",");
+        }
+        playerData.put("potions", potionString.toString());
 
+        // is the player riding a horse?
+        if (player.isInsideVehicle() && player.getVehicle() instanceof Horse horse) {
+            playerData.put("horse", getNBT(horse));
+            nukeMob(horse);
+        }
+        // check for boat
+        if (player.isInsideVehicle() && player.getVehicle() instanceof Boat boat) {
+            playerData.put("boat", getNBT(boat));
+            nukeMob(boat);
+        }
+        // check for nether strider
+        if (player.isInsideVehicle() && player.getVehicle() instanceof Strider strider) {
+            playerData.put("strider", getNBT(strider));
+            nukeMob(strider);
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String playerAsJson = mapper.writeValueAsString(playerData);
+            j.set("player-" + player.getUniqueId(), playerAsJson);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        WorldQLClient.pool.returnResource(j);
+        WorldQLClient.playerDataSavingManager.markSaved(player);
+    }
 
-            // is the player riding a horse
-            if (player.isInsideVehicle() && player.getVehicle() instanceof Horse horse) {
-                playerData.put("horse", getNBT(horse));
-                Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), new Runnable() {
-                    @Override
-                    public void run() {
-                        Location l = horse.getLocation().clone();
-                        l.setY(-100);
-                        horse.teleport(l);
-                        horse.remove();
-                    }
-                });
-            }
-            // check for boat
-            if (player.isInsideVehicle() && player.getVehicle() instanceof Boat boat) {
-                playerData.put("boat", getNBT(boat));
-                Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), new Runnable() {
-                    @Override
-                    public void run() {
-                        Location l = boat.getLocation().clone();
-                        l.setY(-100);
-                        boat.teleport(l);
-                        boat.remove();
-                    }
-                });
-            }
-            // check for nether strider
-            if (player.isInsideVehicle() && player.getVehicle() instanceof Strider strider) {
-                playerData.put("strider", getNBT(strider));
-                Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), new Runnable() {
-                    @Override
-                    public void run() {
-                        Location l = strider.getLocation().clone();
-                        l.setY(-100);
-                        strider.teleport(l);
-                        strider.remove();
-                    }
-                });
-            }
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                String playerAsJson = mapper.writeValueAsString(playerData);
-                j.set("player-" + player.getUniqueId(), playerAsJson);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            WorldQLClient.pool.returnResource(j);
-            WorldQLClient.playerDataSavingManager.markSaved(player);
-        });
+    public static void savePlayerToRedisAsync(Player player) {
+        Bukkit.getScheduler().runTaskAsynchronously(WorldQLClient.getPluginInstance(), () -> savePlayerToRedis(player));
     }
 
     private static String getNBT(Entity e) {

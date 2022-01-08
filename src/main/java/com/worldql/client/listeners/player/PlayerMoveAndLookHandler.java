@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 public class PlayerMoveAndLookHandler implements Listener {
     @EventHandler
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
-        if (!WorldQLClient.getPluginInstance().playerDataSavingManager.isSafe(e.getPlayer())) {
+        if (!WorldQLClient.playerDataSavingManager.isSafe(e.getPlayer())) {
             e.setCancelled(true);
             return;
         }
@@ -54,6 +54,7 @@ public class PlayerMoveAndLookHandler implements Listener {
                     case WEST_NEGATIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(-0.3, 0, 0));
                     case NORTH_NEGATIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, -0.3));
                     case SOUTH_POSITIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, 0.3));
+                    case ERROR -> e.getPlayer().kickPlayer("The Mammoth server responsible for your region of the world is inaccessible.");
                 }
 
                 WorldQLClient.pool.returnResource(j);
@@ -61,7 +62,7 @@ public class PlayerMoveAndLookHandler implements Listener {
             }
 
             // TODO: Move the IO to async event.
-            SaveLoadPlayerFromRedis.savePlayerToRedis(e.getPlayer());
+            SaveLoadPlayerFromRedis.savePlayerToRedisAsync(e.getPlayer());
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Connect");

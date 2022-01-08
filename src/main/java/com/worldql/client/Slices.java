@@ -67,6 +67,10 @@ public class Slices {
     }
 
     public static boolean isDMZ(Location l) {
+        if (l.getWorld().getName().equals("world_the_end")) {
+            return false;
+        }
+
         int adjustedX = (int) (l.getX() + (worldDiameter / 2));
         int adjustedZ = (int) (l.getZ() + (worldDiameter / 2));
 

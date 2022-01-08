@@ -17,6 +17,8 @@ import com.worldql.client.worldql_serialization.Message;
 import com.worldql.client.worldql_serialization.Replication;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
+import org.bukkit.World;
 import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,6 +33,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 public class WorldQLClient extends JavaPlugin {
+    public static boolean disabling;
     public static WorldQLClient pluginInstance;
     public static UUID worldQLClientId;
     public static JedisPool pool;
@@ -49,6 +52,7 @@ public class WorldQLClient extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        disabling = false;
         pluginInstance = this;
         getLogger().info("Initializing Mammoth v0.7");
         saveDefaultConfig();
@@ -89,30 +93,34 @@ public class WorldQLClient extends JavaPlugin {
 
         Slices.enabled = getConfig().getBoolean("slice-mode");
         if (Slices.enabled) {
-            Bukkit.getScheduler().runTaskLater(this, new Runnable() {
-                @Override
-                public void run() {
-                    Slices.numServers = getConfig().getInt("num-servers");
-                    Slices.worldDiameter = getConfig().getInt("world-diameter");
-                    Slices.sliceWidth = getConfig().getInt("slice-width");
-                    Slices.dmzSize = getConfig().getInt("dmz-size");
-                    int worldDiameter = getConfig().getInt("world-diameter");
-                    try {
-                        WorldBorder wb = Bukkit.getWorld("world").getWorldBorder();
-                        wb.setCenter(0, 0);
-                        wb.setSize(worldDiameter);
+            Bukkit.getScheduler().runTaskLater(this, () -> {
+                Slices.numServers = getConfig().getInt("num-servers");
+                Slices.worldDiameter = getConfig().getInt("world-diameter");
+                Slices.sliceWidth = getConfig().getInt("slice-width");
+                Slices.dmzSize = getConfig().getInt("dmz-size");
+                int worldDiameter = getConfig().getInt("world-diameter");
+                try {
+                    World world = Bukkit.getWorld("world");
+                    World nether = Bukkit.getWorld("world_nether");
+                    World end = Bukkit.getWorld("world_the_end");
 
-                        wb = Bukkit.getWorld("world_nether").getWorldBorder();
-                        wb.setCenter(0, 0);
-                        wb.setSize(worldDiameter / 8 - 10);
+                    WorldBorder wb = world.getWorldBorder();
+                    wb.setCenter(0, 0);
+                    wb.setSize(worldDiameter);
 
-                        wb = Bukkit.getWorld("world_the_end").getWorldBorder();
-                        wb.setCenter(0, 0);
-                        wb.setSize(worldDiameter);
+                    wb = nether.getWorldBorder();
+                    wb.setCenter(0, 0);
+                    wb.setSize(worldDiameter / 8 - 10);
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    wb = end.getWorldBorder();
+                    wb.setCenter(0, 0);
+                    wb.setSize(worldDiameter);
+
+                    world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+                    nether.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+                    end.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }, 20);
         }
@@ -200,6 +208,7 @@ public class WorldQLClient extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        disabling = true;
         for (Player player : getServer().getOnlinePlayers()) {
             SaveLoadPlayerFromRedis.savePlayerToRedis(player);
         }

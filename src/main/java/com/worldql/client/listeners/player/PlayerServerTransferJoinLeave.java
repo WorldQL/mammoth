@@ -30,7 +30,7 @@ import java.nio.ByteBuffer;
 public class PlayerServerTransferJoinLeave implements Listener {
     @EventHandler
     public void onPlayerLogOut(PlayerQuitEvent e) {
-        SaveLoadPlayerFromRedis.savePlayerToRedis(e.getPlayer());
+        SaveLoadPlayerFromRedis.savePlayerToRedisAsync(e.getPlayer());
 
         if (ProtocolManager.isinjected(e.getPlayer()))
             ProtocolManager.uninjectPlayer(e.getPlayer());
@@ -57,10 +57,11 @@ public class PlayerServerTransferJoinLeave implements Listener {
 
     @EventHandler
     public void onPlayerLogIn(PlayerJoinEvent e) {
-        WorldQLClient.getPluginInstance().playerDataSavingManager.markUnsafe(e.getPlayer());
+        WorldQLClient.playerDataSavingManager.markUnsafe(e.getPlayer());
+        WorldQLClient.playerDataSavingManager.markSaved(e.getPlayer());
         Bukkit.getScheduler().runTaskLaterAsynchronously(WorldQLClient.getPluginInstance(), () -> {
             // make sure the transferring server doesn't save any junk on the way out.
-            WorldQLClient.getPluginInstance().playerDataSavingManager.markSaved(e.getPlayer());
+            WorldQLClient.playerDataSavingManager.markSaved(e.getPlayer());
             Jedis j = WorldQLClient.pool.getResource();
             String data = j.get("player-" + e.getPlayer().getUniqueId());
 
@@ -68,7 +69,7 @@ public class PlayerServerTransferJoinLeave implements Listener {
                 if (data != null) {
                     try {
                         SaveLoadPlayerFromRedis.setPlayerData(data, e.getPlayer());
-                        WorldQLClient.getPluginInstance().playerDataSavingManager.markSafe(e.getPlayer());
+                        WorldQLClient.playerDataSavingManager.markSafe(e.getPlayer());
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
                     }
@@ -80,21 +81,6 @@ public class PlayerServerTransferJoinLeave implements Listener {
                         String cooldownKey = "cooldown-" + e.getPlayer().getUniqueId();
 
                         if (j.exists(cooldownKey)) {
-                            e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                                    new TextComponent(ChatColor.GOLD + "You must wait before crossing server borders again!"));
-                            CrossDirection shoveDirection = Slices.getShoveDirection(playerLocation);
-                            Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), () -> {
-                                switch (shoveDirection) {
-                                    case EAST_POSITIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(0.3, 0, 0));
-                                    case WEST_NEGATIVE_X -> e.getPlayer().teleport(playerLocation.clone().add(-0.3, 0, 0));
-                                    case NORTH_NEGATIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, -0.3));
-                                    case SOUTH_POSITIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, 0.3));
-                                    case ERROR -> {
-                                        e.getPlayer().kickPlayer("The Mammoth server responsible for your region of the world is inaccessible.");
-                                    }
-                                }
-                            });
-                            WorldQLClient.pool.returnResource(j);
                             return;
                         }
 
@@ -115,34 +101,35 @@ public class PlayerServerTransferJoinLeave implements Listener {
         }, 5L);
 
         //WorldQLClient.logger.info("Setting player " + e.getPlayer().getDisplayName() + " to get ghost join packets sent.");
-        ProtocolManager.injectPlayer(e.getPlayer());
-        Player player = e.getPlayer();
 
-        PlayerGhostManager.ensurePlayerHasJoinPackets(player.getUniqueId());
+        if (WorldQLClient.processGhosts) {
+            ProtocolManager.injectPlayer(e.getPlayer());
+            Player player = e.getPlayer();
 
-        FlexBuffersBuilder b = Codec.getFlexBuilder();
-        int pmap = b.startMap();
-        b.putFloat("pitch", player.getLocation().getPitch());
-        b.putFloat("yaw", player.getLocation().getYaw());
-        b.putString("username", player.getName());
-        b.putString("uuid", player.getUniqueId().toString());
-        b.endMap(null, pmap);
-        ByteBuffer bb = b.finish();
+            PlayerGhostManager.ensurePlayerHasJoinPackets(player.getUniqueId());
 
-        Message message = new Message(
-                Instruction.LocalMessage,
-                WorldQLClient.worldQLClientId,
-                e.getPlayer().getWorld().getName(),
-                Replication.ExceptSelf,
-                new Vec3D(player.getLocation()),
-                null,
-                null,
-                "MinecraftPlayerMove",
-                bb
-        );
+            FlexBuffersBuilder b = Codec.getFlexBuilder();
+            int pmap = b.startMap();
+            b.putFloat("pitch", player.getLocation().getPitch());
+            b.putFloat("yaw", player.getLocation().getYaw());
+            b.putString("username", player.getName());
+            b.putString("uuid", player.getUniqueId().toString());
+            b.endMap(null, pmap);
+            ByteBuffer bb = b.finish();
 
-        WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
+            Message message = new Message(
+                    Instruction.LocalMessage,
+                    WorldQLClient.worldQLClientId,
+                    e.getPlayer().getWorld().getName(),
+                    Replication.ExceptSelf,
+                    new Vec3D(player.getLocation()),
+                    null,
+                    null,
+                    "MinecraftPlayerMove",
+                    bb
+            );
+
+            WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
+        }
     }
-
-
 }
