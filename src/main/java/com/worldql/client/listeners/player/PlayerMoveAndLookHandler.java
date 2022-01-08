@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 public class PlayerMoveAndLookHandler implements Listener {
     @EventHandler
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
-        if (!WorldQLClient.playerDataSavingManager.isFullySynced(e.getPlayer()) || WorldQLClient.playerDataSavingManager.getMsSinceLogin(e.getPlayer()) < 1500) {
+        if (!WorldQLClient.playerDataSavingManager.isFullySynced(e.getPlayer())) {
             e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
                     new TextComponent(ChatColor.GREEN + "Switched servers! One moment..."));
             e.setCancelled(true);
