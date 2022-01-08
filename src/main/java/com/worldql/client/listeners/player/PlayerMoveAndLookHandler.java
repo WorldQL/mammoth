@@ -55,7 +55,7 @@ public class PlayerMoveAndLookHandler implements Listener {
                     case NORTH_NEGATIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, -0.3));
                     case SOUTH_POSITIVE_Z -> e.getPlayer().teleport(playerLocation.clone().add(0, 0, 0.3));
                     case ERROR -> {
-                        if (WorldQLClient.playerDataSavingManager.isFullySynced(e.getPlayer())) {
+                        if (WorldQLClient.playerDataSavingManager.getMsSinceLogin(e.getPlayer()) > 5000) {
                             e.getPlayer().kickPlayer("The Mammoth server responsible for your region of the world is inaccessible.");
                         }
                     }

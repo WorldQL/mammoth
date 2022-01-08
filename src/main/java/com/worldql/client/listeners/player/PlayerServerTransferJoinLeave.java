@@ -27,6 +27,7 @@ public class PlayerServerTransferJoinLeave implements Listener {
     @EventHandler
     public void onPlayerLogOut(PlayerQuitEvent e) {
         SaveLoadPlayerFromRedis.savePlayerToRedisAsync(e.getPlayer());
+        WorldQLClient.playerDataSavingManager.processLogout(e.getPlayer());
 
         if (WorldQLClient.processGhosts) {
 
@@ -59,6 +60,8 @@ public class PlayerServerTransferJoinLeave implements Listener {
     public void onPlayerLogIn(PlayerJoinEvent e) {
         WorldQLClient.playerDataSavingManager.markUnsynced(e.getPlayer());
         WorldQLClient.playerDataSavingManager.markSaved(e.getPlayer());
+        WorldQLClient.playerDataSavingManager.recordLogin(e.getPlayer());
+
         Bukkit.getScheduler().runTaskLaterAsynchronously(WorldQLClient.getPluginInstance(), () -> {
             // make sure the transferring server doesn't save any junk on the way out.
             WorldQLClient.playerDataSavingManager.markSaved(e.getPlayer());

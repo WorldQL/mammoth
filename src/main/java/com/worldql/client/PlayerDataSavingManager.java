@@ -11,15 +11,38 @@ import java.util.UUID;
 public class PlayerDataSavingManager {
     private final HashMap<UUID, Long> timeSinceLastSave;
     private final HashMap<UUID, Boolean> syncedAfterJoin;
+    private final HashMap<UUID, Long> playerLoginTime;
 
     public PlayerDataSavingManager() {
         timeSinceLastSave = new HashMap<>();
         syncedAfterJoin = new HashMap<>();
+        playerLoginTime = new HashMap<>();
+    }
+
+    public void recordLogin(Player p) {
+        long now = Instant.now().toEpochMilli();
+        playerLoginTime.put(p.getUniqueId(), now);
+    }
+
+    public void processLogout(Player p) {
+        UUID u = p.getUniqueId();
+        timeSinceLastSave.remove(u);
+        syncedAfterJoin.remove(u);
+        playerLoginTime.remove(u);
+    }
+
+    public long getMsSinceLogin(Player p) {
+        UUID playerUUID = p.getUniqueId();
+        if (!playerLoginTime.containsKey(playerUUID)) {
+            return 0;
+        }
+        long now = Instant.now().toEpochMilli();
+        return now - playerLoginTime.get(playerUUID);
     }
 
     public void markSaved(Player p) {
-        Instant now = Instant.now();
-        timeSinceLastSave.put(p.getUniqueId(), now.toEpochMilli());
+        long now = Instant.now().toEpochMilli();
+        timeSinceLastSave.put(p.getUniqueId(), now);
     }
 
     // Should we skip syncing this player? Useful if we don't want duplicates firing or bad player saves from other servers.
