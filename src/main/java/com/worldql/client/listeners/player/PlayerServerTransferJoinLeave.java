@@ -17,6 +17,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.potion.PotionEffectType;
 import redis.clients.jedis.Jedis;
 import zmq.ZMQ;
 
@@ -69,7 +70,7 @@ public class PlayerServerTransferJoinLeave implements Listener {
                 if (data != null) {
                     try {
                         SaveLoadPlayerFromRedis.setPlayerData(data, e.getPlayer());
-                        WorldQLClient.playerDataSavingManager.markSafe(e.getPlayer());
+                        WorldQLClient.playerDataSavingManager.markSynced(e.getPlayer());
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
                     }
@@ -88,6 +89,8 @@ public class PlayerServerTransferJoinLeave implements Listener {
                         return;
                     }
                     WorldQLClient.pool.returnResource(j);
+                } else {
+                    WorldQLClient.playerDataSavingManager.markSynced(e.getPlayer());
                 }
             });
         }, 5L);

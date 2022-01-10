@@ -65,7 +65,7 @@ public class WorldQLClient extends JavaPlugin {
             Jedis j = pool.getResource();
             pool.returnResource(j);
         } catch (JedisConnectionException e) {
-            getLogger().warning("Failed to connect to redis. Redis is required for Mammoth.");
+            getLogger().warning("Failed to connect to Redis. Both WorldQL and Redis are required for Mammoth. Stopping server...");
             Bukkit.getServer().shutdown();
             return;
         }
@@ -212,22 +212,25 @@ public class WorldQLClient extends JavaPlugin {
         for (Player player : getServer().getOnlinePlayers()) {
             SaveLoadPlayerFromRedis.savePlayerToRedis(player);
         }
-
-        getLogger().info("Shutting down ZeroMQ thread.");
-        context.close();
-        try {
-            zeroMQThread.interrupt();
-            zeroMQThread.join();
-        } catch (InterruptedException ignored) {
+        if (context != null && zeroMQThread != null) {
+            getLogger().info("Shutting down ZeroMQ thread.");
+            context.close();
+            try {
+                zeroMQThread.interrupt();
+                zeroMQThread.join();
+            } catch (InterruptedException ignored) {
+            }
         }
     }
 
     public static WorldQLClient getPluginInstance() {
         return pluginInstance;
     }
+
     public PacketReader getPacketReader() {
         return packetReader;
     }
+
     public ZMQ.Socket getPushSocket() {
         return pushSocket;
     }

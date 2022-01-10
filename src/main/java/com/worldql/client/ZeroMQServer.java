@@ -113,7 +113,7 @@ public class ZeroMQServer implements Runnable {
             } catch (Exception e) {
                 if (e instanceof ZMQException) {
                     if (((ZMQException) e).getErrorCode() == ZMQ.Error.ETERM.getCode()) {
-                        break;
+                        WorldQLClient.getPluginInstance().getLogger().warning("Caught ZeroMQ ETERM exception!");
                     }
                 }
             }

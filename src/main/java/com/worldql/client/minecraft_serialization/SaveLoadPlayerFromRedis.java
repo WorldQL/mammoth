@@ -46,6 +46,7 @@ public class SaveLoadPlayerFromRedis {
         if (WorldQLClient.playerDataSavingManager.skip(player, 1500) || WorldQLClient.playerDataSavingManager.getMsSinceLogin(player) < 2500) {
             return;
         }
+
         Jedis j = WorldQLClient.pool.getResource();
 
         HashMap<String, Object> playerData = new HashMap<String, Object>();
@@ -100,6 +101,7 @@ public class SaveLoadPlayerFromRedis {
             String playerAsJson = mapper.writeValueAsString(playerData);
             j.set("player-" + player.getUniqueId(), playerAsJson);
         } catch (Exception e) {
+            WorldQLClient.pool.returnResource(j);
             e.printStackTrace();
         }
         WorldQLClient.pool.returnResource(j);

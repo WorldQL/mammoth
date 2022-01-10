@@ -5,18 +5,18 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerDataSavingManager {
-    private final HashMap<UUID, Long> timeSinceLastSave;
-    private final HashMap<UUID, Boolean> syncedAfterJoin;
-    private final HashMap<UUID, Long> playerLoginTime;
+    private final ConcurrentHashMap<UUID, Long> timeSinceLastSave;
+    private final ConcurrentHashMap<UUID, Boolean> syncedAfterJoin;
+    private final ConcurrentHashMap<UUID, Long> playerLoginTime;
 
     public PlayerDataSavingManager() {
-        timeSinceLastSave = new HashMap<>();
-        syncedAfterJoin = new HashMap<>();
-        playerLoginTime = new HashMap<>();
+        timeSinceLastSave = new ConcurrentHashMap<>();
+        syncedAfterJoin = new ConcurrentHashMap<>();
+        playerLoginTime = new ConcurrentHashMap<>();
     }
 
     public void recordLogin(Player p) {
@@ -69,8 +69,9 @@ public class PlayerDataSavingManager {
         p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 250, 10));
     }
 
-    public void markSafe(Player p) {
+    public void markSynced(Player p) {
         syncedAfterJoin.put(p.getUniqueId(), true);
+        p.removePotionEffect(PotionEffectType.BLINDNESS);
     }
 
 }

@@ -39,11 +39,13 @@ public class PlayerDeathListener implements Listener {
         // Drop items normally when players die with slice mode enabled.
         // Also delete their record from redis.
         if (Slices.enabled) {
-            WorldQLClient.playerDataSavingManager.markSaved(e.getEntity().getPlayer());
-            Jedis j = WorldQLClient.pool.getResource();
-            String playerKey = "player-" + e.getEntity().getUniqueId();
-            j.del(playerKey);
-            WorldQLClient.pool.returnResource(j);
+            Bukkit.getScheduler().runTaskAsynchronously(WorldQLClient.getPluginInstance(), () -> {
+                WorldQLClient.playerDataSavingManager.markSaved(e.getEntity().getPlayer());
+                Jedis j = WorldQLClient.pool.getResource();
+                String playerKey = "player-" + e.getEntity().getUniqueId();
+                j.del(playerKey);
+                WorldQLClient.pool.returnResource(j);
+            });
             return;
         }
 

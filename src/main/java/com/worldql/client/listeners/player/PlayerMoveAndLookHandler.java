@@ -3,7 +3,6 @@ package com.worldql.client.listeners.player;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.flatbuffers.FlexBuffersBuilder;
-
 import com.worldql.client.CrossDirection;
 import com.worldql.client.Slices;
 import com.worldql.client.WorldQLClient;
@@ -18,7 +17,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.util.Vector;
-import redis.clients.jedis.Jedis;
 import zmq.ZMQ;
 
 import java.nio.ByteBuffer;
@@ -27,8 +25,10 @@ public class PlayerMoveAndLookHandler implements Listener {
     @EventHandler
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
         if (!WorldQLClient.playerDataSavingManager.isFullySynced(e.getPlayer())) {
-            e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                    new TextComponent(ChatColor.GREEN + "Connected!"));
+            if (WorldQLClient.playerDataSavingManager.getMsSinceLogin(e.getPlayer()) > 2000) {
+                e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                        new TextComponent(ChatColor.GREEN + "It's taking longer than expected to load your player data. Please notify the server admins."));
+            }
             e.setCancelled(true);
             return;
         }
@@ -45,12 +45,9 @@ public class PlayerMoveAndLookHandler implements Listener {
         }
 
         if (locationOwner != WorldQLClient.mammothServerId) {
-            Jedis j = WorldQLClient.pool.getResource();
-            String cooldownKey = "cooldown-" + e.getPlayer().getUniqueId();
-
-            if (j.exists(cooldownKey)) {
+            if (WorldQLClient.playerDataSavingManager.getMsSinceLogin(e.getPlayer()) < 8000) {
                 e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                        new TextComponent(ChatColor.GOLD + "" + ChatColor.BOLD + "(!) You must wait 5 seconds between crossing server borders!"));
+                        new TextComponent(ChatColor.GOLD + "" + ChatColor.BOLD + "(!) You must wait 8 seconds between crossing server borders!"));
 
                 // 1. Compute the "cross direction" defined by the direction from the source server TO the destination server.
                 // 2. Push them back in the direction they came from towards the correct server.
@@ -79,12 +76,9 @@ public class PlayerMoveAndLookHandler implements Listener {
                     }
                 }
                 e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.BLOCK_BUBBLE_COLUMN_BUBBLE_POP, 20, .5F);
-
-                WorldQLClient.pool.returnResource(j);
                 return;
             }
 
-            // TODO: Move the IO to async event.
             SaveLoadPlayerFromRedis.savePlayerToRedisAsync(e.getPlayer());
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
@@ -92,16 +86,12 @@ public class PlayerMoveAndLookHandler implements Listener {
             out.writeUTF("mammoth_" + locationOwner);
             e.getPlayer().sendPluginMessage(WorldQLClient.getPluginInstance(), "BungeeCord", out.toByteArray());
 
-            j.set(cooldownKey, "true");
-            j.expire(cooldownKey, 5);
-
-            WorldQLClient.pool.returnResource(j);
             return;
         }
 
         if (e.getTo() == null) return;
 
-        if (!WorldQLClient.getPluginInstance().processGhosts) {
+        if (!WorldQLClient.processGhosts) {
             return;
         }
 
