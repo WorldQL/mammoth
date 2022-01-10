@@ -27,7 +27,7 @@ public class PlayerMoveAndLookHandler implements Listener {
         if (!WorldQLClient.playerDataSavingManager.isFullySynced(e.getPlayer())) {
             if (WorldQLClient.playerDataSavingManager.getMsSinceLogin(e.getPlayer()) > 2000) {
                 e.getPlayer().spigot().sendMessage(ChatMessageType.CHAT,
-                        new TextComponent(ChatColor.YELLOW + "It's taking longer than expected to load your player data. Please try re-logging. If you're seeing this error often, notify the server admins."));
+                        new TextComponent(ChatColor.DARK_RED + "It's taking longer than expected to load your player data. " + ChatColor.BOLD + ChatColor.DARK_AQUA + "Please try re-logging. If you're seeing this error often, notify the server admins."));
             }
             e.setCancelled(true);
             return;
@@ -54,19 +54,19 @@ public class PlayerMoveAndLookHandler implements Listener {
                 CrossDirection shoveDirection = Slices.getShoveDirection(playerLocation);
                 switch (shoveDirection) {
                     case EAST_POSITIVE_X -> {
-                        Vector v = new Vector(.3, .1, 0);
+                        Vector v = new Vector(.2, .1, 0);
                         e.getPlayer().setVelocity(v);
                     }
                     case WEST_NEGATIVE_X -> {
-                        Vector v = new Vector(-.3, .1, 0);
+                        Vector v = new Vector(-.2, .1, 0);
                         e.getPlayer().setVelocity(v);
                     }
                     case NORTH_NEGATIVE_Z -> {
-                        Vector v = new Vector(0, .1, -.3);
+                        Vector v = new Vector(0, .1, -.2);
                         e.getPlayer().setVelocity(v);
                     }
                     case SOUTH_POSITIVE_Z -> {
-                        Vector v = new Vector(0, .1, .3);
+                        Vector v = new Vector(0, .1, .2);
                         e.getPlayer().setVelocity(v);
                     }
                     case ERROR -> {
