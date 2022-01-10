@@ -68,16 +68,18 @@ public class ChunkLoadEventListener implements Listener {
             seenChunks.put(chunk, System.currentTimeMillis());
         }
 
-        for (int i = min_height; i <= max_height; i += 16) {
-            Vec3D position = new Vec3D(x, i, z);
-            Message subMessage = new Message(
-                    Instruction.AreaSubscribe,
-                    WorldQLClient.worldQLClientId,
-                    chunk.getWorld().getName(),
-                    position
-            );
+        if (WorldQLClient.processGhosts) {
+            for (int i = min_height; i <= max_height; i += 16) {
+                Vec3D position = new Vec3D(x, i, z);
+                Message subMessage = new Message(
+                        Instruction.AreaSubscribe,
+                        WorldQLClient.worldQLClientId,
+                        chunk.getWorld().getName(),
+                        position
+                );
 
-            WorldQLClient.getPluginInstance().getPushSocket().send(subMessage.encode(), ZMQ.ZMQ_DONTWAIT);
+                WorldQLClient.getPluginInstance().getPushSocket().send(subMessage.encode(), ZMQ.ZMQ_DONTWAIT);
+            }
         }
     }
 }
