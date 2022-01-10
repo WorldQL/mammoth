@@ -27,7 +27,7 @@ public class PlayerMoveAndLookHandler implements Listener {
         if (!WorldQLClient.playerDataSavingManager.isFullySynced(e.getPlayer())) {
             if (WorldQLClient.playerDataSavingManager.getMsSinceLogin(e.getPlayer()) > 2000) {
                 e.getPlayer().spigot().sendMessage(ChatMessageType.CHAT,
-                        new TextComponent(ChatColor.DARK_RED + "It's taking longer than expected to load your player data. " + ChatColor.BOLD + ChatColor.DARK_AQUA + "Please try re-logging. If you're seeing this error often, notify the server admins."));
+                        new TextComponent(ChatColor.DARK_RED + "It's taking longer than expected to load your player data. " + ChatColor.DARK_AQUA + "Please try re-logging. If you're seeing this error often, notify the server admins."));
             }
             e.setCancelled(true);
             return;
