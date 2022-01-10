@@ -75,7 +75,7 @@ public class WorldQLClient extends JavaPlugin {
         context = new ZContext();
         pushSocket = context.createSocket(SocketType.PUSH);
         packetReader = new PacketReader();
-        processGhosts = getConfig().getBoolean("ghosts", true);
+        processGhosts = getConfig().getBoolean("ghosts", false);
         syncPlayerInventory = getConfig().getBoolean("sync-player-inventory", true);
         syncPlayerHealthXPHunger = getConfig().getBoolean("sync-player-health-xp-hunger", true);
         syncPlayerEffects = getConfig().getBoolean("sync-player-effects", true);
@@ -167,17 +167,21 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(), this);
 
         // For ghosts.
-        getServer().getPluginManager().registerEvents(new PlayerCrouchListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerArmorEditListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerHeldItemListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerShieldInteractListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerTeleportEventListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerShootBowListener(), this);
+        if (processGhosts) {
+            getServer().getPluginManager().registerEvents(new PlayerCrouchListener(), this);
+            getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
+            getServer().getPluginManager().registerEvents(new PlayerArmorEditListener(), this);
+            getServer().getPluginManager().registerEvents(new PlayerHeldItemListener(), this);
+            getServer().getPluginManager().registerEvents(new PlayerShieldInteractListener(), this);
+            getServer().getPluginManager().registerEvents(new PlayerTeleportEventListener(), this);
+            getServer().getPluginManager().registerEvents(new PlayerShootBowListener(), this);
+        }
 
         // To sub/unsub from regions of the world.
-        getServer().getPluginManager().registerEvents(new ChunkLoadEventListener(), this);
-        getServer().getPluginManager().registerEvents(new ChunkUnloadEventListener(), this);
+        if (processGhosts || !Slices.enabled) {
+            getServer().getPluginManager().registerEvents(new ChunkLoadEventListener(), this);
+            getServer().getPluginManager().registerEvents(new ChunkUnloadEventListener(), this);
+        }
 
         // Sync broken and placed blocks.
         getServer().getPluginManager().registerEvents(new PlayerBreakBlockListener(), this);

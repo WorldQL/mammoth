@@ -47,7 +47,7 @@ public class ZeroMQServer implements Runnable {
 
         WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.DONTWAIT);
 
-        while (!Thread.currentThread().isInterrupted()) {
+        while (true) {
             try {
                 byte[] reply = socket.recv(0);
                 java.nio.ByteBuffer buf = java.nio.ByteBuffer.wrap(reply);
@@ -113,7 +113,8 @@ public class ZeroMQServer implements Runnable {
             } catch (Exception e) {
                 if (e instanceof ZMQException) {
                     if (((ZMQException) e).getErrorCode() == ZMQ.Error.ETERM.getCode()) {
-                        WorldQLClient.getPluginInstance().getLogger().warning("Caught ZeroMQ ETERM exception!");
+                        WorldQLClient.getPluginInstance().getLogger().info("Caught ZeroMQ ETERM exception!");
+                        break;
                     }
                 }
             }
