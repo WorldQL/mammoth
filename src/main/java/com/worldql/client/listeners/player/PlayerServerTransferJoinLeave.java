@@ -56,7 +56,6 @@ public class PlayerServerTransferJoinLeave implements Listener {
     @EventHandler
     public void onPlayerLogIn(PlayerJoinEvent e) {
         WorldQLClient.playerDataSavingManager.markUnsynced(e.getPlayer());
-        WorldQLClient.playerDataSavingManager.markSaved(e.getPlayer());
         WorldQLClient.playerDataSavingManager.recordLogin(e.getPlayer());
 
         Bukkit.getScheduler().runTaskLaterAsynchronously(WorldQLClient.getPluginInstance(), () -> {
@@ -70,7 +69,6 @@ public class PlayerServerTransferJoinLeave implements Listener {
                 if (data != null) {
                     try {
                         SaveLoadPlayerFromRedis.setPlayerData(data, e.getPlayer());
-                        WorldQLClient.playerDataSavingManager.markSynced(e.getPlayer());
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
                     }
@@ -84,9 +82,8 @@ public class PlayerServerTransferJoinLeave implements Listener {
                         out.writeUTF("mammoth_" + locationOwner);
                         e.getPlayer().sendPluginMessage(WorldQLClient.getPluginInstance(), "BungeeCord", out.toByteArray());
                     }
-                } else {
-                    WorldQLClient.playerDataSavingManager.markSynced(e.getPlayer());
                 }
+                WorldQLClient.playerDataSavingManager.markSynced(e.getPlayer());
             });
         }, 5L);
 
