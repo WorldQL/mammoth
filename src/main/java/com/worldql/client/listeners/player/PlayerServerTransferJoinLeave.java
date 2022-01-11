@@ -64,7 +64,6 @@ public class PlayerServerTransferJoinLeave implements Listener {
             WorldQLClient.playerDataSavingManager.markSaved(e.getPlayer());
             Jedis j = WorldQLClient.pool.getResource();
             String data = j.get("player-" + e.getPlayer().getUniqueId());
-            j.close();
             WorldQLClient.pool.returnResource(j);
 
             Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), () -> {

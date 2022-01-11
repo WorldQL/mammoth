@@ -44,7 +44,6 @@ public class PlayerDeathListener implements Listener {
                 Jedis j = WorldQLClient.pool.getResource();
                 String playerKey = "player-" + e.getEntity().getUniqueId();
                 j.del(playerKey);
-                j.close();
                 WorldQLClient.pool.returnResource(j);
             });
             return;

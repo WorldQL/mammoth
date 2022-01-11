@@ -1,5 +1,6 @@
 package com.worldql.client.minecraft_serialization;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.worldql.client.WorldQLClient;
@@ -15,6 +16,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -99,11 +101,13 @@ public class SaveLoadPlayerFromRedis {
         try {
             String playerAsJson = mapper.writeValueAsString(playerData);
             j.set("player-" + player.getUniqueId(), playerAsJson);
-        } catch (Exception e) {
-            WorldQLClient.pool.returnResource(j);
+        } catch (JedisConnectionException | JsonProcessingException e) {
             e.printStackTrace();
+            if (e instanceof JedisConnectionException) {
+                j.close();
+                return;
+            }
         }
-        j.close();
         WorldQLClient.pool.returnResource(j);
         WorldQLClient.playerDataSavingManager.markSaved(player);
         WorldQLClient.playerDataSavingManager.processLogout(player);

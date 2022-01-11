@@ -65,7 +65,6 @@ public class WorldQLClient extends JavaPlugin {
         // Make sure we're connected
         try {
             Jedis j = pool.getResource();
-            j.close();
             pool.returnResource(j);
         } catch (JedisConnectionException e) {
             getLogger().warning("Failed to connect to Redis. Both WorldQL and Redis are required for Mammoth. Stopping server...");
