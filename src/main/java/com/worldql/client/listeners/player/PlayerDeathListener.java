@@ -41,10 +41,10 @@ public class PlayerDeathListener implements Listener {
         if (Slices.enabled) {
             Bukkit.getScheduler().runTaskAsynchronously(WorldQLClient.getPluginInstance(), () -> {
                 WorldQLClient.playerDataSavingManager.markSaved(e.getEntity().getPlayer());
-                Jedis j = WorldQLClient.pool.getResource();
-                String playerKey = "player-" + e.getEntity().getUniqueId();
-                j.del(playerKey);
-                WorldQLClient.pool.returnResource(j);
+                try (Jedis j = WorldQLClient.pool.getResource()) {
+                    String playerKey = "player-" + e.getEntity().getUniqueId();
+                    j.del(playerKey);
+                }
             });
             return;
         }

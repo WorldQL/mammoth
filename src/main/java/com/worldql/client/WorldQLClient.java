@@ -63,9 +63,9 @@ public class WorldQLClient extends JavaPlugin {
         jedisPoolConfig.setMaxTotal(128);
         pool = new JedisPool(jedisPoolConfig, getConfig().getString("redis.host"), getConfig().getInt("redis.port"));
         // Make sure we're connected
-        try {
-            Jedis j = pool.getResource();
-            pool.returnResource(j);
+        try (Jedis j = pool.getResource()) {
+            j.ping();
+            getLogger().info("Redis connection successful.");
         } catch (JedisConnectionException e) {
             getLogger().warning("Failed to connect to Redis. Both WorldQL and Redis are required for Mammoth. Stopping server...");
             Bukkit.getServer().shutdown();

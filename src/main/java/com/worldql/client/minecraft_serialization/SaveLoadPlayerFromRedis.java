@@ -97,18 +97,13 @@ public class SaveLoadPlayerFromRedis {
             nukeMob(strider);
         }
         ObjectMapper mapper = new ObjectMapper();
-        Jedis j = WorldQLClient.pool.getResource();
-        try {
+
+        try (Jedis j = WorldQLClient.pool.getResource()) {
             String playerAsJson = mapper.writeValueAsString(playerData);
             j.set("player-" + player.getUniqueId(), playerAsJson);
-        } catch (JedisConnectionException | JsonProcessingException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            if (e instanceof JedisConnectionException) {
-                j.close();
-                return;
-            }
         }
-        WorldQLClient.pool.returnResource(j);
         WorldQLClient.playerDataSavingManager.markSaved(player);
         WorldQLClient.playerDataSavingManager.processLogout(player);
     }
