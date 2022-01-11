@@ -27,8 +27,10 @@ import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -57,12 +59,13 @@ public class WorldQLClient extends JavaPlugin {
         getLogger().info("Initializing Mammoth v0.7");
         saveDefaultConfig();
 
-        GenericObjectPoolConfig jedisPoolConfig = new GenericObjectPoolConfig();
-        jedisPoolConfig.setMaxTotal(256);
+        JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+        jedisPoolConfig.setMaxTotal(128);
         pool = new JedisPool(jedisPoolConfig, getConfig().getString("redis.host"), getConfig().getInt("redis.port"));
         // Make sure we're connected
         try {
             Jedis j = pool.getResource();
+            j.close();
             pool.returnResource(j);
         } catch (JedisConnectionException e) {
             getLogger().warning("Failed to connect to Redis. Both WorldQL and Redis are required for Mammoth. Stopping server...");

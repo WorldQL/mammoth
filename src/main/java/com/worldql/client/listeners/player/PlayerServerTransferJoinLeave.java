@@ -12,12 +12,11 @@ import com.worldql.client.protocols.ProtocolManager;
 import com.worldql.client.worldql_serialization.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.potion.PotionEffectType;
 import redis.clients.jedis.Jedis;
 import zmq.ZMQ;
 
@@ -65,6 +64,8 @@ public class PlayerServerTransferJoinLeave implements Listener {
             WorldQLClient.playerDataSavingManager.markSaved(e.getPlayer());
             Jedis j = WorldQLClient.pool.getResource();
             String data = j.get("player-" + e.getPlayer().getUniqueId());
+            j.close();
+            WorldQLClient.pool.returnResource(j);
 
             Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), () -> {
                 if (data != null) {
@@ -79,16 +80,11 @@ public class PlayerServerTransferJoinLeave implements Listener {
                     int locationOwner = Slices.getOwnerOfLocation(playerLocation);
 
                     if (locationOwner != WorldQLClient.mammothServerId) {
-
                         ByteArrayDataOutput out = ByteStreams.newDataOutput();
                         out.writeUTF("Connect");
                         out.writeUTF("mammoth_" + locationOwner);
                         e.getPlayer().sendPluginMessage(WorldQLClient.getPluginInstance(), "BungeeCord", out.toByteArray());
-
-                        WorldQLClient.pool.returnResource(j);
-                        return;
                     }
-                    WorldQLClient.pool.returnResource(j);
                 } else {
                     WorldQLClient.playerDataSavingManager.markSynced(e.getPlayer());
                 }

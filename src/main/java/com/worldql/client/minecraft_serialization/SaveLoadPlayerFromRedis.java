@@ -47,8 +47,6 @@ public class SaveLoadPlayerFromRedis {
             return;
         }
 
-        Jedis j = WorldQLClient.pool.getResource();
-
         HashMap<String, Object> playerData = new HashMap<String, Object>();
         String[] inventoryStrings = PlayerDataSerialize.playerInventoryToBase64(player.getInventory());
         playerData.put("inventory", inventoryStrings[0]);
@@ -97,6 +95,7 @@ public class SaveLoadPlayerFromRedis {
             nukeMob(strider);
         }
         ObjectMapper mapper = new ObjectMapper();
+        Jedis j = WorldQLClient.pool.getResource();
         try {
             String playerAsJson = mapper.writeValueAsString(playerData);
             j.set("player-" + player.getUniqueId(), playerAsJson);
@@ -104,6 +103,7 @@ public class SaveLoadPlayerFromRedis {
             WorldQLClient.pool.returnResource(j);
             e.printStackTrace();
         }
+        j.close();
         WorldQLClient.pool.returnResource(j);
         WorldQLClient.playerDataSavingManager.markSaved(player);
         WorldQLClient.playerDataSavingManager.processLogout(player);
