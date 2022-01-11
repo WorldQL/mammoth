@@ -56,7 +56,7 @@ public class WorldQLClient extends JavaPlugin {
     public void onEnable() {
         disabling = false;
         pluginInstance = this;
-        getLogger().info("Initializing Mammoth v0.7");
+        getLogger().info("Initializing Mammoth v0.71");
         saveDefaultConfig();
 
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
