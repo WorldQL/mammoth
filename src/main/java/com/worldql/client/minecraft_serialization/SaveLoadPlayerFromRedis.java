@@ -1,6 +1,5 @@
 package com.worldql.client.minecraft_serialization;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.worldql.client.WorldQLClient;
@@ -16,7 +15,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -40,12 +38,12 @@ public class SaveLoadPlayerFromRedis {
             entity.remove();
         }
     }
-    public static void savePlayerToRedis(Player player) {
+    public static void savePlayerToRedis(Player player, boolean playerIsLeaving) {
         if (player.getHealth() == 0) {
             return;
         }
 
-        if (WorldQLClient.playerDataSavingManager.skip(player, 1500) || WorldQLClient.playerDataSavingManager.getMsSinceLogin(player) < 2500) {
+        if (WorldQLClient.playerDataSavingManager.debounce(player, 1500) || WorldQLClient.playerDataSavingManager.getMsSinceLogin(player) < 2500) {
             return;
         }
 
@@ -104,12 +102,14 @@ public class SaveLoadPlayerFromRedis {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        WorldQLClient.playerDataSavingManager.markSaved(player);
-        WorldQLClient.playerDataSavingManager.processLogout(player);
+        if (playerIsLeaving) {
+            WorldQLClient.playerDataSavingManager.markSaved(player);
+            WorldQLClient.playerDataSavingManager.processLogout(player);
+        }
     }
 
-    public static void savePlayerToRedisAsync(Player player) {
-        Bukkit.getScheduler().runTaskAsynchronously(WorldQLClient.getPluginInstance(), () -> savePlayerToRedis(player));
+    public static void saveLeavingPlayerToRedisAsync(Player player) {
+        Bukkit.getScheduler().runTaskAsynchronously(WorldQLClient.getPluginInstance(), () -> savePlayerToRedis(player, true));
     }
 
     private static String getNBT(Entity e) {

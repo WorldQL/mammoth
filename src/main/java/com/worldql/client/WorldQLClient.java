@@ -127,36 +127,40 @@ public class WorldQLClient extends JavaPlugin {
             }, 20);
         }
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
-            @Override
-            public void run() {
-                Message message = new Message(
-                        Instruction.Heartbeat,
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+            Message message = new Message(
+                    Instruction.Heartbeat,
+                    WorldQLClient.worldQLClientId,
+                    "@global"
+            );
+
+            pushSocket.send(message.encode(), zmq.ZMQ.ZMQ_DONTWAIT);
+
+            long now = Instant.now().toEpochMilli();
+            if (now - timestampOfLastHeartbeat > 15000) {
+                getLogger().warning("Haven't received a heartbeat from WorldQL in over 15 seconds! Attempting to reconnect.");
+                Message reconnectMessage = new Message(
+                        Instruction.Handshake,
                         WorldQLClient.worldQLClientId,
-                        "@global"
+                        "@global",
+                        Replication.ExceptSelf,
+                        null,
+                        null,
+                        null,
+                        selfHostname + ":" + WorldQLClient.zeroMQServerPort,
+                        null
                 );
 
-                pushSocket.send(message.encode(), zmq.ZMQ.ZMQ_DONTWAIT);
-
-                long now = Instant.now().toEpochMilli();
-                if (now - timestampOfLastHeartbeat > 15000) {
-                    getLogger().warning("Haven't received a heartbeat from WorldQL in over 15 seconds! Attempting to reconnect.");
-                    Message reconnectMessage = new Message(
-                            Instruction.Handshake,
-                            WorldQLClient.worldQLClientId,
-                            "@global",
-                            Replication.ExceptSelf,
-                            null,
-                            null,
-                            null,
-                            selfHostname + ":" + WorldQLClient.zeroMQServerPort,
-                            null
-                    );
-
-                    WorldQLClient.getPluginInstance().getPushSocket().send(reconnectMessage.encode(), ZMQ.DONTWAIT);
-                }
+                WorldQLClient.getPluginInstance().getPushSocket().send(reconnectMessage.encode(), ZMQ.DONTWAIT);
             }
         }, 5L, 20L * 5L);
+
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+            for (Player player : getServer().getOnlinePlayers()) {
+                getLogger().info("One minute has passed, saving players...");
+                SaveLoadPlayerFromRedis.savePlayerToRedis(player, false);
+            }
+        }, 20L * 60, 20L * 60);
 
         // Initialize Protocol
         ProtocolManager.read();
@@ -216,7 +220,7 @@ public class WorldQLClient extends JavaPlugin {
     public void onDisable() {
         disabling = true;
         for (Player player : getServer().getOnlinePlayers()) {
-            SaveLoadPlayerFromRedis.savePlayerToRedis(player);
+            SaveLoadPlayerFromRedis.savePlayerToRedis(player, true);
         }
         if (context != null && zeroMQThread != null) {
             getLogger().info("Shutting down ZeroMQ thread.");

@@ -79,7 +79,7 @@ public class PlayerMoveAndLookHandler implements Listener {
                 return;
             }
 
-            SaveLoadPlayerFromRedis.savePlayerToRedisAsync(e.getPlayer());
+            SaveLoadPlayerFromRedis.saveLeavingPlayerToRedisAsync(e.getPlayer());
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Connect");

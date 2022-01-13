@@ -46,7 +46,7 @@ public class PlayerDataSavingManager {
     }
 
     // Should we skip syncing this player? Useful if we don't want duplicates firing or bad player saves from other servers.
-    public boolean skip(Player p, long thresholdMs) {
+    public boolean debounce(Player p, long thresholdMs) {
         if (!timeSinceLastSave.containsKey(p.getUniqueId())) {
             return false;
         }
@@ -72,6 +72,8 @@ public class PlayerDataSavingManager {
     public void markSynced(Player p) {
         syncedAfterJoin.put(p.getUniqueId(), true);
         p.removePotionEffect(PotionEffectType.BLINDNESS);
+        // Give the player a little protection against dying to things that aren't their fault
+        p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 15, 0));
     }
 
 }

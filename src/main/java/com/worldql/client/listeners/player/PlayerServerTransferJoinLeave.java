@@ -26,7 +26,7 @@ import java.nio.ByteBuffer;
 public class PlayerServerTransferJoinLeave implements Listener {
     @EventHandler
     public void onPlayerLogOut(PlayerQuitEvent e) {
-        SaveLoadPlayerFromRedis.savePlayerToRedisAsync(e.getPlayer());
+        SaveLoadPlayerFromRedis.saveLeavingPlayerToRedisAsync(e.getPlayer());
         if (WorldQLClient.processGhosts) {
             if (ProtocolManager.isinjected(e.getPlayer()))
                 ProtocolManager.uninjectPlayer(e.getPlayer());
