@@ -156,8 +156,8 @@ public class WorldQLClient extends JavaPlugin {
         }, 5L, 20L * 5L);
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+            getLogger().info("One minute has passed, saving players...");
             for (Player player : getServer().getOnlinePlayers()) {
-                getLogger().info("One minute has passed, saving players...");
                 SaveLoadPlayerFromRedis.savePlayerToRedis(player, false);
             }
         }, 20L * 60, 20L * 60);
