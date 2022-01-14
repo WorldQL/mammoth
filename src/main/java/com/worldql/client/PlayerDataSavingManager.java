@@ -73,7 +73,7 @@ public class PlayerDataSavingManager {
         syncedAfterJoin.put(p.getUniqueId(), true);
         p.removePotionEffect(PotionEffectType.BLINDNESS);
         // Give the player a little protection against dying to things that aren't their fault
-        p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 15, 0));
+        p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 200, 0));
     }
 
 }

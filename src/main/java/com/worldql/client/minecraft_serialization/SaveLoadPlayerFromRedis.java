@@ -6,6 +6,7 @@ import com.worldql.client.WorldQLClient;
 import net.minecraft.nbt.MojangsonParser;
 import net.minecraft.nbt.NBTTagCompound;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_18_R1.entity.CraftEntity;
@@ -62,6 +63,7 @@ public class SaveLoadPlayerFromRedis {
         playerData.put("z", player.getLocation().getZ());
         playerData.put("world", player.getWorld().getName());
         playerData.put("isGliding", player.isGliding());
+        playerData.put("gamemode", player.getGameMode().getValue());
 
         // get speed for better elytra flight
         Vector velocity = player.getVelocity();
@@ -156,6 +158,9 @@ public class SaveLoadPlayerFromRedis {
         }
 
         player.getInventory().setHeldItemSlot((Integer) playerData.get("heldslot"));
+        if (playerData.containsKey("gamemode")) {
+            player.setGameMode(GameMode.getByValue((Integer) playerData.get("gamemode")));
+        }
 
         // set velocity
         String[] velocityComponents = ((String) playerData.get("velocity")).split(",");
