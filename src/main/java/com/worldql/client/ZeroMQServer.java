@@ -70,7 +70,9 @@ public class ZeroMQServer implements Runnable {
                     if (incoming.parameter().startsWith("MinecraftRPC")) {
                         String[] input = incoming.parameter().split(">", 2);
                         String command = input[1];
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+                        Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), () -> {
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+                        });
                     }
 
                     if (incoming.parameter().equals("MinecraftPlayerChat")) {
