@@ -66,6 +66,12 @@ public class ZeroMQServer implements Runnable {
                 }
 
                 if (incoming.instruction() == Instruction.GlobalMessage) {
+                    if (incoming.parameter().startsWith("MinecraftRPC")) {
+                        String[] input = incoming.parameter().split(">", 2);
+                        String command = input[1];
+                        System.out.println(command);
+                    }
+
                     if (incoming.parameter().equals("MinecraftPlayerChat")) {
                         PlayerChatListener.relayChat(incoming);
                     }
