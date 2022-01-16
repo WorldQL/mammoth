@@ -8,8 +8,11 @@ import com.worldql.client.Slices;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.minecraft_serialization.SaveLoadPlayerFromRedis;
 import com.worldql.client.worldql_serialization.*;
+import me.clip.placeholderapi.PlaceholderAPI;
+import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -80,6 +83,11 @@ public class PlayerMoveAndLookHandler implements Listener {
             }
 
             SaveLoadPlayerFromRedis.saveLeavingPlayerToRedisAsync(e.getPlayer());
+
+            // Combat plugin placeholder bypass PlayerQuitEvent, does not get killed because of PlayerQuitEvent.
+            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null){
+                PlaceholderAPI.setPlaceholders(e.getPlayer(), "%combatactivate%");
+            }
 
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Connect");
