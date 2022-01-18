@@ -34,12 +34,57 @@ public class Slices {
     }
 
     public static int getDistanceFromDMZ(Location l) {
+        int smallest = 99999;
+
+        boolean distanceSetRelativeToUnslicedOriginArea = false;
+
+        if (WorldQLClient.avoidSlicingOrigin) {
+            int r = WorldQLClient.originRadius;
+            int r_max = r + dmzSize;
+            int r_min = r - dmzSize;
+            double x = Math.abs(l.getX());
+            double z = Math.abs(l.getZ());
+
+            if (x > r && x < r_max) {
+                int distance = (int) (x-r);
+                if (distance < smallest) {
+                    smallest = distance;
+                    distanceSetRelativeToUnslicedOriginArea = true;
+                }
+            }
+            if (z > r && z < r_max) {
+                int distance = (int) (z-r);
+                if (distance < smallest) {
+                    smallest = distance;
+                    distanceSetRelativeToUnslicedOriginArea = true;
+                }
+            }
+            if (x < r && x > r_min) {
+                int distance = (int) (r-x);
+                if (distance < smallest) {
+                    smallest = distance;
+                    distanceSetRelativeToUnslicedOriginArea = true;
+                }
+            }
+            if (z < r && z > r_min) {
+                int distance = (int) (r-z);
+                if (distance < smallest) {
+                    smallest = distance;
+                    distanceSetRelativeToUnslicedOriginArea = true;
+                }
+            }
+        }
+
+        if (distanceSetRelativeToUnslicedOriginArea) {
+            return smallest;
+        }
+
+
         int adjustedX = (int) (l.getX() + (worldDiameter / 2));
         int adjustedZ = (int) (l.getZ() + (worldDiameter / 2));
         int xModSliceWidth = adjustedX % sliceWidth;
         int zModSliceWidth = adjustedZ % sliceWidth;
         int upper = sliceWidth - dmzSize;
-        int smallest = 99999;
 
         if (xModSliceWidth < dmzSize) {
             if (xModSliceWidth < smallest) {
@@ -66,23 +111,56 @@ public class Slices {
         return smallest;
     }
 
+    private static boolean isInUnslicedOrigin(Location l) {
+        if (WorldQLClient.avoidSlicingOrigin) {
+            int r = WorldQLClient.originRadius;
+            double x = Math.abs(l.getX());
+            double z = Math.abs(l.getZ());
+            return x < r && z < r;
+        }
+        return false;
+    }
+
     public static boolean isDMZ(Location l) {
+        if (WorldQLClient.avoidSlicingOrigin) {
+            int r = WorldQLClient.originRadius;
+            int r_max = r + dmzSize;
+            int r_min = r - dmzSize;
+            double x = Math.abs(l.getX());
+            double z = Math.abs(l.getZ());
+
+            if (x >= r && x < r_max) {
+                return true;
+            }
+            if (z >= r && z < r_max) {
+                return true;
+            }
+            if (x < r && x > r_min) {
+                return true;
+            }
+            if (z < r && z > r_min) {
+                return true;
+            }
+
+            if (isInUnslicedOrigin(l)) {
+                return false;
+            }
+        }
+
         if (l.getWorld().getName().equals("world_the_end")) {
             return false;
         }
 
         int adjustedX = (int) (l.getX() + (worldDiameter / 2));
         int adjustedZ = (int) (l.getZ() + (worldDiameter / 2));
-
-        int distanceFromXEdge = adjustedX % sliceWidth;
-        int distanceFromZEdge = adjustedZ % sliceWidth;
-
+        int xModSliceWidth = adjustedX % sliceWidth;
+        int zModSliceWidth = adjustedZ % sliceWidth;
         int upper = sliceWidth - dmzSize;
 
-        if (distanceFromXEdge < dmzSize || distanceFromXEdge > upper) {
+        if (xModSliceWidth < dmzSize || xModSliceWidth > upper) {
             return true;
         }
-        if (distanceFromZEdge < dmzSize || distanceFromZEdge > upper) {
+        if (zModSliceWidth < dmzSize || zModSliceWidth > upper) {
             return true;
         }
 
@@ -90,6 +168,10 @@ public class Slices {
     }
 
     public static int getOwnerOfLocation(Location l) {
+        if (isInUnslicedOrigin(l)) {
+            return 0;
+        }
+
         if (l.getWorld().getName().equalsIgnoreCase("world_the_end")) {
             return 0;
         }

@@ -22,5 +22,9 @@ sync-player-inventory: true
 sync-player-health-xp-hunger: true
 sync-player-effects: true
 
+# This is useful if you don't want to slice up the origin (0,0) and keep it all on mammoth_0.
+avoid-slicing-origin: false
+origin-radius: 256
+
 # Client (self) Host
 host: '127.0.0.1'

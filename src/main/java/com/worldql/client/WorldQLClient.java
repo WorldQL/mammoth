@@ -9,13 +9,15 @@ import com.worldql.client.listeners.explosions.EntityExplodeEventListener;
 import com.worldql.client.listeners.explosions.ExplosionPrimeEventListener;
 import com.worldql.client.listeners.explosions.TNTPrimeEventListener;
 import com.worldql.client.listeners.player.*;
-import com.worldql.client.listeners.world.*;
+import com.worldql.client.listeners.world.PlayerBreakBlockListener;
+import com.worldql.client.listeners.world.PlayerEditSignListener;
+import com.worldql.client.listeners.world.PlayerPlaceBlockListener;
+import com.worldql.client.listeners.world.PortalCreateEventListener;
 import com.worldql.client.minecraft_serialization.SaveLoadPlayerFromRedis;
 import com.worldql.client.protocols.ProtocolManager;
 import com.worldql.client.worldql_serialization.Instruction;
 import com.worldql.client.worldql_serialization.Message;
 import com.worldql.client.worldql_serialization.Replication;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
@@ -30,7 +32,6 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -48,6 +49,8 @@ public class WorldQLClient extends JavaPlugin {
     public static boolean syncPlayerInventory;
     public static boolean syncPlayerHealthXPHunger;
     public static boolean syncPlayerEffects;
+    public static boolean avoidSlicingOrigin;
+    public static int originRadius;
     public static PlayerDataSavingManager playerDataSavingManager;
     public static long timestampOfLastHeartbeat;
     static int zeroMQServerPort;
@@ -56,13 +59,13 @@ public class WorldQLClient extends JavaPlugin {
     public void onEnable() {
         disabling = false;
         pluginInstance = this;
-        getLogger().info("Initializing Mammoth v0.71");
+        getLogger().info("Initializing Mammoth v0.72");
         saveDefaultConfig();
 
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
         jedisPoolConfig.setMaxTotal(128);
         pool = new JedisPool(jedisPoolConfig, getConfig().getString("redis.host"), getConfig().getInt("redis.port"));
-        // Make sure we're connected
+        // Make sure we're connected to redis.
         try (Jedis j = pool.getResource()) {
             j.ping();
             getLogger().info("Redis connection successful.");
@@ -81,6 +84,8 @@ public class WorldQLClient extends JavaPlugin {
         syncPlayerInventory = getConfig().getBoolean("sync-player-inventory", true);
         syncPlayerHealthXPHunger = getConfig().getBoolean("sync-player-health-xp-hunger", true);
         syncPlayerEffects = getConfig().getBoolean("sync-player-effects", true);
+        avoidSlicingOrigin = getConfig().getBoolean("avoid-slicing-origin", false);
+        originRadius = getConfig().getInt("origin-radius", 256);
         playerDataSavingManager = new PlayerDataSavingManager();
         timestampOfLastHeartbeat = Instant.now().toEpochMilli();
 
