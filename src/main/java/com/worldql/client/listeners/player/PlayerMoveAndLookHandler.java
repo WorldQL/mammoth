@@ -13,6 +13,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -22,6 +23,14 @@ import zmq.ZMQ;
 import java.nio.ByteBuffer;
 
 public class PlayerMoveAndLookHandler implements Listener {
+    private void setVelocityOfPlayerOrRiddenEntity(Player p, Vector v) {
+        if (p.isInsideVehicle()) {
+            p.getVehicle().setVelocity(v);
+        } else {
+            p.setVelocity(v);
+        }
+    }
+
     @EventHandler
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
         if (!WorldQLClient.playerDataSavingManager.isFullySynced(e.getPlayer())) {
@@ -52,22 +61,19 @@ public class PlayerMoveAndLookHandler implements Listener {
                 // 1. Compute the "cross direction" defined by the direction from the source server TO the destination server.
                 // 2. Push them back in the direction they came from towards the correct server.
                 CrossDirection shoveDirection = Slices.getShoveDirection(playerLocation);
+                Vector v = new Vector(0, 0, 0);
                 switch (shoveDirection) {
                     case EAST_POSITIVE_X -> {
-                        Vector v = new Vector(.2, .1, 0);
-                        e.getPlayer().setVelocity(v);
+                        v = new Vector(.2, 0, 0);
                     }
                     case WEST_NEGATIVE_X -> {
-                        Vector v = new Vector(-.2, .1, 0);
-                        e.getPlayer().setVelocity(v);
+                        v = new Vector(-.2, 0, 0);
                     }
                     case NORTH_NEGATIVE_Z -> {
-                        Vector v = new Vector(0, .1, -.2);
-                        e.getPlayer().setVelocity(v);
+                        v = new Vector(0, 0, -.2);
                     }
                     case SOUTH_POSITIVE_Z -> {
-                        Vector v = new Vector(0, .1, .2);
-                        e.getPlayer().setVelocity(v);
+                        v = new Vector(0, 0, .2);
                     }
                     case ERROR -> {
                         if (WorldQLClient.playerDataSavingManager.getMsSinceLogin(e.getPlayer()) > 4000) {
@@ -75,6 +81,7 @@ public class PlayerMoveAndLookHandler implements Listener {
                         }
                     }
                 }
+                setVelocityOfPlayerOrRiddenEntity(e.getPlayer(), v);
                 e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.BLOCK_BUBBLE_COLUMN_BUBBLE_POP, 20, .5F);
                 return;
             }

@@ -129,17 +129,19 @@ public class Slices {
             double x = Math.abs(l.getX());
             double z = Math.abs(l.getZ());
 
-            if (x >= r && x < r_max) {
-                return true;
-            }
-            if (z >= r && z < r_max) {
-                return true;
-            }
-            if (x < r && x > r_min) {
-                return true;
-            }
-            if (z < r && z > r_min) {
-                return true;
+            if (x < r_max && z < r_max) {
+                if (x >= r && x < r_max) {
+                    return true;
+                }
+                if (z >= r && z < r_max) {
+                    return true;
+                }
+                if (x < r && x > r_min) {
+                    return true;
+                }
+                if (z < r && z > r_min) {
+                    return true;
+                }
             }
 
             if (isInUnslicedOrigin(l)) {
