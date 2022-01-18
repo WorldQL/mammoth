@@ -7,8 +7,15 @@ commands:
     description: Get unstuck from a cave.
     usage: /unstuck
     permission: worldqlclient.unstuck
-    
+  mtp:
+    description: Cross-server teleport.
+    usage: /mtp <destination-player>
+    permission: worldqlclient.teleport
+
 permissions:
   worldqlclient.unstuck:
     default: true
     description: allow the usage of /unstuck
+  worldqlclient.teleport:
+    default: true
+    description: allow the usage of /mtp
