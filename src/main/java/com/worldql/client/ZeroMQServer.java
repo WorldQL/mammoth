@@ -92,11 +92,11 @@ public class ZeroMQServer implements Runnable {
                     }
 
                     if (incoming.parameter().equals("MinecraftTeleportPositionLookup")) {
-                        CommandTeleport.handlePositionLookup(incoming);
+                        CommandTeleportTo.handlePositionLookup(incoming);
                     }
 
                     if (incoming.parameter().equals("MinecraftTeleport")) {
-                        CommandTeleport.handleTeleport(incoming);
+                        CommandTeleportTo.handleTeleport(incoming);
                     }
                 }
 

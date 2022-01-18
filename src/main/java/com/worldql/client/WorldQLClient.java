@@ -173,7 +173,7 @@ public class WorldQLClient extends JavaPlugin {
         // TODO: Remove this command after we figure out the cause of players being spawned in the ground.
         getCommand("unstuck").setExecutor(new CommandUnstuck());
 
-        getCommand("mtp").setExecutor(new CommandTeleport());
+        getCommand("mtp").setExecutor(new CommandTeleportTo());
 
         getServer().getPluginManager().registerEvents(new PlayerServerTransferJoinLeave(), this);
         // Handles server transfers and the movement component of ghosts.

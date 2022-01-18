@@ -19,7 +19,8 @@ import zmq.ZMQ;
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
-public class CommandTeleport implements CommandExecutor {
+// Takes a single argument: the destination player we want to teleport to.
+public class CommandTeleportTo implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player target)) {
