@@ -163,7 +163,7 @@ public class WorldQLClient extends JavaPlugin {
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
             getLogger().info("One minute has passed, saving players...");
             for (Player player : getServer().getOnlinePlayers()) {
-                SaveLoadPlayerFromRedis.savePlayerToRedis(player, false);
+                SaveLoadPlayerFromRedis.savePlayerToRedis(player, false, false);
             }
         }, 20L * 60, 20L * 60);
 
@@ -227,7 +227,7 @@ public class WorldQLClient extends JavaPlugin {
     public void onDisable() {
         disabling = true;
         for (Player player : getServer().getOnlinePlayers()) {
-            SaveLoadPlayerFromRedis.savePlayerToRedis(player, true);
+            SaveLoadPlayerFromRedis.savePlayerToRedis(player, true, false);
         }
         if (context != null && zeroMQThread != null) {
             getLogger().info("Shutting down ZeroMQ thread.");

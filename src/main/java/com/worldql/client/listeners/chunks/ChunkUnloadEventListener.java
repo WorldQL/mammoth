@@ -1,6 +1,5 @@
 package com.worldql.client.listeners.chunks;
 
-import com.worldql.client.Slices;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.worldql_serialization.Instruction;
 import com.worldql.client.worldql_serialization.Message;

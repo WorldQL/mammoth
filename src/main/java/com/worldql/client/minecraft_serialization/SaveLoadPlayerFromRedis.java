@@ -24,22 +24,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class SaveLoadPlayerFromRedis {
-    private static void nukeMob(Entity entity) {
-        if (!WorldQLClient.disabling) {
-            Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), () -> {
-                Location l = entity.getLocation().clone();
-                l.setY(-100);
-                entity.teleport(l);
-                entity.remove();
-            });
-        } else {
-            Location l = entity.getLocation().clone();
-            l.setY(-100);
-            entity.teleport(l);
-            entity.remove();
-        }
-    }
-    public static void savePlayerToRedis(Player player, boolean playerIsLeaving) {
+    public static void savePlayerToRedis(Player player, boolean playerIsLeaving, boolean playerIsTransferring) {
+        // TODO: Fix how deaths are handled.
         if (player.getHealth() == 0) {
             return;
         }
@@ -47,8 +33,11 @@ public class SaveLoadPlayerFromRedis {
         if (WorldQLClient.playerDataSavingManager.debounce(player, 1500) || WorldQLClient.playerDataSavingManager.getMsSinceLogin(player) < 2500) {
             return;
         }
+        if (playerIsLeaving || playerIsTransferring) {
+            WorldQLClient.playerDataSavingManager.markSavedForDebounce(player);
+        }
 
-        HashMap<String, Object> playerData = new HashMap<String, Object>();
+        HashMap<String, Object> playerData = new HashMap<>();
         String[] inventoryStrings = PlayerDataSerialize.playerInventoryToBase64(player.getInventory());
         playerData.put("inventory", inventoryStrings[0]);
         playerData.put("armor", inventoryStrings[1]);
@@ -81,20 +70,42 @@ public class SaveLoadPlayerFromRedis {
         }
         playerData.put("potions", potionString.toString());
 
-        // is the player riding a horse?
-        if (player.isInsideVehicle() && player.getVehicle() instanceof Horse horse) {
-            playerData.put("horse", getNBT(horse));
-            nukeMob(horse);
-        }
-        // check for boat
-        if (player.isInsideVehicle() && player.getVehicle() instanceof Boat boat) {
-            playerData.put("boat", getNBT(boat));
-            nukeMob(boat);
-        }
-        // check for nether strider
-        if (player.isInsideVehicle() && player.getVehicle() instanceof Strider strider) {
-            playerData.put("strider", getNBT(strider));
-            nukeMob(strider);
+        if (playerIsLeaving) {
+
+            // is the player riding a horse?
+            if (player.isInsideVehicle() && player.getVehicle() instanceof Horse horse) {
+                playerData.put("horse", getNBT(horse));
+                ejectRiders(horse);
+                nukeMob(horse);
+            }
+            // check for boat
+            if (player.isInsideVehicle() && player.getVehicle() instanceof Boat boat) {
+                playerData.put("boat", getNBT(boat));
+                ejectRiders(boat);
+                nukeMob(boat);
+            }
+            // check for nether strider
+            if (player.isInsideVehicle() && player.getVehicle() instanceof Strider strider) {
+                playerData.put("strider", getNBT(strider));
+                ejectRiders(strider);
+                nukeMob(strider);
+            }
+            if (player.isInsideVehicle() && player.getVehicle() instanceof Minecart minecart) {
+                playerData.put("minecart", getNBT(minecart));
+                ejectRiders(minecart);
+                nukeMob(minecart);
+            }
+            if (playerIsTransferring) {
+                Location l = player.getLocation().clone();
+                Bukkit.getScheduler().runTaskLater(WorldQLClient.getPluginInstance(), () -> {
+                    for (Entity e : l.getWorld().getNearbyEntities(l, 25, 25, 25)) {
+                        if (e instanceof Villager) {
+                            VillagerTransfer.sendVillagerTransferMessage(player, getNBT(e));
+                            nukeMob(e);
+                        }
+                    }
+                }, 20L);
+            }
         }
         ObjectMapper mapper = new ObjectMapper();
 
@@ -105,13 +116,12 @@ public class SaveLoadPlayerFromRedis {
             e.printStackTrace();
         }
         if (playerIsLeaving) {
-            WorldQLClient.playerDataSavingManager.markSaved(player);
             WorldQLClient.playerDataSavingManager.processLogout(player);
         }
     }
 
-    public static void saveLeavingPlayerToRedisAsync(Player player) {
-        Bukkit.getScheduler().runTaskAsynchronously(WorldQLClient.getPluginInstance(), () -> savePlayerToRedis(player, true));
+    public static void saveLeavingPlayerToRedisAsync(Player player, boolean playerIsTransferring) {
+        Bukkit.getScheduler().runTaskAsynchronously(WorldQLClient.getPluginInstance(), () -> savePlayerToRedis(player, true, playerIsTransferring));
     }
 
     private static String getNBT(Entity e) {
@@ -121,7 +131,7 @@ public class SaveLoadPlayerFromRedis {
         return nbt.toString();
     }
 
-    private static void setNBT(Entity e, String value) {
+    public static void setNBT(Entity e, String value) {
         net.minecraft.world.entity.Entity nms = ((CraftEntity) e).getHandle();
         try {
             NBTTagCompound nbtv = MojangsonParser.a(value);
@@ -131,8 +141,31 @@ public class SaveLoadPlayerFromRedis {
         }
     }
 
+    private static void nukeMob(Entity entity) {
+        if (!WorldQLClient.disabling) {
+            Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), () -> {
+                Location l = entity.getLocation().clone();
+                l.setY(-100);
+                entity.teleport(l);
+                entity.remove();
+            });
+        } else {
+            Location l = entity.getLocation().clone();
+            l.setY(-100);
+            entity.teleport(l);
+            entity.remove();
+        }
+    }
+
+    private static void ejectRiders(Entity vehicle) {
+        for (Entity e : vehicle.getPassengers()) {
+            e.eject();
+        }
+    }
+
+
     public static void setPlayerData(String playerJSON, Player player) throws IOException {
-        HashMap<String, Object> playerData = new HashMap<String, Object>();
+        HashMap<String, Object> playerData;
         ObjectMapper mapper = new ObjectMapper();
         playerData = mapper.readValue(playerJSON, new TypeReference<Map<String, Object>>() {
         });
@@ -171,18 +204,23 @@ public class SaveLoadPlayerFromRedis {
 
         if (playerData.containsKey("horse")) {
             Entity newHorse = player.getWorld().spawnEntity(player.getLocation(), EntityType.HORSE);
-            setNBT(newHorse, (String) playerData.get("horse"));
             newHorse.addPassenger(player);
+            setNBT(newHorse, (String) playerData.get("horse"));
         }
         if (playerData.containsKey("boat")) {
             Entity newBoat = player.getWorld().spawnEntity(player.getLocation(), EntityType.BOAT);
-            setNBT(newBoat, (String) playerData.get("boat"));
             newBoat.addPassenger(player);
+            setNBT(newBoat, (String) playerData.get("boat"));
         }
         if (playerData.containsKey("strider")) {
             Entity newStrider = player.getWorld().spawnEntity(player.getLocation(), EntityType.STRIDER);
-            setNBT(newStrider, (String) playerData.get("strider"));
             newStrider.addPassenger(player);
+            setNBT(newStrider, (String) playerData.get("strider"));
+        }
+        if (playerData.containsKey("minecart")) {
+            Entity newMinecart = player.getWorld().spawnEntity(player.getLocation(), EntityType.MINECART);
+            newMinecart.addPassenger(player);
+            setNBT(newMinecart, (String) playerData.get("minecart"));
         }
 
 

@@ -40,7 +40,7 @@ public class PlayerDataSavingManager {
         return now - playerLoginTime.get(playerUUID);
     }
 
-    public void markSaved(Player p) {
+    public void markSavedForDebounce(Player p) {
         long now = Instant.now().toEpochMilli();
         timeSinceLastSave.put(p.getUniqueId(), now);
     }
@@ -66,14 +66,14 @@ public class PlayerDataSavingManager {
 
     public void markUnsynced(Player p) {
         syncedAfterJoin.put(p.getUniqueId(), false);
-        p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 250, 10, false));
+        p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 250, 10, false, false));
     }
 
     public void markSynced(Player p) {
         syncedAfterJoin.put(p.getUniqueId(), true);
         p.removePotionEffect(PotionEffectType.BLINDNESS);
         // Give the player a little protection against dying to things that aren't their fault
-        p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 80, 0, false));
+        p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 80, 0, false, false));
     }
 
 }

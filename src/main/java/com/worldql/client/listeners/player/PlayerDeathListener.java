@@ -40,7 +40,7 @@ public class PlayerDeathListener implements Listener {
         // Also delete their record from redis.
         if (Slices.enabled) {
             Bukkit.getScheduler().runTaskAsynchronously(WorldQLClient.getPluginInstance(), () -> {
-                WorldQLClient.playerDataSavingManager.markSaved(e.getEntity().getPlayer());
+                WorldQLClient.playerDataSavingManager.markSavedForDebounce(e.getEntity().getPlayer());
                 try (Jedis j = WorldQLClient.pool.getResource()) {
                     String playerKey = "player-" + e.getEntity().getUniqueId();
                     j.del(playerKey);

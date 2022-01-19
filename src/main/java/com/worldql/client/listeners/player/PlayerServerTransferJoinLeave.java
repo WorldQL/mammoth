@@ -26,7 +26,7 @@ import java.nio.ByteBuffer;
 public class PlayerServerTransferJoinLeave implements Listener {
     @EventHandler
     public void onPlayerLogOut(PlayerQuitEvent e) {
-        SaveLoadPlayerFromRedis.saveLeavingPlayerToRedisAsync(e.getPlayer());
+        SaveLoadPlayerFromRedis.saveLeavingPlayerToRedisAsync(e.getPlayer(), false);
         if (WorldQLClient.processGhosts) {
             if (ProtocolManager.isinjected(e.getPlayer()))
                 ProtocolManager.uninjectPlayer(e.getPlayer());
@@ -60,7 +60,7 @@ public class PlayerServerTransferJoinLeave implements Listener {
 
         Bukkit.getScheduler().runTaskLaterAsynchronously(WorldQLClient.getPluginInstance(), () -> {
             // make sure the transferring server doesn't save any junk on the way out.
-            WorldQLClient.playerDataSavingManager.markSaved(e.getPlayer());
+            WorldQLClient.playerDataSavingManager.markSavedForDebounce(e.getPlayer());
             String data;
             try (Jedis j = WorldQLClient.pool.getResource()) {
                 data = j.get("player-" + e.getPlayer().getUniqueId());

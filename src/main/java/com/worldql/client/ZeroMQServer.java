@@ -5,6 +5,7 @@ import com.worldql.client.ghost.PlayerGhostManager;
 import com.worldql.client.listeners.player.PlayerChatListener;
 import com.worldql.client.listeners.player.PlayerDeathListener;
 import com.worldql.client.listeners.utils.BlockTools;
+import com.worldql.client.minecraft_serialization.VillagerTransfer;
 import com.worldql.client.worldql_serialization.Instruction;
 import com.worldql.client.worldql_serialization.Message;
 import com.worldql.client.worldql_serialization.Replication;
@@ -97,6 +98,10 @@ public class ZeroMQServer implements Runnable {
 
                     if (incoming.parameter().equals("MinecraftTeleport")) {
                         CommandTeleportTo.handleTeleport(incoming);
+                    }
+
+                    if (incoming.parameter().equals("MinecraftVillagerTransfer")) {
+                        VillagerTransfer.handleIncomingVillager(incoming);
                     }
                 }
 

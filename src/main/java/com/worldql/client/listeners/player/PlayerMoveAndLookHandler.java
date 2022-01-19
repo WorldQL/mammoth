@@ -10,9 +10,7 @@ import com.worldql.client.minecraft_serialization.SaveLoadPlayerFromRedis;
 import com.worldql.client.worldql_serialization.*;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -86,12 +84,14 @@ public class PlayerMoveAndLookHandler implements Listener {
                 return;
             }
 
-            SaveLoadPlayerFromRedis.saveLeavingPlayerToRedisAsync(e.getPlayer());
+            SaveLoadPlayerFromRedis.saveLeavingPlayerToRedisAsync(e.getPlayer(), true);
 
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeUTF("Connect");
-            out.writeUTF("mammoth_" + locationOwner);
-            e.getPlayer().sendPluginMessage(WorldQLClient.getPluginInstance(), "BungeeCord", out.toByteArray());
+            Bukkit.getScheduler().runTaskLaterAsynchronously(WorldQLClient.getPluginInstance(), () -> {
+                ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                out.writeUTF("Connect");
+                out.writeUTF("mammoth_" + locationOwner);
+                e.getPlayer().sendPluginMessage(WorldQLClient.getPluginInstance(), "BungeeCord", out.toByteArray());
+            }, 2L);
 
             return;
         }
