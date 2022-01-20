@@ -53,6 +53,7 @@ public class WorldQLClient extends JavaPlugin {
     public static int originRadius;
     public static PlayerDataSavingManager playerDataSavingManager;
     public static long timestampOfLastHeartbeat;
+    public static String worldName;
     static int zeroMQServerPort;
 
     @Override
@@ -88,6 +89,7 @@ public class WorldQLClient extends JavaPlugin {
         originRadius = getConfig().getInt("origin-radius", 256);
         playerDataSavingManager = new PlayerDataSavingManager();
         timestampOfLastHeartbeat = Instant.now().toEpochMilli();
+        worldName = getConfig().getString("world-name", "world");
 
         String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
         int worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);
@@ -107,9 +109,9 @@ public class WorldQLClient extends JavaPlugin {
                 Slices.dmzSize = getConfig().getInt("dmz-size");
                 int worldDiameter = getConfig().getInt("world-diameter");
                 try {
-                    World world = Bukkit.getWorld("world");
-                    World nether = Bukkit.getWorld("world_nether");
-                    World end = Bukkit.getWorld("world_the_end");
+                    World world = Bukkit.getWorld(worldName);
+                    World nether = Bukkit.getWorld(worldName + "_nether");
+                    World end = Bukkit.getWorld(worldName + "_the_end");
 
                     WorldBorder wb = world.getWorldBorder();
                     wb.setCenter(0, 0);

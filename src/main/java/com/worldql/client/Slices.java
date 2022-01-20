@@ -149,7 +149,7 @@ public class Slices {
             }
         }
 
-        if (l.getWorld().getName().equals("world_the_end")) {
+        if (l.getWorld().getName().equals(WorldQLClient.worldName + "_the_end")) {
             return false;
         }
 
@@ -174,7 +174,7 @@ public class Slices {
             return 0;
         }
 
-        if (l.getWorld().getName().equalsIgnoreCase("world_the_end")) {
+        if (l.getWorld().getName().equalsIgnoreCase(WorldQLClient.worldName + "_the_end")) {
             return 0;
         }
 
