@@ -26,5 +26,8 @@ sync-player-effects: true
 avoid-slicing-origin: false
 origin-radius: 256
 
+world-name: 'world'
+chat-relay: true
+
 # Client (self) Host
 host: '127.0.0.1'

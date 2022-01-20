@@ -54,6 +54,7 @@ public class WorldQLClient extends JavaPlugin {
     public static PlayerDataSavingManager playerDataSavingManager;
     public static long timestampOfLastHeartbeat;
     public static String worldName;
+    public static boolean enableChatRelay;
     static int zeroMQServerPort;
 
     @Override
@@ -90,6 +91,7 @@ public class WorldQLClient extends JavaPlugin {
         playerDataSavingManager = new PlayerDataSavingManager();
         timestampOfLastHeartbeat = Instant.now().toEpochMilli();
         worldName = getConfig().getString("world-name", "world");
+        enableChatRelay = getConfig().getBoolean("chat-relay", true);
 
         String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
         int worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);
