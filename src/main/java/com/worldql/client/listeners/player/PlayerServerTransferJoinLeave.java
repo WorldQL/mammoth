@@ -69,7 +69,8 @@ public class PlayerServerTransferJoinLeave implements Listener {
             Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), () -> {
                 if (data != null) {
                     if (data.equals("dead")) {
-                        e.getPlayer().getInventory().clear();
+                        // TODO: Respawn the player naturally as if they never connected. This will fix the issues DonutSMP has been having
+                        // due to the death kick/ban plugin.
                         return;
                     }
                     try {
