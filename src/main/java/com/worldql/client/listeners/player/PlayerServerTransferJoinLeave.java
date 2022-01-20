@@ -68,6 +68,10 @@ public class PlayerServerTransferJoinLeave implements Listener {
 
             Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), () -> {
                 if (data != null) {
+                    if (data.equals("dead")) {
+                        e.getPlayer().getInventory().clear();
+                        return;
+                    }
                     try {
                         SaveLoadPlayerFromRedis.setPlayerData(data, e.getPlayer());
                     } catch (IOException ioException) {

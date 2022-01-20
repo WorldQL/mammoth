@@ -100,6 +100,9 @@ public class SaveLoadPlayerFromRedis {
                 Bukkit.getScheduler().runTaskLater(WorldQLClient.getPluginInstance(), () -> {
                     for (Entity e : l.getWorld().getNearbyEntities(l, 25, 25, 25)) {
                         if (e instanceof Villager) {
+                            if (e.isInsideVehicle()) {
+                                continue;
+                            }
                             VillagerTransfer.sendVillagerTransferMessage(player, getNBT(e));
                             nukeMob(e);
                         }
