@@ -12,11 +12,23 @@ public class PlayerDataSavingManager {
     private final ConcurrentHashMap<UUID, Long> timeSinceLastSave;
     private final ConcurrentHashMap<UUID, Boolean> syncedAfterJoin;
     private final ConcurrentHashMap<UUID, Long> playerLoginTime;
+    private final ConcurrentHashMap<UUID, Boolean> isTransferred;
 
     public PlayerDataSavingManager() {
         timeSinceLastSave = new ConcurrentHashMap<>();
         syncedAfterJoin = new ConcurrentHashMap<>();
         playerLoginTime = new ConcurrentHashMap<>();
+        isTransferred = new ConcurrentHashMap<>();
+    }
+
+    public void markTransferred(Player p) {
+        isTransferred.put(p.getUniqueId(), true);
+    }
+    public boolean hasBeenTransferred(Player p) {
+        if (!isTransferred.containsKey(p.getUniqueId())) {
+            return false;
+        }
+        return isTransferred.get(p.getUniqueId());
     }
 
     public void recordLogin(Player p) {
@@ -29,6 +41,7 @@ public class PlayerDataSavingManager {
         timeSinceLastSave.remove(u);
         syncedAfterJoin.remove(u);
         playerLoginTime.remove(u);
+        isTransferred.remove(u);
     }
 
     public long getMsSinceLogin(Player p) {

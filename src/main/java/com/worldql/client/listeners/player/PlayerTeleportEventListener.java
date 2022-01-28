@@ -15,28 +15,29 @@ public class PlayerTeleportEventListener implements Listener {
     @EventHandler
     public void onPlayerTeleport(PlayerTeleportEvent e) {
         if (e.getTo() == null) return;
-        FlexBuffersBuilder b = Codec.getFlexBuilder();
-        int pmap = b.startMap();
-        b.putFloat("pitch", e.getTo().getPitch());
-        b.putFloat("yaw", e.getTo().getYaw());
-        b.putString("username", e.getPlayer().getName());
-        b.putString("uuid", e.getPlayer().getUniqueId().toString());
-        b.endMap(null, pmap);
-        ByteBuffer bb = b.finish();
+        if (WorldQLClient.processGhosts) {
+            FlexBuffersBuilder b = Codec.getFlexBuilder();
+            int pmap = b.startMap();
+            b.putFloat("pitch", e.getTo().getPitch());
+            b.putFloat("yaw", e.getTo().getYaw());
+            b.putString("username", e.getPlayer().getName());
+            b.putString("uuid", e.getPlayer().getUniqueId().toString());
+            b.endMap(null, pmap);
+            ByteBuffer bb = b.finish();
 
-        Message message = new Message(
-                Instruction.LocalMessage,
-                WorldQLClient.worldQLClientId,
-                e.getPlayer().getWorld().getName(),
-                Replication.ExceptSelf,
-                new Vec3D(e.getTo()),
-                null,
-                null,
-                "MinecraftPlayerMove",
-                bb
-        );
+            Message message = new Message(
+                    Instruction.LocalMessage,
+                    WorldQLClient.worldQLClientId,
+                    e.getPlayer().getWorld().getName(),
+                    Replication.ExceptSelf,
+                    new Vec3D(e.getTo()),
+                    null,
+                    null,
+                    "MinecraftPlayerMove",
+                    bb
+            );
 
-        WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
-
+            WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
+        }
     }
 }

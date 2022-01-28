@@ -1,5 +1,9 @@
 package com.worldql.client;
 
+import com.worldql.client.commands.CommandTeleportRequest;
+import com.worldql.client.commands.CommandTeleportRequestAccept;
+import com.worldql.client.commands.CommandTeleportTo;
+import com.worldql.client.commands.CommandUnstuck;
 import com.worldql.client.listeners.NotImplementedCanceller;
 import com.worldql.client.listeners.OutgoingPlayerHitListener;
 import com.worldql.client.listeners.chunks.ChunkLoadEventListener;
@@ -61,7 +65,7 @@ public class WorldQLClient extends JavaPlugin {
     public void onEnable() {
         disabling = false;
         pluginInstance = this;
-        getLogger().info("Initializing Mammoth v0.72");
+        getLogger().info("Initializing Mammoth v0.73");
         saveDefaultConfig();
 
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
@@ -121,7 +125,7 @@ public class WorldQLClient extends JavaPlugin {
 
                     wb = nether.getWorldBorder();
                     wb.setCenter(0, 0);
-                    wb.setSize(worldDiameter / 8 - 10);
+                    wb.setSize(worldDiameter);
 
                     wb = end.getWorldBorder();
                     wb.setCenter(0, 0);
@@ -171,13 +175,14 @@ public class WorldQLClient extends JavaPlugin {
             }
         }, 20L * 60, 20L * 60);
 
-        // Initialize Protocol
-        ProtocolManager.read();
-
         // TODO: Remove this command after we figure out the cause of players being spawned in the ground.
         getCommand("unstuck").setExecutor(new CommandUnstuck());
-
+        getCommand("mtpa").setExecutor(new CommandTeleportRequest());
+        getCommand("mtpaccept").setExecutor(new CommandTeleportRequestAccept());
         getCommand("mtp").setExecutor(new CommandTeleportTo());
+
+
+        // Initialize Protocol
 
         getServer().getPluginManager().registerEvents(new PlayerServerTransferJoinLeave(), this);
         // Handles server transfers and the movement component of ghosts.
@@ -185,6 +190,7 @@ public class WorldQLClient extends JavaPlugin {
 
         // For ghosts.
         if (processGhosts) {
+            ProtocolManager.read();
             getServer().getPluginManager().registerEvents(new PlayerCrouchListener(), this);
             getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), this);
             getServer().getPluginManager().registerEvents(new PlayerArmorEditListener(), this);

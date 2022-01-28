@@ -1,6 +1,9 @@
 package com.worldql.client;
 
 import com.google.flatbuffers.FlexBuffers;
+import com.worldql.client.commands.CommandTeleportRequest;
+import com.worldql.client.commands.CommandTeleportRequestAccept;
+import com.worldql.client.commands.CommandTeleportTo;
 import com.worldql.client.ghost.PlayerGhostManager;
 import com.worldql.client.listeners.player.PlayerChatListener;
 import com.worldql.client.listeners.player.PlayerDeathListener;
@@ -92,12 +95,15 @@ public class ZeroMQServer implements Runnable {
                         continue;
                     }
 
+                    if (incoming.parameter().equals("MinecraftTeleportRequest")) {
+                        CommandTeleportRequest.handlePositionLookup(incoming);
+                    }
                     if (incoming.parameter().equals("MinecraftTeleportPositionLookup")) {
                         CommandTeleportTo.handlePositionLookup(incoming);
                     }
 
                     if (incoming.parameter().equals("MinecraftTeleport")) {
-                        CommandTeleportTo.handleTeleport(incoming);
+                        CommandTeleportRequest.handleTeleport(incoming);
                     }
 
                     if (incoming.parameter().equals("MinecraftVillagerTransfer")) {

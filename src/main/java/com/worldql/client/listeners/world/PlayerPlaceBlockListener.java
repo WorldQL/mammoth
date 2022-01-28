@@ -7,16 +7,11 @@ import com.worldql.client.listeners.utils.BlockTools;
 import com.worldql.client.worldql_serialization.Record;
 import com.worldql.client.worldql_serialization.*;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.block.Chest;
-import org.bukkit.block.Container;
-import org.bukkit.block.EnderChest;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import zmq.ZMQ;
 
@@ -31,11 +26,13 @@ public class PlayerPlaceBlockListener implements Listener {
         }
 
         if (Slices.enabled) {
+            /*
             if (Slices.isDMZ(e.getBlockPlaced().getLocation()) && e.getBlockPlaced().getState() instanceof Container) {
                 e.setCancelled(true);
                 e.getPlayer().sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "You cannot place containers here.");
                 return;
             }
+             */
             if (Slices.isDMZ(e.getBlockPlaced().getLocation())) {
                 // TODO: Handle compound blocks (beds, doors) and joined blocks (fences, glass panes)
                 Record placedBlock = BlockTools.serializeBlock(e.getBlockPlaced());

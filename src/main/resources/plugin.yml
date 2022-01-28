@@ -10,12 +10,26 @@ commands:
   mtp:
     description: Cross-server teleport.
     usage: /mtp <destination-player>
-    permission: worldqlclient.teleport
+    permission: worldqlclient.mtp
+  mtpa:
+    description: Cross-server tpa (like Essentials)
+    usage: /mtpa <destination-player>
+    permission: worldqlclient.mtpa
+  mtpaccept:
+    description: Accept cross-server tpa (like Essentials)
+    usage: /mtpaccept
+    permission: worldqlclient.mtpaccept
 
 permissions:
   worldqlclient.unstuck:
-    default: true
+    default: false
     description: allow the usage of /unstuck
-  worldqlclient.teleport:
+  worldqlclient.mtp:
+    default: op
+    description: Allows teleporting to players without their consent.
+  worldqlclient.mtpa:
     default: true
-    description: allow the usage of /mtp
+    description: allow the usage of /mtpa
+  worldqlclient.mtpaccept:
+    default: true
+    description: allow the usage of /mtpaccept

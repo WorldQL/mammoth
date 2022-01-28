@@ -1,4 +1,4 @@
-package com.worldql.client;
+package com.worldql.client.commands;
 
 import org.bukkit.Location;
 import org.bukkit.command.Command;

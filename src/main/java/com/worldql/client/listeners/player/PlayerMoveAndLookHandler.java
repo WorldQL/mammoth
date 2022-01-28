@@ -52,9 +52,9 @@ public class PlayerMoveAndLookHandler implements Listener {
         }
 
         if (locationOwner != WorldQLClient.mammothServerId) {
-            if (WorldQLClient.playerDataSavingManager.getMsSinceLogin(e.getPlayer()) < 8000) {
+            if (WorldQLClient.playerDataSavingManager.getMsSinceLogin(e.getPlayer()) < 5000) {
                 e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                        new TextComponent(ChatColor.GOLD + "" + ChatColor.BOLD + "(!) You must wait 8 seconds between crossing server borders!"));
+                        new TextComponent(ChatColor.GOLD + "" + ChatColor.BOLD + "(!) You must wait 5 seconds between crossing server borders!"));
 
                 // 1. Compute the "cross direction" defined by the direction from the source server TO the destination server.
                 // 2. Push them back in the direction they came from towards the correct server.
@@ -87,10 +87,13 @@ public class PlayerMoveAndLookHandler implements Listener {
             SaveLoadPlayerFromRedis.saveLeavingPlayerToRedisAsync(e.getPlayer(), true);
 
             Bukkit.getScheduler().runTaskLaterAsynchronously(WorldQLClient.getPluginInstance(), () -> {
-                ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                out.writeUTF("Connect");
-                out.writeUTF("mammoth_" + locationOwner);
-                e.getPlayer().sendPluginMessage(WorldQLClient.getPluginInstance(), "BungeeCord", out.toByteArray());
+                if (!WorldQLClient.playerDataSavingManager.hasBeenTransferred(e.getPlayer())) {
+                    ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                    out.writeUTF("Connect");
+                    out.writeUTF("mammoth_" + locationOwner);
+                    e.getPlayer().sendPluginMessage(WorldQLClient.getPluginInstance(), "BungeeCord", out.toByteArray());
+                    WorldQLClient.playerDataSavingManager.markTransferred(e.getPlayer());
+                }
             }, 2L);
 
             return;
