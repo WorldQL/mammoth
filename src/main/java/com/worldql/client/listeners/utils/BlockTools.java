@@ -119,8 +119,8 @@ public class BlockTools {
             Door door = (Door) bd;
             if (door.getHalf().equals(Bisected.Half.BOTTOM)) {
                 Block top = b.getRelative(BlockFace.UP);
-                top.setType(bd.getMaterial(), false);
-                ((Door) top).setHalf(Bisected.Half.TOP);
+                Door doorData = (Door) Bukkit.createBlockData(bd.getMaterial(), (data) -> ((Door)data).setHalf(Bisected.Half.TOP));
+                top.setBlockData(doorData, false);
             }
         }
 

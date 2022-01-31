@@ -46,14 +46,14 @@ public class MinecraftUtil {
         }
     }
 
-    public static void setBed(Block start, BlockFace facing, Material material) {
+    public static void setBed(Block head, BlockFace facing, Material material) {
         for (Bed.Part part : Bed.Part.values()) {
             Bed bedData = (Bed) Bukkit.createBlockData(material, (data) -> {
                 ((Bed) data).setPart(part);
                 ((Bed) data).setFacing(facing);
             });
-            start.setBlockData(bedData);
-            start = start.getRelative(facing.getOppositeFace());
+            head.setBlockData(bedData);
+            head = head.getRelative(facing.getOppositeFace());
         }
     }
 
