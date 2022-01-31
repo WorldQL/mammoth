@@ -1,5 +1,6 @@
 package com.worldql.client.listeners.world;
 
+import com.worldql.client.MinecraftUtil;
 import com.worldql.client.Slices;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.listeners.utils.BlockTools;
@@ -47,6 +48,7 @@ public class PlayerBreakBlockListener implements Listener {
                 );
 
                 WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
+                MinecraftUtil.breakConnectedBlock(e.getBlock());
             }
             return;
         }

@@ -62,15 +62,4 @@ public class PortalCreateEventListener implements Listener {
 
 
     }
-
-
-
-
-
-    @EventHandler
-    public void onBlockPhysics(BlockPhysicsEvent e) {
-
-
-    }
-
 }
