@@ -88,11 +88,11 @@ public class PlayerMoveAndLookHandler implements Listener {
 
             Bukkit.getScheduler().runTaskLaterAsynchronously(WorldQLClient.getPluginInstance(), () -> {
                 if (!WorldQLClient.playerDataSavingManager.hasBeenTransferred(e.getPlayer())) {
+                    WorldQLClient.playerDataSavingManager.markTransferred(e.getPlayer());
                     ByteArrayDataOutput out = ByteStreams.newDataOutput();
                     out.writeUTF("Connect");
                     out.writeUTF("mammoth_" + locationOwner);
                     e.getPlayer().sendPluginMessage(WorldQLClient.getPluginInstance(), "BungeeCord", out.toByteArray());
-                    WorldQLClient.playerDataSavingManager.markTransferred(e.getPlayer());
                 }
             }, 2L);
 

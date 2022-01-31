@@ -51,7 +51,6 @@ public class PlayerPlaceBlockListener implements Listener {
                         null
                 );
                 WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
-                MinecraftUtil.detectAndBroadcastChangedNeighborBlocks(e.getBlockPlaced());
             }
         } else {
             Record placedBlock = BlockTools.serializeBlock(e.getBlockPlaced());
@@ -79,7 +78,5 @@ public class PlayerPlaceBlockListener implements Listener {
         if (e.getPlayer().getInventory().getItemInMainHand().getAmount() - 1 <= 0) {
             Bukkit.getPluginManager().callEvent(new PlayerHoldEvent(e.getPlayer(), new ItemStack(Material.AIR), PlayerHoldEvent.HandType.MAINHAND));
         }
-
     }
-
 }

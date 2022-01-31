@@ -3,6 +3,7 @@ package com.worldql.client.listeners.utils;
 import com.google.flatbuffers.FlexBuffers;
 import com.google.flatbuffers.FlexBuffersBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.worldql.client.MinecraftUtil;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.listeners.world.PlayerBreakBlockListener;
 import com.worldql.client.worldql_serialization.Codec;
@@ -12,12 +13,13 @@ import net.minecraft.core.BlockPosition;
 import net.minecraft.nbt.MojangsonParser;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.level.block.entity.TileEntity;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Bed;
+import org.bukkit.block.data.type.Door;
 import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
 import org.bukkit.entity.EnderCrystal;
 import org.bukkit.entity.TNTPrimed;
@@ -105,7 +107,22 @@ public class BlockTools {
         Block b = Bukkit.getWorld(record.worldName()).getBlockAt((int) p.x(), (int) p.y(), (int) p.z());
 
         BlockData bd = Bukkit.createBlockData(record.data());
-        b.setBlockData(bd);
+        b.setBlockData(bd, false);
+
+        if (Tag.BEDS.isTagged(bd.getMaterial())) {
+            Bed bed = (Bed) bd;
+            // get the location of the head of the bed
+            Location l = b.getLocation().add(bed.getFacing().getDirection());
+            MinecraftUtil.setBed(l.getBlock(), bed.getFacing(), bd.getMaterial());
+        }
+        if (Tag.DOORS.isTagged(bd.getMaterial())) {
+            Door door = (Door) bd;
+            if (door.getHalf().equals(Bisected.Half.BOTTOM)) {
+                Block top = b.getRelative(BlockFace.UP);
+                top.setType(bd.getMaterial(), false);
+                ((Door) top).setHalf(Bisected.Half.TOP);
+            }
+        }
 
         if (record.flex() != null) {
             FlexBuffers.Map map = FlexBuffers.getRoot(record.flex()).asMap();
