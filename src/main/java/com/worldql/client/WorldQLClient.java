@@ -182,11 +182,10 @@ public class WorldQLClient extends JavaPlugin {
         getCommand("mtp").setExecutor(new CommandTeleportTo());
 
 
-        // Initialize Protocol
-
         getServer().getPluginManager().registerEvents(new PlayerServerTransferJoinLeave(), this);
         // Handles server transfers and the movement component of ghosts.
         getServer().getPluginManager().registerEvents(new PlayerMoveAndLookHandler(), this);
+        getServer().getPluginManager().registerEvents(new PlayerInventoryOpenEventListener(), this);
 
         // For ghosts.
         if (processGhosts) {
