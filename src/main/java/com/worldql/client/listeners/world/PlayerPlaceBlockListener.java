@@ -1,5 +1,6 @@
 package com.worldql.client.listeners.world;
 
+import com.worldql.client.MinecraftUtil;
 import com.worldql.client.Slices;
 import com.worldql.client.WorldQLClient;
 import com.worldql.client.events.PlayerHoldEvent;
@@ -50,6 +51,7 @@ public class PlayerPlaceBlockListener implements Listener {
                         null
                 );
                 WorldQLClient.getPluginInstance().getPushSocket().send(message.encode(), ZMQ.ZMQ_DONTWAIT);
+                MinecraftUtil.detectAndBroadcastChangedNeighborBlocks(e.getBlockPlaced());
             }
         } else {
             Record placedBlock = BlockTools.serializeBlock(e.getBlockPlaced());
