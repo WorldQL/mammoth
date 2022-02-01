@@ -88,7 +88,7 @@ public class PlayerServerTransferJoinLeave implements Listener {
                     if (locationOwner != WorldQLClient.mammothServerId) {
                         ByteArrayDataOutput out = ByteStreams.newDataOutput();
                         out.writeUTF("Connect");
-                        out.writeUTF("mammoth_" + locationOwner);
+                        out.writeUTF(WorldQLClient.serverPrefix + locationOwner);
                         e.getPlayer().sendPluginMessage(WorldQLClient.getPluginInstance(), "BungeeCord", out.toByteArray());
                     }
                 }

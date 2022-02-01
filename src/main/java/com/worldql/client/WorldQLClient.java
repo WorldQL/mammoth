@@ -60,6 +60,7 @@ public class WorldQLClient extends JavaPlugin {
     public static String worldName;
     public static boolean enableChatRelay;
     static int zeroMQServerPort;
+    public static String serverPrefix;
 
     @Override
     public void onEnable() {
@@ -96,6 +97,7 @@ public class WorldQLClient extends JavaPlugin {
         timestampOfLastHeartbeat = Instant.now().toEpochMilli();
         worldName = getConfig().getString("world-name", "world");
         enableChatRelay = getConfig().getBoolean("chat-relay", true);
+        serverPrefix = getConfig().getString("server-prefix", "mammoth_");
 
         String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
         int worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);

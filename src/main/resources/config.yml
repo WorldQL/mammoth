@@ -28,6 +28,7 @@ origin-radius: 256
 
 world-name: 'world'
 chat-relay: true
+server-prefix: 'mammoth_'
 
 # Client (self) Host
 host: '127.0.0.1'
