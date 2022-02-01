@@ -107,21 +107,29 @@ public class BlockTools {
         Block b = Bukkit.getWorld(record.worldName()).getBlockAt((int) p.x(), (int) p.y(), (int) p.z());
 
         BlockData bd = Bukkit.createBlockData(record.data());
-        b.setBlockData(bd, false);
 
         if (Tag.BEDS.isTagged(bd.getMaterial())) {
+            b.setBlockData(bd, false);
             Bed bed = (Bed) bd;
             // get the location of the head of the bed
             Location l = b.getLocation().add(bed.getFacing().getDirection());
             MinecraftUtil.setBed(l.getBlock(), bed.getFacing(), bd.getMaterial());
-        }
-        if (Tag.DOORS.isTagged(bd.getMaterial())) {
+        } else if (Tag.DOORS.isTagged(bd.getMaterial())) {
+            b.setBlockData(bd, false);
             Door door = (Door) bd;
             if (door.getHalf().equals(Bisected.Half.BOTTOM)) {
                 Block top = b.getRelative(BlockFace.UP);
-                Door doorData = (Door) Bukkit.createBlockData(bd.getMaterial(), (data) -> ((Door)data).setHalf(Bisected.Half.TOP));
+                Door doorData = (Door) Bukkit.createBlockData(bd.getMaterial(), (data) -> {
+                    ((Door) data).setHalf(Bisected.Half.TOP);
+                    ((Door) data).setOpen(((Door) bd).isOpen());
+                    ((Door) data).setHinge(((Door) bd).getHinge());
+                    ((Door) data).setFacing(((Door) bd).getFacing());
+                });
                 top.setBlockData(doorData, false);
             }
+        } else {
+            // We want block physics because it makes things like glass panes sync right.
+            b.setBlockData(bd, true);
         }
 
         if (record.flex() != null) {
@@ -184,7 +192,7 @@ public class BlockTools {
             @Override
             public void run() {
                 World w = Bukkit.getWorld(worldName);
-                Location tntLocation = new Location(w, position. x(), position.y(), position.z());
+                Location tntLocation = new Location(w, position.x(), position.y(), position.z());
                 TNTPrimed tnt = w.spawn(tntLocation, TNTPrimed.class);
                 w.getBlockAt(tntLocation).setType(Material.AIR);
 
@@ -197,7 +205,7 @@ public class BlockTools {
             @Override
             public void run() {
                 World w = Bukkit.getWorld(worldName);
-                Location location = new Location(w, position. x(), position.y(), position.z());
+                Location location = new Location(w, position.x(), position.y(), position.z());
                 w.spawn(location, EnderCrystal.class);
 
             }

@@ -71,6 +71,9 @@ public class PlayerServerTransferJoinLeave implements Listener {
                     if (data.equals("dead")) {
                         // TODO: Respawn the player naturally as if they never connected. This will fix the issues DonutSMP has been having
                         // due to the death kick/ban plugin.
+                        e.getPlayer().teleport(Bukkit.getWorld(WorldQLClient.worldName).getSpawnLocation());
+                        WorldQLClient.playerDataSavingManager.markSynced(e.getPlayer());
+                        e.getPlayer().spigot().respawn();
                         return;
                     }
                     try {

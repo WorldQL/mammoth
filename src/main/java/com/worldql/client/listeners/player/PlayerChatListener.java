@@ -6,6 +6,7 @@ import com.worldql.client.WorldQLClient;
 import com.worldql.client.worldql_serialization.*;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +16,7 @@ import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 
 public class PlayerChatListener implements Listener {
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerChat(AsyncPlayerChatEvent e) {
         if (WorldQLClient.enableChatRelay) {
             // Send chat message to other clients
