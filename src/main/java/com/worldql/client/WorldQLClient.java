@@ -98,6 +98,7 @@ public class WorldQLClient extends JavaPlugin {
         worldName = getConfig().getString("world-name", "world");
         enableChatRelay = getConfig().getBoolean("chat-relay", true);
         serverPrefix = getConfig().getString("server-prefix", "mammoth_");
+        PlayerChatListener.chatFormat = getConfig().getString("chat-format", "<{0}> {1}");
 
         String worldqlHost = getConfig().getString("worldql.host", "127.0.0.1");
         int worldqlPushPort = getConfig().getInt("worldql.push-port", 5555);

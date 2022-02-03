@@ -2,6 +2,7 @@ name: WorldQLClient
 version: 1.0
 api-version: 1.18
 main: com.worldql.client.WorldQLClient
+softdepend: [PlaceholderAPI]
 commands:
   unstuck:
     description: Get unstuck from a cave.
