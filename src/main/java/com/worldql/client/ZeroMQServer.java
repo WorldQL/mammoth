@@ -71,6 +71,11 @@ public class ZeroMQServer implements Runnable {
                 }
 
                 if (incoming.instruction() == Instruction.GlobalMessage) {
+                    if (incoming.parameter().equals("MinecraftNightSkip")) {
+                        Bukkit.getScheduler().runTask(WorldQLClient.getPluginInstance(), () -> {
+                           Bukkit.getWorld(WorldQLClient.worldName).setTime(0);
+                        });
+                    }
                     if (incoming.parameter().startsWith("MinecraftRPC")) {
                         String[] input = incoming.parameter().split(">", 2);
                         String command = input[1];

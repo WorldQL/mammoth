@@ -13,10 +13,7 @@ import com.worldql.client.listeners.explosions.EntityExplodeEventListener;
 import com.worldql.client.listeners.explosions.ExplosionPrimeEventListener;
 import com.worldql.client.listeners.explosions.TNTPrimeEventListener;
 import com.worldql.client.listeners.player.*;
-import com.worldql.client.listeners.world.PlayerBreakBlockListener;
-import com.worldql.client.listeners.world.PlayerEditSignListener;
-import com.worldql.client.listeners.world.PlayerPlaceBlockListener;
-import com.worldql.client.listeners.world.PortalCreateEventListener;
+import com.worldql.client.listeners.world.*;
 import com.worldql.client.minecraft_serialization.SaveLoadPlayerFromRedis;
 import com.worldql.client.protocols.ProtocolManager;
 import com.worldql.client.worldql_serialization.Instruction;
@@ -213,6 +210,7 @@ public class WorldQLClient extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerPlaceBlockListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerEditSignListener(), this);
         getServer().getPluginManager().registerEvents(new PortalCreateEventListener(), this);
+        getServer().getPluginManager().registerEvents(new TimeSkipEventListener(), this);
 
         // For explosions.
         getServer().getPluginManager().registerEvents(new TNTPrimeEventListener(), this);
