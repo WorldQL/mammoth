@@ -1,40 +1,39 @@
 # Mammoth: Horizontally scalable Minecraft server
-### Warning: this README is very outdated and will be updated ASAP
-### A WorldQL plugin for Spigot-based servers
-
-## What is WorldQL?
-WorldQL is a 3D database that's fast enough to use as a game server. Similarly to how SQL allow you to easily insert and query tabular data, WorldQL provides a simple interface to create and track 3D objects.
-
-The benefit of using WorldQL for your next multiplayer game development project is enormous. Save dozens of hours by starting with a player modifiable 3D world with optional persistence. Be sure to [join our Discord community](https://discord.gg/tDZkXQPzEw).
+### A Spigot plugin demonstrating WorldQL's database and message broker.
 
 ## What is Mammoth?
-Mammoth uses WorldQL to scale a single Minecraft world across multiple server processes. Running multiple Minecraft server processes allows for better core utilization and allows for thousands of players to enjoy a single world. A collection of Minecraft servers using this plugin to sync with a WorldQL server is called a *Mammoth cluster*.
+Mammoth uses WorldQL to scale a single Minecraft world across multiple server processes. Running multiple Minecraft server processes allows for better core utilization and allows for more players to enjoy a single world. A collection of Minecraft servers using this plugin to sync with a WorldQL server is called a *Mammoth cluster*.
 
-Mammoth has a number of features:
+Mammoth has two modes:
+- **Sliced mode**: The world is divided on server boundaries. Areas near server boundaries are synchronized. When a player crosses a server boundary they are transferred alonside their inventory, effects, any ridden mobs, or nearby villagers.
+- **Seamless mode** (experimental): The world is not divided any block changes and player movement are synced.
 
-1. It brings dynamic autoscaling to a Minecraft server. Cluster servers can be created on demand and they'll sync the world from WorldQL as players request it.
-   1. WorldQL stores all block modifications from the base seed in its database.
-   2. Cluster Minecraft servers are ephemeral and don't need to store their own authoritative copy of the world.
-2. Players on different servers can see and punch each-other.
-   1. WorldQL allows for efficient message-passing between server nodes.
-   2. Each Minecraft server continuously reports its player positions to WorldQL. 
-   3. WorldQL then pushes player positions to the right servers based on which players are near one-another. The Mammoth plugin receives these messages and sends player packets to Minecraft clients.
-3. Block states instantly sync between worlds. Even weird stuff, like nether portals, signs, doors, beds, and glass panes.
-4. Chests maintain a correct inventory no matter where they're accessed from. 
+## How to use Mammoth
 
-5. Redstone support is coming soon!
+1. Set up WorldQL. Download the latest release for Linux from https://github.com/WorldQL/worldql_server/actions and extract it into a folder.
+   1. Set up a database using the commands below (change the password):
+    ```sql
+       CREATE DATABASE worldql;
+       CREATE USER dbuser_worldql WITH PASSWORD 'example';
+       GRANT ALL PRIVILEGES ON DATABASE worldql TO dbuser_worldql;
+   ```
+   3. Create a .env file with the following contents:
+   ```
+    WQL_SUBSCRIPTION_REGION_CUBE_SIZE=16
+    WQL_POSTGRES_CONNECTION_STRING="host=localhost dbname=worldql user=dbuser_worldql password=worldql"
+   ```
+2. Set up redis-server and run it on localhost.
+3. Use https://github.com/WorldQL/mc_provisioner to create your Minecraft cluster. Download the latest version of the Mammoth plugin from https://github.com/WorldQL/mammoth/actions and place it in a plugins folder next to the provisioner executable.
+4. Create the servers with `./provisioner init` and run them with `./provisioner start`.
+5. The default config will be copied to all servers in the cluster. You can copy it into your top-level plugins folder and edit it to your desired configuration. Once you've made changes to your plugins folder, you can push it to all servers with `./provisioner stop && ./provisioner sync && ./provisioner start`.
+6. Create a Velocity proxy server and add all your cluster servers to it with the names `mammoth_0`, `mammoth_1`, etc. You can change the server name prefix in config.yml.
+7. Start the Velocity proxy and connect to it. It will be running in sliced mode by default with divisions every 100 blocks for demonstration purposes (you should set this to a value over 1000 for actual servers). Place blocks and cross a server border and watch everything sync.
 
-## How to build this plugin and use Mammoth yourself!
-I recommend using IntelliJ IDEA and following the guides on the Spigot website to set up your Java 16 environment.
-
-Then just clone this repo, open it in IntelliJ, and use the maven "package" lifecycle action to build the plugin. It's required to run [Spigot BuildTools](https://www.spigotmc.org/wiki/buildtools/) first to install a 1.17.1 jar in your local maven repo.
-Also, you'll need to create a PostgreSQL database:
-
-```sql
-CREATE DATABASE worldql;
-CREATE USER dbuser_worldql WITH PASSWORD 'worldql';
-GRANT ALL PRIVILEGES ON DATABASE worldql TO dbuser_worldql;
-```
+## Features
+- Cross-server TP.
+  - /mtp teleports to another player regardless of their server by looking their position up across the cluster.
+  - /mtpa sends an Essentials-style teleport request to a player.
+  - /mtpaccept accepts a teleport request.
 
 
 ## History of Mammoth
