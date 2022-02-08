@@ -18,7 +18,7 @@ public class PlayerDropItemListener implements Listener {
                     new TextComponent(ChatColor.RED + "You can't move items right now. Please wait a moment..."));
             return;
         }
-        if (Slices.getDistanceFromDMZ(e.getPlayer().getLocation()) < 5) {
+        if (Slices.getDistanceFromSliceBoundary(e.getPlayer().getLocation()) < 5) {
             e.setCancelled(true);
             e.getPlayer().sendMessage(ChatColor.GOLD + "You don't want to drop items on the ground here!" +
                     ChatColor.BOLD + " Move further from a server border.");

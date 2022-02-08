@@ -33,7 +33,7 @@ public class Slices {
         return CrossDirection.ERROR;
     }
 
-    public static int getDistanceFromDMZ(Location l) {
+    public static int getDistanceFromSliceBoundary(Location l) {
         int smallest = 99999;
 
         boolean distanceSetRelativeToUnslicedOriginArea = false;

@@ -44,7 +44,7 @@ public class PlayerMoveAndLookHandler implements Listener {
         int locationOwner = Slices.getOwnerOfLocation(playerLocation);
 
         if (Slices.isDMZ(playerLocation)) {
-            int distance = Slices.getDistanceFromDMZ(playerLocation);
+            int distance = Slices.getDistanceFromSliceBoundary(playerLocation);
             if (distance > 1) {
                 e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
                         new TextComponent(ChatColor.RED + "You are " + ChatColor.BOLD + "" + distance + ChatColor.RESET + ChatColor.RED + " blocks away from a server border."));
