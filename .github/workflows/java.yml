@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - trunk
+    tags:
+      - v*
   pull_request:
 
 env:
@@ -37,7 +39,29 @@ jobs:
         echo ::set-output name=jar_path::${JAR_PATH}
         echo ::set-output name=jar_name::${JAR_NAME}
     - name: Upload .jar
+      if: contains(github.ref, 'refs/tags/') == false
       uses: actions/upload-artifact@v2
       with:
         name: ${{ steps.prep.outputs.jar_name }}
         path: ${{ steps.prep.outputs.jar_path }}
+    - name: Create Release
+      if: contains(github.ref, 'refs/tags/') == true
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Mammoth ${{ github.ref }}
+        draft: false
+        prerelease: false
+    - name: Upload Release Asset
+      if: contains(github.ref, 'refs/tags/') == true
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ steps.prep.outputs.jar_path }}
+        asset_name: ${{ steps.prep.outputs.jar_name }}
+        asset_content_type: application/java-archive
