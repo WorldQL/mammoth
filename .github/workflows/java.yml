@@ -9,7 +9,7 @@ on:
 
 env:
   JDK_VERSION: '17'
-  SPIGOT_VERSION: '1.18'
+  SPIGOT_VERSION: '1.18.1'
 
 jobs:
   build:
