@@ -33,7 +33,7 @@ jobs:
     - name: Resolve .jar name
       id: prep
       run: |
-        JAR_PATH=`echo **/Mammoth-*[^shaded].jar`
+        JAR_PATH=`echo target/Mammoth*.jar`
         JAR_NAME=`basename ${JAR_PATH}`
 
         echo ::set-output name=jar_path::${JAR_PATH}
