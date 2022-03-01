@@ -1,7 +1,7 @@
 name: Mammoth
 version: '${project.version}'
 api-version: 1.18
-main: com.worldql.client.WorldQLClient
+main: com.worldql.mammoth.MammothPlugin
 softdepend: [PlaceholderAPI]
 commands:
   unstuck:

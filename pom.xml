@@ -109,7 +109,7 @@
                             <relocations>
                                 <relocation>
                                     <pattern>org.zeromq.jeromq</pattern>
-                                    <shadedPattern>com.worldql.client.internal.jeromq</shadedPattern>
+                                    <shadedPattern>com.worldql.mammoth.internal.jeromq</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
