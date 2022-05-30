@@ -1,3 +1,5 @@
+> 🪦 This project is no longer maintained. Check out [MultiPaper](https://github.com/PureGero/MultiPaper).
+
 # Mammoth: Horizontally scalable Minecraft server
 ### A Spigot plugin demonstrating WorldQL's database and message broker.
 
